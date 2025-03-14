@@ -3,11 +3,15 @@ using System.Collections.Generic;
 
 namespace LogKill.Core
 {
-    public static class EventBus
+    public class EventBus : IService
     {
-        private static Dictionary<Type, List<Delegate>> _eventDictionary = new Dictionary<Type, List<Delegate>>();
+        private Dictionary<Type, List<Delegate>> _eventDictionary = new Dictionary<Type, List<Delegate>>();
 
-        public static void Subscribe<T>(Action<T> callback) where T : struct
+        public void Initialize()
+        {
+        }
+
+        public void Subscribe<T>(Action<T> callback) where T : struct
         {
             Type eventType = typeof(T);
 
@@ -19,7 +23,7 @@ namespace LogKill.Core
             _eventDictionary[eventType].Add(callback);
         }
 
-        public static void Unsubscribe<T>(Action<T> callback) where T : struct
+        public void Unsubscribe<T>(Action<T> callback) where T : struct
         {
             Type eventType = typeof(T);
 
@@ -29,7 +33,7 @@ namespace LogKill.Core
             }
         }
 
-        public static void Publish<T>(T eventData) where T : struct
+        public void Publish<T>(T eventData) where T : struct
         {
             Type eventType = typeof(T);
 
