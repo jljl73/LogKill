@@ -16,7 +16,7 @@ namespace LogKill.Core
         private static Dictionary<Type, object> _services = new Dictionary<Type, object>();
         private static bool _initialized;
 
-        private void RegisterServiceWithInterface(Type interfaceType, object serviceInstance)
+        private static void RegisterServiceWithInterface(Type interfaceType, object serviceInstance)
         {
             if (_services.ContainsKey(interfaceType))
             {
@@ -98,7 +98,7 @@ namespace LogKill.Core
             _services.Clear();
         }
 
-        public void AutoRegisterServices()
+        public static void AutoRegisterServices()
         {
             if (_initialized)
             {
@@ -122,7 +122,7 @@ namespace LogKill.Core
                     {
                         if (interfaceType == typeof(IService) || interfaceType.GetInterfaces().Contains(typeof(IService)))
                         {
-                            RegisterServiceWithInterface(interfaceType, serviceInstance);
+                            RegisterServiceWithInterface(serviceType, serviceInstance);
                         }
                     }
 

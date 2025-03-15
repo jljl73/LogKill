@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 
 namespace LogKill.Core
 {
@@ -13,12 +14,12 @@ namespace LogKill.Core
         {
         }
 
-        public async void LoadAsset(string key)
+        public async UniTask<GameObject> LoadAsset(string key)
         {
             if (_loadedAssets.ContainsKey(key))
             {
                 Debug.Log($"이미 로드된 리소스: {key}");
-                return;
+                return _loadedAssets[key];
             }
 
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(key);
@@ -28,11 +29,14 @@ namespace LogKill.Core
             {
                 _loadedAssets[key] = handle.Result;
                 Debug.Log($"로드 성공: {key}");
+                return handle.Result;
             }
             else
             {
                 Debug.LogError($"로드 실패: {key}");
             }
+
+            return null;
         }
 
         public void UnloadAsset(string key)
