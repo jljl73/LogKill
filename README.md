@@ -10,9 +10,9 @@
 - **상수**: 대문자와 언더스코어 사용
   - 예: `MAX_HEALTH`, `DEFAULT_SPEED`
 
-### 접두사 규칙
+### 접두사, 접미사 규칙
 - 인터페이스: `I` 접두사 사용 (예: `IDamageable`)
-- 추상 클래스: `A` 접두사 사용 (예: `ACharacter`)
+- 베이스 클래스: `A` 접미사 사용 (예: `CharacterBase`)
 - 열거형: `E` 접두사 사용 (예: `EGameState`)
 - 비공개 멤버 변수: 언더스코어(`_`) 접두사 사용
 
@@ -22,7 +22,7 @@
 
 ```csharp
 // 권장
-if(playerWasHit)
+if (playerWasHit)
 {
     PlaySound(playerHitSound);
     Damage(player, damageAmount);
@@ -68,12 +68,14 @@ public float Health
 1. 중첩 클래스
 2. 상수
 3. 열거형
-4. 프로퍼티
-5. 필드
-6. 생성자
-7. Unity 메시지 (Start, Update 등)
-8. 공개 메서드
-9. 비공개 메서드
+4. 필드
+5. 프로퍼티
+6. 이벤트
+7. 생성자
+8. Unity 메시지 (Start, Update 등)
+9. 공개 메서드
+10. 비공개 메서드
+11. 버튼 이벤트
 
 
 ## 일반 원칙
@@ -83,5 +85,6 @@ public float Health
 - 발음하고 기억할 수 있는 이름 선택하기
 - 버전 번호나 진행 상태를 나타내는 단어(WIP, final) 사용하지 않기
 - 약어 사용 자제하기
+- 변수 명명시 구체적인 단어 먼저 쓰기 (예: `UserNameText`)
 
 ---
