@@ -285,10 +285,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1693976352}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1275195992
 GameObject:
@@ -334,6 +334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95fa3b31c25297b4fa8159541405053b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _missionData: {fileID: 11400000, guid: b8c37a07010b7f247bb8d7d730d1c66b, type: 2}
 --- !u!1 &1341575794
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,10 +443,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1693976352}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1693976348
 GameObject:
@@ -525,7 +526,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -565,7 +566,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _windowLayer: {fileID: 1086837133}
   _hudLayer: {fileID: 1345328649}
-  _windowPrefabPaths: []
+  _windowPrefabPaths:
+  - Assets/Prefabs/UI/MissionWindow.prefab
   _hudPrefabPaths:
   - Assets/Prefabs/UI/LobbyUI.prefab
 --- !u!1660057539 &9223372036854775807

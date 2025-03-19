@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: UI
   m_GUID: 1454574aa6da97640a3a5f82bc552620
   m_SerializeEntries:
+  - m_GUID: 3eb164c62f67f534cbfc5c2a8197da2c
+    m_Address: Assets/Prefabs/UI/MissionWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - UI
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5854c4f49cf78d740aad45de765e541a
     m_Address: Assets/Prefabs/UI/LobbyUI.prefab
     m_ReadOnly: 0

@@ -10,11 +10,21 @@ namespace LogKill.UI
         public virtual void Show()
         {
             gameObject.SetActive(true);
+            OnShow();
+        }
+
+        public virtual void OnShow()
+        {
         }
 
         public virtual void Hide()
         {
             gameObject.SetActive(false);
+            OnHide();
+        }
+
+        public virtual void OnHide()
+        {
         }
 
         public virtual void Initialize() { }

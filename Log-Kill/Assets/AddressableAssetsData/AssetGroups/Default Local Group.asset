@@ -14,7 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
   m_GUID: 179343a2d573789429737d443d1134fd
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 6f7bbe7a1d7ef7045a0b14c96af5d09b
+    m_Address: Assets/Prefabs/Mission/GaugeMission.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: d0456d723b073ce47a72ea5186532ac1, type: 2}
   m_SchemaSet:
