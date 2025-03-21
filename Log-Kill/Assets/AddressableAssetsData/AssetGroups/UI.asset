@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: UI
   m_GUID: 1454574aa6da97640a3a5f82bc552620
   m_SerializeEntries:
+  - m_GUID: 14d85f22598e43a4d86bea2b03c93cf9
+    m_Address: Assets/Prefabs/UI/OnlineModeWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - UI
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3eb164c62f67f534cbfc5c2a8197da2c
     m_Address: Assets/Prefabs/UI/MissionWindow.prefab
     m_ReadOnly: 0
@@ -23,6 +29,18 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5854c4f49cf78d740aad45de765e541a
     m_Address: Assets/Prefabs/UI/LobbyUI.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - UI
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dacc662304fddaf49a6295622b3cdf38
+    m_Address: Assets/Prefabs/UI/CreateLobbyWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - UI
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e383cfa53236c7e45a9b895e8fe0d101
+    m_Address: Assets/Prefabs/UI/LobbyHUD.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI
