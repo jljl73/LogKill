@@ -31,7 +31,7 @@ namespace LogKill.UI
 
             await LobbyManager.Instance.CreateLobbyAsync(lobbyName, maxPlayerCount, imposterCount);
 
-            // TODO: ¾À ÀÌµ¿
+            // TODO: ï¿½ï¿½ ï¿½Ìµï¿½
             UIManager.Instance.CloseAllWindows();
 
             var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
