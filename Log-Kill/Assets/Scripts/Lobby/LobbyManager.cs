@@ -118,13 +118,6 @@ namespace LogKill.LobbySystem
             }
         }
 
-        public bool GetIsHost()
-        {
-            var player = CurrentLobby.Players.Find(player => player.Id == PlayerId);
-
-            return player != null && player.Data.TryGetValue("isHost", out var isHostData) && isHostData.Value == "true";
-        }
-
         public async UniTask<JoinAllocation> JoinRelaySessionAsync(string joinCode)
         {
             try
@@ -138,6 +131,33 @@ namespace LogKill.LobbySystem
                 Debug.LogError($"Relay join failed: {e.Message}");
                 return null;
             }
+        }
+
+        public bool GetIsHost()
+        {
+            var player = CurrentLobby.Players.Find(player => player.Id == PlayerId);
+
+            return player != null && player.Data.TryGetValue("isHost", out var isHostData) && isHostData.Value == "true";
+        }
+
+        public bool GetIsPrivate()
+        {
+            return CurrentLobby.IsPrivate;
+        }
+
+        public int GetMaxPlayers()
+        {
+            return CurrentLobby.MaxPlayers;
+        }
+
+        public int GetPlayerCount()
+        {
+            return CurrentLobby.Players.Count;
+        }
+
+        public string GetLobbyCode()
+        {
+            return CurrentLobby.LobbyCode;
         }
 
         public async UniTask UpdateLobbyWithIsPrivate(bool isPrivate)
