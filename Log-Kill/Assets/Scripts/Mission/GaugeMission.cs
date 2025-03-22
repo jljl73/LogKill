@@ -1,4 +1,6 @@
 using DG.Tweening;
+using LogKill.Core;
+using LogKill.Log;
 using UnityEngine;
 
 namespace LogKill.Mission
@@ -10,6 +12,7 @@ namespace LogKill.Mission
         [SerializeField] private RectTransform _targetRect;
 
         private Tweener _tweener;
+        private LogService LogService => ServiceLocator.Get<LogService>();
 
         protected override void OnStart()
         {
@@ -24,7 +27,7 @@ namespace LogKill.Mission
 
             var diff = Mathf.Abs(position - targetPosition);
             var width = _targetRect.sizeDelta.x * 0.5f;
-            
+
             return diff < width;
         }
 
@@ -33,7 +36,11 @@ namespace LogKill.Mission
             if (_tweener.IsPlaying())
             {
                 _tweener.Pause();
-                Debug.Log(IsCatch() ? "Catch" : "Miss");
+                if (IsCatch() == false)
+                {
+                    LogService.Log(new MissionFailLog());
+                    LogService.Print(ELogType.MissionFail);
+                }
             }
             else
                 _tweener.Play();
