@@ -19,12 +19,13 @@ namespace LogKill
         public void ClearMission()
         {
             OnClear();
+            gameObject.SetActive(false);
         }
 
         public void CancelMission()
         {
-            gameObject.SetActive(false);
             OnCancel();
+            gameObject.SetActive(false);
         }
 
         protected virtual void OnInitialize()
