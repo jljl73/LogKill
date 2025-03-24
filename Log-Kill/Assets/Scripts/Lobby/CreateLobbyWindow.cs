@@ -19,6 +19,7 @@ namespace LogKill.UI
         {
             base.Initialize();
 
+            _lobbyNameInputField.text = string.Empty;
             _imposterCountText.text = $"ImposterCount : {_imposterCount}";
             _maxPlayerCountText.text = $"MaxPlayerCount : {_maxPlayerCount}";
         }
@@ -31,7 +32,7 @@ namespace LogKill.UI
 
             await LobbyManager.Instance.CreateLobbyAsync(lobbyName, maxPlayerCount, imposterCount);
 
-            // TODO: �� �̵�
+            // TODO: Scene Move
             UIManager.Instance.CloseAllWindows();
 
             var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();

@@ -38,7 +38,15 @@ namespace LogKill.UI
         {
             string lobbyCode = _lobbyCodeField.text;
 
-            await LobbyManager.Instance.JoinLobbyAsync(lobbyCode);
+            if (await LobbyManager.Instance.JoinLobbyAsync(lobbyCode))
+            {
+                // TODO: Scene Move
+                UIManager.Instance.CloseAllWindows();
+            }
+            else
+            {
+                Debug.Log("Lobby Join Failed");
+            }
         }
     }
 }

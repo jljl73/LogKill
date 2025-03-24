@@ -69,6 +69,8 @@ namespace LogKill.LobbySystem
                 await UpdateLobbyWithJoinCodeAsync(JoinCode);
 
                 StartHostWithRelay(allocation);
+
+                Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
             }
             catch (LobbyServiceException e)
             {
@@ -76,7 +78,7 @@ namespace LogKill.LobbySystem
             }
         }
 
-        public async UniTask JoinLobbyAsync(string lobbyCode)
+        public async UniTask<bool> JoinLobbyAsync(string lobbyCode)
         {
             try
             {
@@ -97,10 +99,14 @@ namespace LogKill.LobbySystem
                 var joinAllocation = await JoinRelaySessionAsync(JoinCode);
 
                 StartClientWithRelay(joinAllocation);
+
+                Debug.Log($"Success Join Lobby: {lobbyCode}");
+                return true;
             }
             catch (LobbyServiceException e)
             {
                 Debug.LogError($"Lobby join failed: {e.Message}");
+                return false;
             }
         }
 

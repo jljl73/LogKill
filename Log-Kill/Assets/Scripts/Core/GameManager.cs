@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using LogKill.Core;
+using LogKill.LobbySystem;
 using LogKill.Mission;
 using LogKill.UI;
 using Unity.VisualScripting;
@@ -10,10 +12,15 @@ namespace LogKill
 	{
 		[SerializeField] private MissionData _missionData;
 
-		private void Start()
+		private async UniTask Start()
 		{
 			ServiceLocator.AutoRegisterServices();
-			UIManager.Instance.InitializeAsync();
+
+			await UIManager.Instance.InitializeAsync();
+			await LobbyManager.Instance.InitializeAsync();
+
+			var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
+			onlineModeWindow.Initialize();
 		}
 
 		private void Update()
