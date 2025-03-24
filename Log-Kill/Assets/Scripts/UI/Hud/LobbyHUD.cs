@@ -21,8 +21,6 @@ namespace LogKill.UI
 
         public override void Initialize()
         {
-            base.Initialize();
-
             _maxPlayerCount = LobbyManager.Instance.GetMaxPlayers();
             _currentPlayerCount = LobbyManager.Instance.GetPlayerCount();
             UpdatePlayerCount(_currentPlayerCount, _maxPlayerCount);
@@ -36,6 +34,9 @@ namespace LogKill.UI
             }
 
             _lobbyCodeText.text = LobbyManager.Instance.GetLobbyCode();
+
+            LobbyManager.Instance.OnPlayerCountChangedAction -= UpdatePlayerCount;
+            LobbyManager.Instance.OnPlayerCountChangedAction += UpdatePlayerCount;
         }
 
         public async void OnClickAccessStateToggle()
@@ -63,6 +64,7 @@ namespace LogKill.UI
 
         private void UpdatePlayerCount(int currentPlayerCount, int maxPlayerCount)
         {
+            Debug.Log($"UpdatePlayerCount : {currentPlayerCount}/{maxPlayerCount}");
             _playerCountText.text = $"{currentPlayerCount} / {maxPlayerCount}";
         }
     }

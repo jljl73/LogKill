@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using LogKill.Core;
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -18,6 +19,8 @@ namespace LogKill.LobbySystem
         public string PlayerId { get; private set; }
         public string JoinCode { get; private set; }
         public Lobby CurrentLobby { get; private set; }
+
+        public event Action<int, int> OnPlayerCountChangedAction;
 
         public async UniTask InitializeAsync()
         {
@@ -52,7 +55,7 @@ namespace LogKill.LobbySystem
                         //profile: new PlayerProfile("profileName"),
                         data: new Dictionary<string, PlayerDataObject>
                         {
-                            { "isHost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, "false") }
+                            { "isHost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, "true") }
                         }
                     ),
                     Data = new Dictionary<string, DataObject>
@@ -69,6 +72,8 @@ namespace LogKill.LobbySystem
                 await UpdateLobbyWithJoinCodeAsync(JoinCode);
 
                 StartHostWithRelay(allocation);
+
+                StartPollingLobbyState();
 
                 Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
             }
@@ -100,7 +105,10 @@ namespace LogKill.LobbySystem
 
                 StartClientWithRelay(joinAllocation);
 
+                StartPollingLobbyState();
+
                 Debug.Log($"Success Join Lobby: {lobbyCode}");
+
                 return true;
             }
             catch (LobbyServiceException e)
@@ -136,6 +144,29 @@ namespace LogKill.LobbySystem
             {
                 Debug.LogError($"Relay join failed: {e.Message}");
                 return null;
+            }
+        }
+
+        public async void StartPollingLobbyState()
+        {
+            int lastPlayerCount = CurrentLobby.Players.Count;
+
+            while (true)
+            {
+                await UniTask.Delay(1000);
+
+                if (CurrentLobby == null) continue;
+
+                var latestLobby = await LobbyService.Instance.GetLobbyAsync(CurrentLobby.Id);
+                int playerCount = latestLobby.Players.Count;
+
+                if (playerCount != lastPlayerCount)
+                {
+                    CurrentLobby = latestLobby;
+                    lastPlayerCount = playerCount;
+
+                    OnPlayerCountChangedAction?.Invoke(playerCount, latestLobby.MaxPlayers);
+                }
             }
         }
 

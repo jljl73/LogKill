@@ -42,6 +42,9 @@ namespace LogKill.UI
             {
                 // TODO: Scene Move
                 UIManager.Instance.CloseAllWindows();
+
+                var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+                lobbyHUD.Initialize();
             }
             else
             {
