@@ -20,6 +20,9 @@ namespace LogKill.Character
 
         private void Update()
         {
+            if (IsDead)
+                return;
+
             Vector2 moveDir = _inputHandler.MoveDirection;
             _animator.UpdateSpeed(moveDir);
 

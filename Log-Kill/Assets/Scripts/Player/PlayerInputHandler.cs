@@ -28,7 +28,7 @@ namespace LogKill.Character
 
         public void DiabledInput()
         {
-            enabled = true;
+            GetComponent<PlayerInput>().enabled = false;
         }
     }
 }
