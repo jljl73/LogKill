@@ -6,7 +6,9 @@ namespace LogKill.Network
     {
         public static readonly int LOBBY_INFOMATION_UPDATE_MS = 1100;
 
-        public static readonly int LOBBY_HEARTBEAT_MS = 2500;
+        public static readonly int LOBBY_LIST_UPDATE_MS = 2000;
+
+        public static readonly int LOBBY_HEARTBEAT_MS = 25000;
 
         public static readonly string PLAYERNAME_KEY = "PlayerName";
 

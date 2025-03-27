@@ -346,7 +346,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 
   RememberInHistory: 1
-  _lobbyCodeField: {fileID: 7871328599327681515}
+  _lobbyCodeInputField: {fileID: 7871328599327681515}
   _joinButton: {fileID: 2839821525955338481}
 --- !u!1 &889707437690752791
 GameObject:

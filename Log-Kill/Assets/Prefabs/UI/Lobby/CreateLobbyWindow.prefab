@@ -246,6 +246,7 @@ MonoBehaviour:
   _lobbyNameInputField: {fileID: 3139062048681548978}
   _imposterCountInputField: {fileID: 6021205479516297414}
   _maxPlayerCountInputField: {fileID: 8917478365991304804}
+  _createButton: {fileID: 1708431949074143839}
 --- !u!1 &414709736745695207
 GameObject:
   m_ObjectHideFlags: 0
