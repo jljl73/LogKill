@@ -1,5 +1,7 @@
+using Cysharp.Threading.Tasks;
 using LogKill.LobbySystem;
 using TMPro;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,19 +9,38 @@ namespace LogKill.UI
 {
     public class OnlineModeWindow : WindowBase
     {
-        [SerializeField] private TMP_InputField _lobbyCodeField;
+        [SerializeField] private TMP_InputField _lobbyCodeInputField;
         [SerializeField] private Button _joinButton;
 
-        public override void Initialize()
+        public override UniTask InitializeAsync()
         {
-            base.Initialize();
-
-            _joinButton.interactable = false;
-
-            _lobbyCodeField.onValueChanged.AddListener(value =>
+            _lobbyCodeInputField.onValueChanged.AddListener(value =>
             {
                 _joinButton.interactable = !string.IsNullOrEmpty(value);
             });
+
+            return base.InitializeAsync();
+        }
+
+        public override void OnShow()
+        {
+            _joinButton.interactable = false;
+            _lobbyCodeInputField.text = string.Empty;
+
+            LobbyManager.Instance.JoinLobbyEvent += OnJoinComplete;
+        }
+
+        public override void OnHide()
+        {
+            LobbyManager.Instance.JoinLobbyEvent -= OnJoinComplete;
+        }
+
+        private void OnJoinComplete(Lobby lobby)
+        {
+            UIManager.Instance.CloseAllWindows();
+
+            var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+            lobbyHUD.Initialize();
         }
 
         public void OnClickCreateLobby()
@@ -30,23 +51,14 @@ namespace LogKill.UI
 
         public void OnClickLobbyList()
         {
-            // TODO ShowWIndow LobbyListWindow
-            Debug.Log("TODO: ShowWIndow LobbyListWindow");
+            var lobbyListWindow = UIManager.Instance.ShowWindow<LobbyListWindow>();
+            lobbyListWindow.Initialize();
         }
 
         public async void OnClickLobbyJoin()
         {
-            string lobbyCode = _lobbyCodeField.text;
-
-            if (await LobbyManager.Instance.JoinLobbyAsync(lobbyCode))
-            {
-                // TODO: Scene Move
-                UIManager.Instance.CloseAllWindows();
-            }
-            else
-            {
-                Debug.Log("Lobby Join Failed");
-            }
+            string lobbyCode = _lobbyCodeInputField.text;
+            await LobbyManager.Instance.JoinLobbyByCodeAsync(lobbyCode);
         }
     }
 }

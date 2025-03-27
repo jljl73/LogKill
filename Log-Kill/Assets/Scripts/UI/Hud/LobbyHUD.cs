@@ -1,5 +1,10 @@
+using Cysharp.Threading.Tasks;
 using LogKill.LobbySystem;
+using LogKill.Network;
+using System;
+using System.Threading;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,38 +18,68 @@ namespace LogKill.UI
         [SerializeField] private TMP_Text _playerCountText;
         [SerializeField] private TMP_Text _lobbyCodeText;
 
+        private CancellationTokenSource _lobbyInfoRefreshToken;
 
         private int _maxPlayerCount;
         private int _currentPlayerCount;
 
+        private bool _isHost;
         private bool _isPrivate;
 
-        public override void Initialize()
+        public override void OnShow()
         {
-            base.Initialize();
+            var Lobby = LobbyManager.Instance.CurrentLobby;
 
-            _maxPlayerCount = LobbyManager.Instance.GetMaxPlayers();
-            _currentPlayerCount = LobbyManager.Instance.GetPlayerCount();
-            UpdatePlayerCount(_currentPlayerCount, _maxPlayerCount);
+            _isHost = LobbyManager.Instance.GetIsHost();
 
-            _accessStateToggleButton.gameObject.SetActive(LobbyManager.Instance.GetIsHost());
+            _accessStateToggleButton.gameObject.SetActive(_isHost);
 
-            if (_accessStateToggleButton.gameObject.activeSelf)
+            if (_isHost)
             {
-                _isPrivate = LobbyManager.Instance.GetIsPrivate();
+                _isPrivate = Lobby.IsPrivate;
                 UpdateAccessStateText(_isPrivate);
             }
 
-            _lobbyCodeText.text = LobbyManager.Instance.GetLobbyCode();
+            _maxPlayerCount = Lobby.MaxPlayers;
+            _currentPlayerCount = Lobby.Players.Count;
+
+            UpdatePlayerCount(_currentPlayerCount, _maxPlayerCount);
+
+            _lobbyCodeText.text = Lobby.LobbyCode;
+
+            StartLobbyInfoRefresh();
+
+            LobbyManager.Instance.LeaveLobbyEvent += OnLobbyLeaveComplete;
         }
 
-        public async void OnClickAccessStateToggle()
+        public override void OnHide()
         {
-            _isPrivate = !_isPrivate;
+            _lobbyInfoRefreshToken?.Cancel();
+            _lobbyInfoRefreshToken?.Dispose();
+            _lobbyInfoRefreshToken = null;
 
-            UpdateAccessStateText(_isPrivate);
+            LobbyManager.Instance.LeaveLobbyEvent -= OnLobbyLeaveComplete;
+        }
 
-            await LobbyManager.Instance.UpdateLobbyWithIsPrivate(_isPrivate);
+        private async UniTask StartLobbyInfoRefresh()
+        {
+            _lobbyInfoRefreshToken = new CancellationTokenSource();
+
+            try
+            {
+                while (!_lobbyInfoRefreshToken.Token.IsCancellationRequested)
+                {
+                    var lobby = await LobbyManager.Instance.GetLobbyAsync();
+
+                    UpdatePlayerCount(lobby.Players.Count, lobby.MaxPlayers);
+
+                    await UniTask.Delay(NetworkConstants.LOBBY_INFOMATION_UPDATE_MS, cancellationToken: _lobbyInfoRefreshToken.Token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("LobbyInfo loop safely cancelled");
+            }
         }
 
         private void UpdateAccessStateText(bool isPrivate)
@@ -63,7 +98,31 @@ namespace LogKill.UI
 
         private void UpdatePlayerCount(int currentPlayerCount, int maxPlayerCount)
         {
+            _currentPlayerCount = currentPlayerCount;
+            _maxPlayerCount = maxPlayerCount;
+
             _playerCountText.text = $"{currentPlayerCount} / {maxPlayerCount}";
+        }
+
+        private void OnLobbyLeaveComplete()
+        {
+            // TODO Scene Move
+            UIManager.Instance.HideCurrentHUD();
+            UIManager.Instance.ShowWindow<OnlineModeWindow>();
+        }
+
+        public async void OnClickAccessStateToggle()
+        {
+            _isPrivate = !_isPrivate;
+
+            UpdateAccessStateText(_isPrivate);
+
+            await LobbyManager.Instance.UpdateIsPrivate(_isPrivate);
+        }
+
+        public void OnClickExit()
+        {
+            NetworkManager.Singleton.Shutdown();
         }
     }
 }

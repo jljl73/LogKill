@@ -3,7 +3,6 @@ using LogKill.Core;
 using LogKill.LobbySystem;
 using LogKill.Mission;
 using LogKill.UI;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace LogKill
@@ -19,8 +18,7 @@ namespace LogKill
 			await UIManager.Instance.InitializeAsync();
 			await LobbyManager.Instance.InitializeAsync();
 
-			var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
-			onlineModeWindow.Initialize();
+            UIManager.Instance.ShowWindow<OnlineModeWindow>();
 		}
 
 		private void Update()

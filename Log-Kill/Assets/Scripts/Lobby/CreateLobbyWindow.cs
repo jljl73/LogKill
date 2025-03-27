@@ -1,42 +1,76 @@
-using LogKill.LobbySystem;
+using Cysharp.Threading.Tasks;
+using LogKill.UI;
 using TMPro;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.UI;
 
-namespace LogKill.UI
+namespace LogKill.LobbySystem
 {
     public class CreateLobbyWindow : WindowBase
     {
         [SerializeField] private TMP_InputField _lobbyNameInputField;
 
-        [SerializeField] private TMP_Text _imposterCountText;
-        [SerializeField] private TMP_Text _maxPlayerCountText;
+        [SerializeField] private TMP_InputField _imposterCountInputField;
+        [SerializeField] private TMP_InputField _maxPlayerCountInputField;
 
-        [SerializeField] private int _imposterCount = 1;
-        [SerializeField] private int _maxPlayerCount = 10;
+        [SerializeField] private Button _createButton;
 
+        private int _imposterCount = 1;
+        private int _maxPlayerCount = 10;
 
-        public override void Initialize()
+        public override UniTask InitializeAsync()
         {
-            base.Initialize();
+            _lobbyNameInputField.onValueChanged.AddListener(value =>
+            {
+                _createButton.interactable = !string.IsNullOrEmpty(value);
+            });
+
+            return base.InitializeAsync();
+        }
+
+        public override void OnShow()
+        {
+            _createButton.interactable = false;
 
             _lobbyNameInputField.text = string.Empty;
-            _imposterCountText.text = $"ImposterCount : {_imposterCount}";
-            _maxPlayerCountText.text = $"MaxPlayerCount : {_maxPlayerCount}";
+
+            _imposterCountInputField.text = _imposterCount.ToString();
+            _maxPlayerCountInputField.text = _maxPlayerCount.ToString();
+
+            LobbyManager.Instance.JoinLobbyEvent += OnCreateLobbyComplete;
+        }
+
+        public override void OnHide()
+        {
+            LobbyManager.Instance.JoinLobbyEvent -= OnCreateLobbyComplete;
+        }
+
+        private void OnCreateLobbyComplete(Lobby lobby)
+        {
+            if (lobby == null)
+            {
+                _createButton.interactable = true;
+            }
+            else
+            {
+                // TODO: Scene Move
+                UIManager.Instance.CloseAllWindows();
+
+                var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+                lobbyHUD.Initialize();
+            }
         }
 
         public async void OnClickCreateLobby()
         {
+            _createButton.interactable = false;
+
             string lobbyName = _lobbyNameInputField.text;
-            int imposterCount = _imposterCount;
-            int maxPlayerCount = _maxPlayerCount;
+            int imposterCount = int.Parse(_imposterCountInputField.text);
+            int maxPlayerCount = int.Parse(_maxPlayerCountInputField.text);
 
             await LobbyManager.Instance.CreateLobbyAsync(lobbyName, maxPlayerCount, imposterCount);
-
-            // TODO: Scene Move
-            UIManager.Instance.CloseAllWindows();
-
-            var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
-            lobbyHUD.Initialize();
         }
 
         public void OnClickBack()
