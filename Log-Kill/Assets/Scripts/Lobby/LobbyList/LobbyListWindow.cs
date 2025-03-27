@@ -26,6 +26,7 @@ namespace LogKill.LobbySystem
         public override void OnShow()
         {
             StartLobbyListRefresh();
+            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyComplete;
             LobbyManager.Instance.LobbyListChangedEvent += OnLobbyListChangedComplete;
         }
 
@@ -35,6 +36,7 @@ namespace LogKill.LobbySystem
             _lobbyListRefreshToken?.Dispose();
             _lobbyListRefreshToken = null;
 
+            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyComplete;
             LobbyManager.Instance.LobbyListChangedEvent -= OnLobbyListChangedComplete;
         }
 
@@ -65,6 +67,8 @@ namespace LogKill.LobbySystem
 
         private void UpdateLobbyList(List<Lobby> lobbies)
         {
+            // TODO Object Polling
+
             foreach (GameObject lobbyItem in _lobbyListItems)
             {
                 Destroy(lobbyItem);
@@ -74,10 +78,26 @@ namespace LogKill.LobbySystem
             {
                 LobbyListItem lobbyItem = Instantiate(_lobbyListItemPrefab, _lobbyListContent.transform).GetComponent<LobbyListItem>();
                 lobbyItem.Initialize(lobby);
+                lobbyItem.RegisterJoinLobbyEvent(OnJoinLobbyComplete);
 
                 _lobbyListItems.Add(lobbyItem.gameObject);
             }
         }
+        private void OnJoinLobbyComplete(Lobby lobby)
+        {
+            if (lobby != null)
+            {
+                // TODO: Scene Move
+                UIManager.Instance.CloseAllWindows();
+                UIManager.Instance.ShowHUD<LobbyHUD>();
+            }
+        }
+
+        public async void OnClickQuickJoin()
+        {
+            await LobbyManager.Instance.JoinQuickMatch();
+        }
+
         public void OnClickBack()
         {
             UIManager.Instance.CloseCurrentWindow();
