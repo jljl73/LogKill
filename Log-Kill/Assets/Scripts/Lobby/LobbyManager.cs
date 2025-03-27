@@ -3,7 +3,6 @@ using LogKill.Core;
 using LogKill.Network;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -16,10 +15,8 @@ namespace LogKill.LobbySystem
 {
     public class LobbyManager : MonoSingleton<LobbyManager>
     {
-        private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
-
         private CancellationTokenSource _lobbyHeartbeatToken;
-        private CancellationTokenSource _lobbyRefreshInfomationToken;
+        private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
 
         public string PlayerId { get; private set; }
         public string PlayerName { get; private set; }
@@ -48,28 +45,22 @@ namespace LogKill.LobbySystem
                     Data = new Dictionary<string, DataObject>
                     {
                         { NetworkConstants.GAMESTART_KEY, new DataObject(DataObject.VisibilityOptions.Member, "false") },
-                        { NetworkConstants.IMPOSTER_COUNT_KEY, new DataObject(DataObject.VisibilityOptions.Member, imposterCount.ToString()) }
+                        { NetworkConstants.IMPOSTER_COUNT_KEY, new DataObject(DataObject.VisibilityOptions.Public, imposterCount.ToString()) }
                     }
                 };
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, lobbyOptions);
 
-                string joinCode = await RelayManager.CreateRelay(CurrentLobby.MaxPlayers);
+                await StartRelayWithHost();
 
-                await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions
-                {
-                    Data = new Dictionary<string, DataObject>
-                    {
-                        {NetworkConstants.JOINCODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, joinCode) }
-                    }
-                });
-
-                await StartHeartbeatLobbyAlive();
-
-                NetworkManager.Singleton.StartHost();
+                StartHeartbeatLobbyAlive();
 
                 Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
             }
             catch (LobbyServiceException e)
+            {
+                Debug.LogError($"Failed CreateLobby : {e.Message}");
+            }
+            catch (Exception e)
             {
                 Debug.LogError($"Failed CreateLobby : {e.Message}");
             }
@@ -84,10 +75,7 @@ namespace LogKill.LobbySystem
                 var joinOptions = new JoinLobbyByIdOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId, joinOptions);
 
-                string joinCode = CurrentLobby.Data[NetworkConstants.JOINCODE_KEY].Value;
-                await RelayManager.JoinRelay(joinCode);
-
-                NetworkManager.Singleton.StartClient();
+                await StartRelayWithClient();
             }
             catch (LobbyServiceException e)
             {
@@ -104,10 +92,7 @@ namespace LogKill.LobbySystem
                 var joinOptions = new JoinLobbyByCodeOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, joinOptions);
 
-                string joinCode = CurrentLobby.Data[NetworkConstants.JOINCODE_KEY].Value;
-                await RelayManager.JoinRelay(joinCode);
-
-                NetworkManager.Singleton.StartClient();
+                await StartRelayWithClient();
             }
             catch (LobbyServiceException e)
             {
@@ -124,10 +109,7 @@ namespace LogKill.LobbySystem
                 var joinOptions = new QuickJoinLobbyOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync(joinOptions);
 
-                string joinCode = CurrentLobby.Data[NetworkConstants.JOINCODE_KEY].Value;
-                await RelayManager.JoinRelay(joinCode);
-
-                NetworkManager.Singleton.StartClient();
+                await StartRelayWithClient();
             }
             catch (LobbyServiceException e)
             {
@@ -137,18 +119,57 @@ namespace LogKill.LobbySystem
             JoinLobbyEvent?.Invoke(CurrentLobby);
         }
 
+        public async UniTask LeaveLobbyAsync()
+        {
+            if (CurrentLobby == null)
+            {
+                Debug.Log("Lobby is Null");
+                return;
+            }
+
+            try
+            {
+                if (GetIsHost())
+                {
+                    StopHeartbeatLobbyAlive();
+                    await LobbyService.Instance.DeleteLobbyAsync(CurrentLobby.Id);
+                }
+                else
+                {
+                    await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, PlayerId);
+                }
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogWarning($"Failed LeaveLobby : {e.Message}");
+            }
+            finally
+            {
+                CurrentLobby = null;
+                NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+                LeaveLobbyEvent?.Invoke();
+            }
+        }
 
         public async UniTask StartHeartbeatLobbyAlive()
         {
+            if (!GetIsHost())
+            {
+                Debug.LogWarning("Not Host");
+                return;
+            }
+
             _lobbyHeartbeatToken = new CancellationTokenSource();
 
             try
             {
                 while (!_lobbyHeartbeatToken.Token.IsCancellationRequested)
                 {
-                    await UniTask.DelayFrame(NetworkConstants.LOBBY_HEARTBEAT_MS);
+                    await UniTask.Delay(NetworkConstants.LOBBY_HEARTBEAT_MS, cancellationToken: _lobbyHeartbeatToken.Token);
 
                     await LobbyService.Instance.SendHeartbeatPingAsync(CurrentLobby.Id);
+
+                    Debug.Log("StartHeartbeatLobbyAlive");
                 }
             }
             catch (OperationCanceledException)
@@ -157,27 +178,22 @@ namespace LogKill.LobbySystem
             }
         }
 
-        public async UniTask StartRefreshLobbyInfomation()
+        public async UniTask<Lobby> GetLobbyAsync()
         {
-            _lobbyRefreshInfomationToken = new CancellationTokenSource();
-
             try
             {
-                while (!_lobbyRefreshInfomationToken.Token.IsCancellationRequested)
-                {
-                    await UniTask.DelayFrame(NetworkConstants.LOBBY_INFOMATION_UPDATE_MS);
-
-                    var lobby = await LobbyService.Instance.GetLobbyAsync(CurrentLobby.Id);
-                    CurrentLobby = lobby;
-                }
+                var lobby = await LobbyService.Instance.GetLobbyAsync(CurrentLobby.Id);
+                CurrentLobby = lobby;
+                return CurrentLobby;
             }
-            catch
+            catch (LobbyServiceException e)
             {
-
+                Debug.LogWarning($"Failed GetLobby : {e.Message}");
+                return null;
             }
         }
 
-        public async UniTask GetLobbyListAsync()
+        public async UniTask<List<Lobby>> GetLobbyListAsync()
         {
             try
             {
@@ -201,13 +217,19 @@ namespace LogKill.LobbySystem
                 };
                 #endregion
                 QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync();
-
                 LobbyListChangedEvent?.Invoke(response.Results);
+                return response.Results;
             }
             catch (LobbyServiceException e)
             {
                 Debug.LogWarning($"Failed GetLobbyList : {e.Message}");
+                return null;
             }
+        }
+
+        public void RegisterClientDisconnectedEvent(Action<ulong> callback)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += callback;
         }
 
         public async UniTask UpdateIsPrivate(bool isPrivate)
@@ -299,12 +321,47 @@ namespace LogKill.LobbySystem
             };
         }
 
-        private bool IsPlayerInLobby()
+        private async UniTask StartRelayWithHost()
         {
-            if (CurrentLobby == null || CurrentLobby.Players == null)
-                return false;
+            string joinCode = await RelayManager.CreateRelay(CurrentLobby.MaxPlayers);
 
-            return CurrentLobby.Players.Any(player => player.Id == AuthenticationService.Instance.PlayerId);
+            await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions
+            {
+                Data = new Dictionary<string, DataObject>
+                    {
+                        {NetworkConstants.JOINCODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, joinCode) }
+                    }
+            });
+
+            NetworkManager.Singleton.StartHost();
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        }
+
+        private async UniTask StartRelayWithClient()
+        {
+            string joinCode = CurrentLobby.Data[NetworkConstants.JOINCODE_KEY].Value;
+            await RelayManager.JoinRelay(joinCode);
+
+            NetworkManager.Singleton.StartClient();
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        }
+
+        private async void OnClientDisconnected(ulong clientId)
+        {
+            if (clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                Debug.Log("Client disconnected. Leaving lobby...");
+                await LeaveLobbyAsync();
+            }
+        }
+
+        private void StopHeartbeatLobbyAlive()
+        {
+            _lobbyHeartbeatToken?.Cancel();
+            _lobbyHeartbeatToken?.Dispose();
+            _lobbyHeartbeatToken = null;
         }
     }
 }
