@@ -4,7 +4,6 @@ using LogKill.Network;
 using System;
 using System.Threading;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +25,7 @@ namespace LogKill.UI
         private bool _isHost;
         private bool _isPrivate;
 
-        public override void OnShow()
+        public override void Initialize()
         {
             var Lobby = LobbyManager.Instance.CurrentLobby;
 
@@ -48,8 +47,11 @@ namespace LogKill.UI
             _lobbyCodeText.text = Lobby.LobbyCode;
 
             StartLobbyInfoRefresh();
+        }
 
-            LobbyManager.Instance.LeaveLobbyEvent += OnLobbyLeaveComplete;
+        public override void OnShow()
+        {
+            LobbyManager.Instance.LeaveLobbyEvent += OnLeaveLobbyEvent;
         }
 
         public override void OnHide()
@@ -58,7 +60,7 @@ namespace LogKill.UI
             _lobbyInfoRefreshToken?.Dispose();
             _lobbyInfoRefreshToken = null;
 
-            LobbyManager.Instance.LeaveLobbyEvent -= OnLobbyLeaveComplete;
+            LobbyManager.Instance.LeaveLobbyEvent -= OnLeaveLobbyEvent;
         }
 
         private async UniTask StartLobbyInfoRefresh()
@@ -70,6 +72,12 @@ namespace LogKill.UI
                 while (!_lobbyInfoRefreshToken.Token.IsCancellationRequested)
                 {
                     var lobby = await LobbyManager.Instance.GetLobbyAsync();
+
+                    if (lobby == null)
+                    {
+                        await LobbyManager.Instance.LeaveLobbyAsync();
+                        return;
+                    }
 
                     UpdatePlayerCount(lobby.Players.Count, lobby.MaxPlayers);
 
@@ -104,11 +112,12 @@ namespace LogKill.UI
             _playerCountText.text = $"{currentPlayerCount} / {maxPlayerCount}";
         }
 
-        private void OnLobbyLeaveComplete()
+        private void OnLeaveLobbyEvent()
         {
             // TODO Scene Move
             UIManager.Instance.HideCurrentHUD();
-            UIManager.Instance.ShowWindow<OnlineModeWindow>();
+            var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
+            onlineModeWindow.Initialize();
         }
 
         public async void OnClickAccessStateToggle()
@@ -120,9 +129,9 @@ namespace LogKill.UI
             await LobbyManager.Instance.UpdateIsPrivate(_isPrivate);
         }
 
-        public void OnClickExit()
+        public async void OnClickExit()
         {
-            NetworkManager.Singleton.Shutdown();
+            await LobbyManager.Instance.LeaveLobbyAsync();
         }
     }
 }

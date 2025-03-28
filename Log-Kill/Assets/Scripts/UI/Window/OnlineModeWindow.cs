@@ -22,25 +22,36 @@ namespace LogKill.UI
             return base.InitializeAsync();
         }
 
-        public override void OnShow()
+        public override void Initialize()
         {
             _joinButton.interactable = false;
             _lobbyCodeInputField.text = string.Empty;
+        }
 
-            LobbyManager.Instance.JoinLobbyEvent += OnJoinComplete;
+        public override void OnShow()
+        {
+            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyEvent;
         }
 
         public override void OnHide()
         {
-            LobbyManager.Instance.JoinLobbyEvent -= OnJoinComplete;
+            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyEvent;
         }
 
-        private void OnJoinComplete(Lobby lobby)
+        private void OnJoinLobbyEvent(Lobby lobby)
         {
-            UIManager.Instance.CloseAllWindows();
+            if (lobby == null)
+            {
+                _joinButton.interactable = true;
+            }
+            else
+            {
+                // TODO: Scene Move
+                UIManager.Instance.CloseAllWindows();
 
-            var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
-            lobbyHUD.Initialize();
+                var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+                lobbyHUD.Initialize();
+            }
         }
 
         public void OnClickCreateLobby()
@@ -57,6 +68,8 @@ namespace LogKill.UI
 
         public async void OnClickLobbyJoin()
         {
+            _joinButton.interactable = false;
+
             string lobbyCode = _lobbyCodeInputField.text;
             await LobbyManager.Instance.JoinLobbyByCodeAsync(lobbyCode);
         }

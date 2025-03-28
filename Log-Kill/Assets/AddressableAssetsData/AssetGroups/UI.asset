@@ -34,7 +34,7 @@ MonoBehaviour:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dacc662304fddaf49a6295622b3cdf38
-    m_Address: Assets/Prefabs/UI/CreateLobbyWindow.prefab
+    m_Address: Assets/Prefabs/UI/Lobby/CreateLobbyWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI

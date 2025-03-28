@@ -675,7 +675,7 @@ MonoBehaviour:
   _windowPrefabPaths:
   - Assets/Prefabs/UI/MissionWindow.prefab
   - Assets/Prefabs/UI/OnlineModeWindow.prefab
-  - Assets/Prefabs/UI/CreateLobbyWindow.prefab
+  - Assets/Prefabs/UI/Lobby/CreateLobbyWindow.prefab
   - Assets/Prefabs/UI/Lobby/LobbyListWindow.prefab
   _hudPrefabPaths:
   - Assets/Prefabs/UI/LobbyHUD.prefab

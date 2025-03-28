@@ -899,6 +899,7 @@ MonoBehaviour:
   RememberInHistory: 1
   _lobbyListContent: {fileID: 1883926889191576349}
   _lobbyListItemPrefab: {fileID: 3295752315382922938, guid: 35e5509a110461c4aa7f09af2958fb50, type: 3}
+  _quickJoinButton: {fileID: 5399864459378548058}
 --- !u!1 &8309958980718442891
 GameObject:
   m_ObjectHideFlags: 0

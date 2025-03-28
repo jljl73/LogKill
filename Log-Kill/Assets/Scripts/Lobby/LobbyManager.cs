@@ -15,8 +15,9 @@ namespace LogKill.LobbySystem
 {
     public class LobbyManager : MonoSingleton<LobbyManager>
     {
-        private CancellationTokenSource _lobbyHeartbeatToken;
         private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
+
+        private CancellationTokenSource _lobbyHeartbeatToken;
 
         public string PlayerId { get; private set; }
         public string PlayerName { get; private set; }
@@ -146,7 +147,7 @@ namespace LogKill.LobbySystem
             finally
             {
                 CurrentLobby = null;
-                NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+                NetworkManager.Singleton.Shutdown();
                 LeaveLobbyEvent?.Invoke();
             }
         }
@@ -168,8 +169,6 @@ namespace LogKill.LobbySystem
                     await UniTask.Delay(NetworkConstants.LOBBY_HEARTBEAT_MS, cancellationToken: _lobbyHeartbeatToken.Token);
 
                     await LobbyService.Instance.SendHeartbeatPingAsync(CurrentLobby.Id);
-
-                    Debug.Log("StartHeartbeatLobbyAlive");
                 }
             }
             catch (OperationCanceledException)
@@ -334,8 +333,6 @@ namespace LogKill.LobbySystem
             });
 
             NetworkManager.Singleton.StartHost();
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         private async UniTask StartRelayWithClient()
@@ -344,17 +341,6 @@ namespace LogKill.LobbySystem
             await RelayManager.JoinRelay(joinCode);
 
             NetworkManager.Singleton.StartClient();
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-        }
-
-        private async void OnClientDisconnected(ulong clientId)
-        {
-            if (clientId == NetworkManager.Singleton.LocalClientId)
-            {
-                Debug.Log("Client disconnected. Leaving lobby...");
-                await LeaveLobbyAsync();
-            }
         }
 
         private void StopHeartbeatLobbyAlive()

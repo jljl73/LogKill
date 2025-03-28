@@ -699,6 +699,7 @@ MonoBehaviour:
   _lobbyNameText: {fileID: 6261580072046600891}
   _imposterCountText: {fileID: 3909551963738850918}
   _playerCountText: {fileID: 4711716329364444351}
+  _joinButton: {fileID: 5098378237271356353}
 --- !u!1 &6585745502101075748
 GameObject:
   m_ObjectHideFlags: 0

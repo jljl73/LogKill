@@ -18,7 +18,8 @@ namespace LogKill
 			await UIManager.Instance.InitializeAsync();
 			await LobbyManager.Instance.InitializeAsync();
 
-            UIManager.Instance.ShowWindow<OnlineModeWindow>();
+            var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
+			onlineModeWindow.Initialize();
 		}
 
 		private void Update()

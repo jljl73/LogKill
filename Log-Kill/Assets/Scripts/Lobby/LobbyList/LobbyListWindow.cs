@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace LogKill.LobbySystem
 {
@@ -14,20 +15,17 @@ namespace LogKill.LobbySystem
         [SerializeField] private GameObject _lobbyListContent;
         [SerializeField] private GameObject _lobbyListItemPrefab;
 
+        [SerializeField] private Button _quickJoinButton;
+
         private CancellationTokenSource _lobbyListRefreshToken;
 
         private List<GameObject> _lobbyListItems = new List<GameObject>();
 
         public override void Initialize()
         {
-
-        }
-
-        public override void OnShow()
-        {
             StartLobbyListRefresh();
-            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyComplete;
-            LobbyManager.Instance.LobbyListChangedEvent += OnLobbyListChangedComplete;
+            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyEvent;
+            LobbyManager.Instance.LobbyListChangedEvent += OnLobbyListChangedEvent;
         }
 
         public override void OnHide()
@@ -36,8 +34,8 @@ namespace LogKill.LobbySystem
             _lobbyListRefreshToken?.Dispose();
             _lobbyListRefreshToken = null;
 
-            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyComplete;
-            LobbyManager.Instance.LobbyListChangedEvent -= OnLobbyListChangedComplete;
+            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyEvent;
+            LobbyManager.Instance.LobbyListChangedEvent -= OnLobbyListChangedEvent;
         }
 
         private async UniTask StartLobbyListRefresh()
@@ -59,16 +57,14 @@ namespace LogKill.LobbySystem
             }
         }
 
-        private void OnLobbyListChangedComplete(List<Lobby> lobbies)
+        private void OnLobbyListChangedEvent(List<Lobby> lobbies)
         {
-            Debug.Log("OnLobbyListChangedComplete");
             UpdateLobbyList(lobbies);
         }
 
         private void UpdateLobbyList(List<Lobby> lobbies)
         {
             // TODO Object Polling
-
             foreach (GameObject lobbyItem in _lobbyListItems)
             {
                 Destroy(lobbyItem);
@@ -78,23 +74,31 @@ namespace LogKill.LobbySystem
             {
                 LobbyListItem lobbyItem = Instantiate(_lobbyListItemPrefab, _lobbyListContent.transform).GetComponent<LobbyListItem>();
                 lobbyItem.Initialize(lobby);
-                lobbyItem.RegisterJoinLobbyEvent(OnJoinLobbyComplete);
+                lobbyItem.RegisterJoinLobbyEvent(OnJoinLobbyEvent);
 
                 _lobbyListItems.Add(lobbyItem.gameObject);
             }
         }
-        private void OnJoinLobbyComplete(Lobby lobby)
+        private void OnJoinLobbyEvent(Lobby lobby)
         {
-            if (lobby != null)
+            if (lobby == null)
+            {
+                _quickJoinButton.interactable = true;
+            }
+            else
             {
                 // TODO: Scene Move
                 UIManager.Instance.CloseAllWindows();
-                UIManager.Instance.ShowHUD<LobbyHUD>();
+
+                var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+                lobbyHUD.Initialize();
             }
         }
 
         public async void OnClickQuickJoin()
         {
+            _quickJoinButton.interactable = false;
+
             await LobbyManager.Instance.JoinQuickMatch();
         }
 
