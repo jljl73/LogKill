@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 77fa9aeab5071d941a94bd3eed74c3c9
+    m_Address: Assets/Prefabs/Map/WorldMap.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: d0456d723b073ce47a72ea5186532ac1, type: 2}
   m_SchemaSet:

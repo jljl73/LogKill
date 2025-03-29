@@ -48,6 +48,12 @@ namespace LogKill.Core
                 Debug.Log($"언로드 완료: {key}");
             }
         }
+
+        public async UniTask<GameObject> CreateAsset(string key)
+        {
+            var handle = await Addressables.InstantiateAsync(key);
+            return handle;
+        }
     }
 
 }
