@@ -28,12 +28,6 @@ namespace LogKill.LobbySystem
             _playerCountText.text = $"{lobby.Players.Count}/{lobby.MaxPlayers}";
         }
 
-        public void RegisterJoinLobbyEvent(Action<Lobby> callback)
-        {
-            LobbyManager.Instance.JoinLobbyEvent -= callback;
-            LobbyManager.Instance.JoinLobbyEvent += callback;
-        }
-
         public async void OnClickJoin()
         {
             await LobbyManager.Instance.JoinLobbyByIdAsync(_lobby.Id);

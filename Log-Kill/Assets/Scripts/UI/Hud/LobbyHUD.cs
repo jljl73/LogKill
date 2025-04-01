@@ -1,9 +1,7 @@
 using Cysharp.Threading.Tasks;
 using LogKill.LobbySystem;
-using LogKill.Network;
-using System;
-using System.Threading;
 using TMPro;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,15 +15,13 @@ namespace LogKill.UI
         [SerializeField] private TMP_Text _playerCountText;
         [SerializeField] private TMP_Text _lobbyCodeText;
 
-        private CancellationTokenSource _lobbyInfoRefreshToken;
-
         private int _maxPlayerCount;
         private int _currentPlayerCount;
 
         private bool _isHost;
         private bool _isPrivate;
 
-        public override void Initialize()
+        public override void OnShow()
         {
             var Lobby = LobbyManager.Instance.CurrentLobby;
 
@@ -46,48 +42,36 @@ namespace LogKill.UI
 
             _lobbyCodeText.text = Lobby.LobbyCode;
 
-            StartLobbyInfoRefresh();
-        }
-
-        public override void OnShow()
-        {
-            LobbyManager.Instance.LeaveLobbyEvent += OnLeaveLobbyEvent;
+            LobbyManager.Instance.LobbyChangedEvent += OnLobbyChangedEvent;
+            LobbyManager.Instance.LobbyLeavedEvent += OnLobbyLeavedEvent;
         }
 
         public override void OnHide()
         {
-            _lobbyInfoRefreshToken?.Cancel();
-            _lobbyInfoRefreshToken?.Dispose();
-            _lobbyInfoRefreshToken = null;
-
-            LobbyManager.Instance.LeaveLobbyEvent -= OnLeaveLobbyEvent;
+            LobbyManager.Instance.LobbyChangedEvent -= OnLobbyChangedEvent;
+            LobbyManager.Instance.LobbyLeavedEvent -= OnLobbyLeavedEvent;
         }
 
-        private async UniTask StartLobbyInfoRefresh()
+        private void OnLobbyChangedEvent(Lobby lobby)
         {
-            _lobbyInfoRefreshToken = new CancellationTokenSource();
-
-            try
+            if (lobby == null)
             {
-                while (!_lobbyInfoRefreshToken.Token.IsCancellationRequested)
-                {
-                    var lobby = await LobbyManager.Instance.GetLobbyAsync();
-
-                    if (lobby == null)
-                    {
-                        await LobbyManager.Instance.LeaveLobbyAsync();
-                        return;
-                    }
-
-                    UpdatePlayerCount(lobby.Players.Count, lobby.MaxPlayers);
-
-                    await UniTask.Delay(NetworkConstants.LOBBY_INFOMATION_UPDATE_MS, cancellationToken: _lobbyInfoRefreshToken.Token);
-                }
+                Debug.Log("Lobby is Null");
             }
-            catch (OperationCanceledException)
+            else
             {
-                Debug.Log("LobbyInfo loop safely cancelled");
+                UpdatePlayerCount(lobby.Players.Count, lobby.MaxPlayers);
             }
+        }
+
+        private void OnLobbyLeavedEvent()
+        {
+            Debug.Log("OnLobbyLeavedEvent");
+
+            // TODO Scene Move
+            UIManager.Instance.HideCurrentHUD();
+            var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
+            onlineModeWindow.Initialize();
         }
 
         private void UpdateAccessStateText(bool isPrivate)
@@ -112,21 +96,17 @@ namespace LogKill.UI
             _playerCountText.text = $"{currentPlayerCount} / {maxPlayerCount}";
         }
 
-        private void OnLeaveLobbyEvent()
-        {
-            // TODO Scene Move
-            UIManager.Instance.HideCurrentHUD();
-            var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
-            onlineModeWindow.Initialize();
-        }
-
         public async void OnClickAccessStateToggle()
         {
             _isPrivate = !_isPrivate;
 
-            UpdateAccessStateText(_isPrivate);
+            _accessStateToggleButton.interactable = false;
 
             await LobbyManager.Instance.UpdateIsPrivate(_isPrivate);
+            await UniTask.Delay(1000);
+            UpdateAccessStateText(_isPrivate);
+
+            _accessStateToggleButton.interactable = true;
         }
 
         public async void OnClickExit()

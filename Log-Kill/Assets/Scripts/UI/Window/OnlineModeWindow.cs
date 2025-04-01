@@ -22,24 +22,23 @@ namespace LogKill.UI
             return base.InitializeAsync();
         }
 
-        public override void Initialize()
+        public override void OnShow()
         {
             _joinButton.interactable = false;
             _lobbyCodeInputField.text = string.Empty;
-        }
 
-        public override void OnShow()
-        {
-            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyEvent;
+            LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
         }
 
         public override void OnHide()
         {
-            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyEvent;
+            LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
         }
 
-        private void OnJoinLobbyEvent(Lobby lobby)
+        private void OnPlayerJoinedEvent(Lobby lobby)
         {
+            Debug.Log("OnlineModeWindow OnPlayerJoinedEvent");
+
             if (lobby == null)
             {
                 _joinButton.interactable = true;

@@ -21,11 +21,11 @@ namespace LogKill.LobbySystem
 
         private List<GameObject> _lobbyListItems = new List<GameObject>();
 
-        public override void Initialize()
+        public override void OnShow()
         {
             StartLobbyListRefresh();
-            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyEvent;
-            LobbyManager.Instance.LobbyListChangedEvent += OnLobbyListChangedEvent;
+
+            LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
         }
 
         public override void OnHide()
@@ -34,8 +34,7 @@ namespace LogKill.LobbySystem
             _lobbyListRefreshToken?.Dispose();
             _lobbyListRefreshToken = null;
 
-            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyEvent;
-            LobbyManager.Instance.LobbyListChangedEvent -= OnLobbyListChangedEvent;
+            LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
         }
 
         private async UniTask StartLobbyListRefresh()
@@ -46,7 +45,8 @@ namespace LogKill.LobbySystem
             {
                 while (!_lobbyListRefreshToken.Token.IsCancellationRequested)
                 {
-                    await LobbyManager.Instance.GetLobbyListAsync();
+                    var lobbyList = await LobbyManager.Instance.GetLobbyListAsync();
+                    UpdateLobbyList(lobbyList);
 
                     await UniTask.Delay(NetworkConstants.LOBBY_LIST_UPDATE_MS, cancellationToken: _lobbyListRefreshToken.Token);
                 }
@@ -57,9 +57,20 @@ namespace LogKill.LobbySystem
             }
         }
 
-        private void OnLobbyListChangedEvent(List<Lobby> lobbies)
+        private void OnPlayerJoinedEvent(Lobby lobby)
         {
-            UpdateLobbyList(lobbies);
+            if (lobby == null)
+            {
+                _quickJoinButton.interactable = true;
+            }
+            else
+            {
+                // TODO: Scene Move
+                UIManager.Instance.CloseAllWindows();
+
+                var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+                lobbyHUD.Initialize();
+            }
         }
 
         private void UpdateLobbyList(List<Lobby> lobbies)
@@ -74,24 +85,8 @@ namespace LogKill.LobbySystem
             {
                 LobbyListItem lobbyItem = Instantiate(_lobbyListItemPrefab, _lobbyListContent.transform).GetComponent<LobbyListItem>();
                 lobbyItem.Initialize(lobby);
-                lobbyItem.RegisterJoinLobbyEvent(OnJoinLobbyEvent);
 
                 _lobbyListItems.Add(lobbyItem.gameObject);
-            }
-        }
-        private void OnJoinLobbyEvent(Lobby lobby)
-        {
-            if (lobby == null)
-            {
-                _quickJoinButton.interactable = true;
-            }
-            else
-            {
-                // TODO: Scene Move
-                UIManager.Instance.CloseAllWindows();
-
-                var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
-                lobbyHUD.Initialize();
             }
         }
 

@@ -29,7 +29,7 @@ namespace LogKill.LobbySystem
             return base.InitializeAsync();
         }
 
-        public override void Initialize()
+        public override void OnShow()
         {
             _createButton.interactable = false;
 
@@ -37,19 +37,16 @@ namespace LogKill.LobbySystem
 
             _imposterCountInputField.text = _imposterCount.ToString();
             _maxPlayerCountInputField.text = _maxPlayerCount.ToString();
-        }
 
-        public override void OnShow()
-        {
-            LobbyManager.Instance.JoinLobbyEvent += OnJoinLobbyEvent;
+            LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
         }
 
         public override void OnHide()
         {
-            LobbyManager.Instance.JoinLobbyEvent -= OnJoinLobbyEvent;
+            LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
         }
 
-        private void OnJoinLobbyEvent(Lobby lobby)
+        private void OnPlayerJoinedEvent(Lobby lobby)
         {
             if (lobby == null)
             {
