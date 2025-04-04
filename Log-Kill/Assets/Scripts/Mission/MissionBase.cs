@@ -1,4 +1,5 @@
 using LogKill.Mission;
+using LogKill.UI;
 using UnityEngine;
 
 namespace LogKill
@@ -19,13 +20,15 @@ namespace LogKill
         public void ClearMission()
         {
             OnClear();
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
+            UIManager.Instance.CloseCurrentWindow();
         }
 
         public void CancelMission()
         {
             OnCancel();
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
+            UIManager.Instance.CloseCurrentWindow();
         }
 
         protected virtual void OnInitialize()

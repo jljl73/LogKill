@@ -12,7 +12,7 @@ namespace LogKill.Mission
         private Dictionary<MissionData, IMisison> _missions = new();
         private ResourceManager ResourceManager => ServiceLocator.Get<ResourceManager>();
 
-        public async void InitMission(MissionData mission)
+        public async void StartMission(MissionData mission)
         {
             _missionData = mission;
             if (!_missions.ContainsKey(mission))

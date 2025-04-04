@@ -442,7 +442,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b46d0a1c6df804f8402cbb564559d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _target: {fileID: 0}
   _speed: 5
 --- !u!1 &1086837132
 GameObject:
@@ -763,6 +762,7 @@ MonoBehaviour:
   - Assets/Prefabs/UI/Lobby/LobbyListWindow.prefab
   _hudPrefabPaths:
   - Assets/Prefabs/UI/LobbyHUD.prefab
+  - Assets/Prefabs/UI/InGameHud.prefab
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

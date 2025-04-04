@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 179343a2d573789429737d443d1134fd
   m_SerializeEntries:
+  - m_GUID: 041d3f3e91f6db449bb3eaeecb7df1b1
+    m_Address: Assets/Prefabs/UI/InGameHud.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0cbcfa707be11a84c8844d1f09e220fe
+    m_Address: Assets/Prefabs/Map/BatteryEntity.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6f7bbe7a1d7ef7045a0b14c96af5d09b
     m_Address: Assets/Prefabs/Mission/GaugeMission.prefab
     m_ReadOnly: 0
