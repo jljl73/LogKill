@@ -48,6 +48,7 @@ namespace LogKill.Character
             _movement.Initialize();
             _inputHandler.Initialize(IsOwner);
             _animator.Initialize();
+            CameraController.Instance.SetTarget(transform);
         }
 
         public void OnDead()
@@ -59,6 +60,7 @@ namespace LogKill.Character
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
+            CameraController.Instance.SetTarget(null);
         }
     }
 }
