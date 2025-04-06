@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 15f44cc4d28af3141893695ba2c41cb3
+    m_Address: Assets/Prefabs/UI/GameResultWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6f7bbe7a1d7ef7045a0b14c96af5d09b
     m_Address: Assets/Prefabs/Mission/GaugeMission.prefab
     m_ReadOnly: 0

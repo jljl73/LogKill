@@ -112,7 +112,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 30, y: 0}
+  m_SizeDelta: {x: 60, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1769021801632144914
 CanvasRenderer:
@@ -277,6 +277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f4af6407bb8deb40ab5ed6f6a109191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _missionId: 0
   _gaugeRect: {fileID: 8950674984246004320}
   _gaugeBarRect: {fileID: 6994375480041613482}
   _targetRect: {fileID: 8743962467696533074}

@@ -25,7 +25,7 @@ namespace LogKill.Mission
         {
             var prefab = await ResourceManager.LoadAsset(missionData.MissionPrefabName);
             var mission = Instantiate(prefab, transform).GetComponent<IMisison>();
-            mission.Initialize();
+            mission.Initialize(missionData.MissionId);
 
             _missions.Add(missionData, mission);
         }

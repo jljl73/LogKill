@@ -1,4 +1,5 @@
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.Mission;
 using LogKill.UI;
 using UnityEngine;
@@ -9,6 +10,24 @@ namespace LogKill.Entity
     {
         [SerializeField] private MissionData _missionData;
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+
+        private void Awake()
+        {
+            EventBus?.Subscribe<MissionClearEvent>(OnMissionClearEvent);
+        }
+
+        private void OnDestroy()
+        {
+            EventBus?.Unsubscribe<MissionClearEvent>(OnMissionClearEvent);
+        }
+
+        private void OnMissionClearEvent(MissionClearEvent context)
+        {
+            if (context.MissionId == _missionData.MissionId)
+            {
+                Destroy(gameObject);
+            }
+        }
 
         public void Interact()
         {

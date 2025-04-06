@@ -1,4 +1,6 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Core;
+using LogKill.Event;
 using LogKill.UI;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -9,6 +11,7 @@ namespace LogKill.Room
     public class SessionManager : NetworkSingleton<SessionManager>
     {
         private Dictionary<ulong, bool> _playerLoadStatus = new Dictionary<ulong, bool>(); // ���� �ε� ����
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
         public override void OnNetworkSpawn()
         {
@@ -18,7 +21,7 @@ namespace LogKill.Room
                 NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnected;
             }
 
-            if(IsClient)
+            if (IsClient)
             {
                 GameManager.Instance.StartSession().Forget();
             }
@@ -70,7 +73,7 @@ namespace LogKill.Room
         {
             foreach (var status in _playerLoadStatus.Values)
             {
-                if (!status) 
+                if (!status)
                     return;
             }
 
@@ -82,8 +85,12 @@ namespace LogKill.Room
         [ClientRpc]
         private void StartNextPhaseClientRpc()
         {
-            // Debug.Log("!!");
-            UIManager.Instance.ShowHUD<InGameHud>();
+            var context = new GameStartEvent()
+            {
+                UserCount = NetworkManager.Singleton.ConnectedClientsIds.Count,
+                MissionCount = 5,
+            };
+            EventBus.Publish(context);
         }
     }
 }
