@@ -52,7 +52,7 @@ namespace LogKill.LobbySystem
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, lobbyOptions);
                 await RegisterEvents(CurrentLobby);
 
-                StartHeartbeatLobbyAlive();
+                StartHeartbeatLobbyAlive().Forget();
 
                 await StartRelayWithHost();
 

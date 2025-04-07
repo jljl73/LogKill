@@ -1,3 +1,5 @@
+using LogKill.LobbySystem;
+using LogKill.Vote;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,8 +10,9 @@ namespace LogKill.Character
         private PlayerMovement _movement;
         private PlayerInputHandler _inputHandler;
         private PlayerAnimator _animator;
+        private PlayerData _playerData = new();
 
-        public bool IsDead { get; private set; } = false;
+        public PlayerData PlayerData { get ; private set; }
 
         private void Awake()
         {
@@ -20,8 +23,7 @@ namespace LogKill.Character
 
         private void Update()
         {
-            if (IsDead)
-                return;
+            if (_playerData.IsDead) return;
 
             Vector2 moveDir = _inputHandler.MoveDirection;
             _animator.UpdateSpeed(moveDir);
@@ -52,13 +54,23 @@ namespace LogKill.Character
 
         public void OnDead()
         {
-            if (IsDead)
+            if (_playerData.IsDead)
                 return;
 
-            IsDead = true;
+            _playerData.IsDead = true;
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
+        }
+
+        private void GameStartInitialize()
+        {
+            Debug.Log("ClientId : " + NetworkManager.Singleton.LocalClientId);
+
+            if (!IsOwner) return;
+
+            _playerData.Initialize(EColorType.Red, NetworkManager.Singleton.LocalClientId.ToString());
+            DebugPlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
         }
     }
 }

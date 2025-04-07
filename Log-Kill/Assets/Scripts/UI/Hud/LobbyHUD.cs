@@ -9,11 +9,13 @@ namespace LogKill.UI
 {
     public class LobbyHUD : HUDBase
     {
+        [SerializeField] private TMP_Text _playerCountText;
+        [SerializeField] private TMP_Text _lobbyCodeText;
+
         [SerializeField] private Button _accessStateToggleButton;
         [SerializeField] private TMP_Text _accessStateText;
 
-        [SerializeField] private TMP_Text _playerCountText;
-        [SerializeField] private TMP_Text _lobbyCodeText;
+        [SerializeField] private Button _startButton;
 
         private int _maxPlayerCount;
         private int _currentPlayerCount;
@@ -28,6 +30,7 @@ namespace LogKill.UI
             _isHost = LobbyManager.Instance.GetIsHost();
 
             _accessStateToggleButton.gameObject.SetActive(_isHost);
+            _startButton.gameObject.SetActive(_isHost);
 
             if (_isHost)
             {
@@ -66,8 +69,6 @@ namespace LogKill.UI
 
         private void OnLobbyLeavedEvent()
         {
-            Debug.Log("OnLobbyLeavedEvent");
-
             // TODO Scene Move
             UIManager.Instance.HideCurrentHUD();
             var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
@@ -94,6 +95,8 @@ namespace LogKill.UI
             _maxPlayerCount = maxPlayerCount;
 
             _playerCountText.text = $"{currentPlayerCount} / {maxPlayerCount}";
+
+            _startButton.interactable = _currentPlayerCount == _maxPlayerCount;
         }
 
         public async void OnClickAccessStateToggle()
@@ -107,6 +110,11 @@ namespace LogKill.UI
             UpdateAccessStateText(_isPrivate);
 
             _accessStateToggleButton.interactable = true;
+        }
+
+        public void OnClickGameStart()
+        {
+            Debug.Log("GameStart");
         }
 
         public async void OnClickExit()
