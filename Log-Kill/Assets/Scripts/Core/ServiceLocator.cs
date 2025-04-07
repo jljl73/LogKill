@@ -108,7 +108,8 @@ namespace LogKill.Core
 
             var serviceTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(t => typeof(IService).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
+                .Where(t => typeof(IService).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract)
+                .OrderBy(t => t.Namespace != null && t.Namespace.StartsWith("LogKill.Core") ? 0 : 1);
 
             foreach (var serviceType in serviceTypes)
             {

@@ -10,6 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1fa01d2e8a43fc043b846d845a1dc127, type: 3}
-  m_Name: MissionData
+  m_Name: GaugeMission_4
   m_EditorClassIdentifier: 
+  <MissionId>k__BackingField: 4
   <MissionPrefabName>k__BackingField: Assets/Prefabs/Mission/GaugeMission.prefab

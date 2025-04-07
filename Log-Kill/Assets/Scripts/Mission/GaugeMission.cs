@@ -15,11 +15,18 @@ namespace LogKill.Mission
         private LogService LogService => ServiceLocator.Get<LogService>();
         private float _startTime = 0.0f;
         private float _stackTime = 0.0f;
+        private Vector3 _defaultPosition;
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            _defaultPosition = _gaugeBarRect.anchoredPosition;
+        }
 
         protected override void OnStart()
         {
             var width = _gaugeRect.sizeDelta.x * 0.5f - _gaugeBarRect.sizeDelta.x;
-            _tweener = _gaugeBarRect.DOLocalMoveX(width, 1.0f).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+            _tweener = _gaugeBarRect.DOLocalMoveX(width, 1.0f).ChangeStartValue(_defaultPosition).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
             _startTime = Time.time;
         }
 
@@ -49,7 +56,6 @@ namespace LogKill.Mission
         {
             if (_tweener.IsPlaying())
             {
-                _tweener.Pause();
                 if (IsCatch())
                 {
                     ClearMission();
@@ -60,9 +66,8 @@ namespace LogKill.Mission
                     LogService.Print(ELogType.MissionFail);
                     CancelMission();
                 }
+                _tweener.Complete();
             }
-            else
-                _tweener.Play();
         }
     }
 }

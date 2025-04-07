@@ -1,12 +1,21 @@
+using LogKill.Core;
+using LogKill.Event;
 using LogKill.Mission;
+using LogKill.UI;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace LogKill
 {
     public class MissionBase : MonoBehaviour, IMisison
     {
-        public void Initialize()
+        private int _missionId;
+        protected MissionService MissionService => ServiceLocator.Get<MissionService>();
+        protected EventBus EventBus => ServiceLocator.Get<EventBus>();
+
+        public void Initialize(int missionId)
         {
+            _missionId = missionId;
             gameObject.SetActive(true);
             OnInitialize();
         }
@@ -19,13 +28,15 @@ namespace LogKill
         public void ClearMission()
         {
             OnClear();
-            gameObject.SetActive(false);
+            UIManager.Instance.CloseCurrentWindow();
+            MissionService.ReportMissionClearServerRpc(NetworkManager.Singleton.LocalClientId, _missionId);
+            EventBus.Publish(new MissionClearEvent { MissionId = _missionId, });
         }
 
         public void CancelMission()
         {
             OnCancel();
-            gameObject.SetActive(false);
+            UIManager.Instance.CloseCurrentWindow();
         }
 
         protected virtual void OnInitialize()
