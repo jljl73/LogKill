@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
-using LogKill.Log;
 using LogKill.UI;
+using System.Collections.Generic;
 using System.Threading;
 using TMPro;
 using UnityEngine;
@@ -32,33 +32,15 @@ namespace LogKill.Vote
             _timerToken = null;
         }
 
-        public void InitSelectLogList(ILog[] logs)
+        public void InitLogList(List<string> logList)
         {
-            _logCount = Mathf.Min(logs.Length, _selectLogItems.Length);
+            _logCount = Mathf.Min(logList.Count, _selectLogItems.Length);
 
             for (int i = 0; i < _selectLogItems.Length; i++)
             {
                 if (i < _logCount)
                 {
-                    _selectLogItems[i].Initialize(logs[i].Content);
-                }
-                else
-                {
-                    _selectLogItems[i].Initialize("");
-                }
-            }
-
-            _selectLogIndex = -1;
-        }
-        public void InitSelectLogList(params string[] logs)
-        {
-            _logCount = Mathf.Min(logs.Length, _selectLogItems.Length);
-
-            for (int i = 0; i < _selectLogItems.Length; i++)
-            {
-                if (i < _logCount)
-                {
-                    _selectLogItems[i].Initialize(logs[i]);
+                    _selectLogItems[i].Initialize(logList[i]);
                 }
                 else
                 {
@@ -101,7 +83,6 @@ namespace LogKill.Vote
 
             VoteManager.Instance.SubmitLogMessageToServerRpc(logText);
         }
-
 
         public void OnClickSelectLog(int index)
         {

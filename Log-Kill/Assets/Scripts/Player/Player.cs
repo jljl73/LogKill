@@ -1,3 +1,4 @@
+using LogKill.Core;
 using LogKill.Vote;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,6 +13,8 @@ namespace LogKill.Character
         private PlayerNetworkSync _networkSync;
 
         private PlayerData _playerData;
+
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
         private void Awake()
         {
@@ -36,7 +39,7 @@ namespace LogKill.Character
 
             if (Input.GetKeyDown(KeyCode.U))
             {
-                DebugPlayerDataManager.Instance.BroadcastPlayerDataToAllClientsClientRpc();
+                PlayerDataManager.Instance.RequestPlayerDataServerRpc();
             }
         }
 
@@ -61,7 +64,7 @@ namespace LogKill.Character
 
                 _networkSync.UpdateColorType(_playerData.ColorType);
 
-                DebugPlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
+                PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
 
                 CameraController.Instance.SetTarget(transform);
             }
@@ -77,6 +80,7 @@ namespace LogKill.Character
                 return;
 
             _playerData.IsDead = true;
+            EventBus.Publish<PlayerData>(_playerData);
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();

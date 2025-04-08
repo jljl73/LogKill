@@ -5,6 +5,7 @@ using LogKill.Map;
 using LogKill.Mission;
 using LogKill.Room;
 using LogKill.UI;
+using LogKill.Vote;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -28,7 +29,15 @@ namespace LogKill
 			onlineModeWindow.Initialize();
 		}
 
-		public async UniTask StartSession()
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+				VoteManager.Instance.OnStartVotingServerRpc();
+            }
+        }
+
+        public async UniTask StartSession()
 		{
 			Debug.Log(">> Start: Init Session");
 			List<UniTask> tasks = new();

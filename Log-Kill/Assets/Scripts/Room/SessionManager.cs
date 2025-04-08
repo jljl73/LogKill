@@ -1,7 +1,9 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Character;
 using LogKill.Core;
 using LogKill.Event;
 using LogKill.UI;
+using LogKill.Vote;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,7 +12,11 @@ namespace LogKill.Room
 {
     public class SessionManager : NetworkSingleton<SessionManager>
     {
+        [SerializeField]
+        private NetworkObject _playerPrefab;
+
         private Dictionary<ulong, bool> _playerLoadStatus = new Dictionary<ulong, bool>(); // ���� �ε� ����
+
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
         public override void OnNetworkSpawn()
@@ -67,6 +73,8 @@ namespace LogKill.Room
                 _playerLoadStatus[clientId] = true;
                 CheckAllPlayersLoaded();
             }
+
+            OnPlayerSpawn(clientId);
         }
 
         private void CheckAllPlayersLoaded()
@@ -78,6 +86,11 @@ namespace LogKill.Room
             }
 
             StartNextPhaseClientRpc();
+        }
+
+        private void OnPlayerSpawn(ulong clientId)
+        {
+            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(_playerPrefab, clientId);
         }
 
         #endregion

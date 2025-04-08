@@ -14,14 +14,15 @@ namespace LogKill.Vote
         [SerializeField] private TMP_Text _logText;
 
         [SerializeField] private GameObject _deadPanel;
+        [SerializeField] private GameObject _loadingPanel;
         [SerializeField] private GameObject _buttonGroup;
 
         public void Initialize(PlayerData playerData, string logMessage, bool isImposter)
         {
             _buton.interactable = true;
-            _icon.color = playerData.GetColor();
+            // _icon.color = playerData.GetColor();
 
-            _nameText.text = playerData.Name.Value;
+            // _nameText.text = playerData.Name.Value;
             _nameText.color = (isImposter) ? Color.red : Color.black;
 
             _logText.text = logMessage;

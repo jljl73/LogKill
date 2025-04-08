@@ -1,6 +1,7 @@
 using LogKill.Character;
 using LogKill.UI;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,11 +13,31 @@ namespace LogKill.Vote
 
         private Dictionary<ulong, VotePanel> _votePanelDict = new();
 
+        public void InitVotePanel(VoteData[] voteDatas)
+        {
+            ulong clientId = NetworkManager.Singleton.LocalClientId;
+
+            voteDatas
+                .OrderBy(data => data.PlayerData.ClientId == clientId ? 0 : 1)
+                .ToArray();
+
+
+            var voteData = voteDatas.FirstOrDefault(data => data.PlayerData.ClientId == clientId);
+            bool isImposter = voteData.PlayerData.PlayerType == EPlayerType.Imposter;
+
+            int panelIndex = 0;
+
+
+        }
+
+
+
+
         public void InitVotePanel(Dictionary<ulong, string> playerLogDict)
         {
             ulong localClientId = NetworkManager.Singleton.LocalClientId;
 
-            var playerDatas = DebugPlayerDataManager.Instance.PlayerDataDict;
+            var playerDatas = PlayerDataManager.Instance.PlayerDataDict;
             bool isImposter = playerDatas[localClientId].PlayerType == EPlayerType.Imposter;
 
             int panelIndex = 0;
