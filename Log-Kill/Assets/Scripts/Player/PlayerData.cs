@@ -20,6 +20,22 @@ namespace LogKill.Character
         Purple
     }
 
+    //public class PlayerData
+    //{
+    //    public EPlayerType PlayerType;
+    //    public EColorType ColorType;
+    //    public string Name;
+    //    public bool IsDead;
+
+    //    public void Initialize(string name)
+    //    {
+    //        PlayerType = EPlayerType.Normal;
+    //        ColorType = EColorType.Red;
+    //        Name = name;
+    //        IsDead = false;
+    //    }
+    //}
+
     public struct PlayerData : INetworkSerializable
     {
         public ulong ClientId;
@@ -28,14 +44,23 @@ namespace LogKill.Character
         public FixedString32Bytes Name;
         public bool IsDead;
 
-        public void Initialize(EColorType colorType, string name)
+        public PlayerData(ulong id, string name, bool isDead = false)
         {
-            ClientId = NetworkManager.Singleton.LocalClientId;
+            ClientId = id;
             PlayerType = EPlayerType.Normal;
-            ColorType = colorType;
+            ColorType = (EColorType)id;
             Name = name;
-            IsDead = false;
+            IsDead = isDead;
         }
+
+        //public void Initialize(string name)
+        //{
+        //    ClientId = NetworkManager.Singleton.LocalClientId;
+        //    PlayerType = EPlayerType.Normal;
+        //    ColorType = EColorType.White;
+        //    Name = name;
+        //    IsDead = false;
+        //}
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {

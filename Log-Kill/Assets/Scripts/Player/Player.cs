@@ -1,4 +1,3 @@
-using LogKill.LobbySystem;
 using LogKill.Vote;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,15 +9,16 @@ namespace LogKill.Character
         private PlayerMovement _movement;
         private PlayerInputHandler _inputHandler;
         private PlayerAnimator _animator;
-        private PlayerData _playerData = new();
+        private PlayerNetworkSync _networkSync;
 
-        public PlayerData PlayerData { get ; private set; }
+        private PlayerData _playerData;
 
         private void Awake()
         {
             _movement = GetComponent<PlayerMovement>();
             _inputHandler = GetComponent<PlayerInputHandler>();
             _animator = GetComponent<PlayerAnimator>();
+            _networkSync = GetComponent<PlayerNetworkSync>();
         }
 
         private void Update()
@@ -27,10 +27,16 @@ namespace LogKill.Character
 
             Vector2 moveDir = _inputHandler.MoveDirection;
             _animator.UpdateSpeed(moveDir);
+            _networkSync.UpdateDirection(moveDir);
 
             if (Input.GetKeyDown(KeyCode.R))
             {
                 OnDead();
+            }
+
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                DebugPlayerDataManager.Instance.BroadcastPlayerDataToAllClientsClientRpc();
             }
         }
 
@@ -41,16 +47,28 @@ namespace LogKill.Character
 
         public override void OnNetworkSpawn()
         {
-            if (!IsOwner)
+            _animator.Initialize();
+            _networkSync.Initialize();
+
+            if (IsOwner)
+            {
+                _movement.Initialize();
+                _inputHandler.Initialize(IsOwner);
+
+                ulong clientId = NetworkManager.Singleton.LocalClientId;
+                string playerName = $"Player {clientId}";
+                _playerData = new PlayerData(clientId, playerName);
+
+                _networkSync.UpdateColorType(_playerData.ColorType);
+
+                DebugPlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
+
+                CameraController.Instance.SetTarget(transform);
+            }
+            else
             {
                 enabled = false;
-                return;
             }
-
-            _movement.Initialize();
-            _inputHandler.Initialize(IsOwner);
-            _animator.Initialize();
-            CameraController.Instance.SetTarget(transform);
         }
 
         public void OnDead()
@@ -63,16 +81,6 @@ namespace LogKill.Character
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
             CameraController.Instance.SetTarget(null);
-        }
-
-        private void GameStartInitialize()
-        {
-            Debug.Log("ClientId : " + NetworkManager.Singleton.LocalClientId);
-
-            if (!IsOwner) return;
-
-            _playerData.Initialize(EColorType.Red, NetworkManager.Singleton.LocalClientId.ToString());
-            DebugPlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
         }
     }
 }
