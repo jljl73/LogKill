@@ -1,7 +1,12 @@
+using Cysharp.Threading.Tasks;
 using LogKill.Character;
+using LogKill.Core;
+using LogKill.Event;
 using LogKill.UI;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,65 +15,124 @@ namespace LogKill.Vote
     public class VoteWindow : WindowBase
     {
         [SerializeField] private VotePanel[] _votePanels;
+        [SerializeField] private TMP_Text _timerText;
+
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+
+        private CancellationTokenSource _timerToken;
 
         private Dictionary<ulong, VotePanel> _votePanelDict = new();
 
+        private int _totalTime = 90;
+
         public void InitVotePanel(VoteData[] voteDatas)
         {
+            _votePanelDict.Clear();
+
             ulong clientId = NetworkManager.Singleton.LocalClientId;
 
-            voteDatas
-                .OrderBy(data => data.PlayerData.ClientId == clientId ? 0 : 1)
-                .ToArray();
+            SortedVoteDatas(clientId, ref voteDatas);
 
+            VoteData clientVote = voteDatas[0];
+            bool isImposter = clientVote.PlayerData.PlayerType == EPlayerType.Imposter;
 
-            var voteData = voteDatas.FirstOrDefault(data => data.PlayerData.ClientId == clientId);
-            bool isImposter = voteData.PlayerData.PlayerType == EPlayerType.Imposter;
-
-            int panelIndex = 0;
-
-
-        }
-
-
-
-
-        public void InitVotePanel(Dictionary<ulong, string> playerLogDict)
-        {
-            ulong localClientId = NetworkManager.Singleton.LocalClientId;
-
-            var playerDatas = PlayerDataManager.Instance.PlayerDataDict;
-            bool isImposter = playerDatas[localClientId].PlayerType == EPlayerType.Imposter;
-
-            int panelIndex = 0;
-
-            foreach (var playerData in playerDatas)
+            for (int i = 0; i < voteDatas.Length; i++)
             {
-                int index = (playerData.Key == localClientId) ? 0 : ++panelIndex;
-
-                string logMessage = playerLogDict[playerData.Key];
-
-                var votePanel = _votePanels[index];
-                votePanel.Initialize(playerData.Value, logMessage, isImposter);
+                VotePanel votePanel = _votePanels[i];
+                votePanel.Initialize(clientId, voteDatas[i], isImposter);
                 votePanel.gameObject.SetActive(true);
 
-                _votePanelDict[playerData.Key] = votePanel;
+                _votePanelDict[voteDatas[i].PlayerData.ClientId] = votePanel;
             }
 
-            _votePanelDict[localClientId].OnDisabledPanelButton();
-
-            for (int i = playerDatas.Count; i < _votePanels.Length; i++)
+            for (int i = voteDatas.Length; i < _votePanels.Length; i++)
             {
                 _votePanels[i].gameObject.SetActive(false);
             }
-        }
 
+            _timerText.text = "Log Selecting...";
+        }
 
         public override void OnShow()
         {
-            _votePanelDict.Clear();
+            EventBus.Subscribe<SelectLogMessageEvent>(OnSelectLogMessageEvent);
+            EventBus.Subscribe<VoteStartEvent>(OnVoteStartEvent);
+            EventBus.Subscribe<VoteCompleteEvent>(OnVoteCompleteEvent);
         }
 
+        public override void OnHide()
+        {
+            EventBus.Unsubscribe<SelectLogMessageEvent>(OnSelectLogMessageEvent);
+            EventBus.Unsubscribe<VoteStartEvent>(OnVoteStartEvent);
+            EventBus.Unsubscribe<VoteCompleteEvent>(OnVoteCompleteEvent);
+
+            _timerToken?.Cancel();
+            _timerToken?.Dispose();
+            _timerToken = null;
+        }
+
+        private void OnSelectLogMessageEvent(SelectLogMessageEvent selectLogMessage)
+        {
+            _votePanelDict[selectLogMessage.ClientId].OnSelectLogMessage(selectLogMessage.LogMessage);
+        }
+
+        private void OnVoteStartEvent(VoteStartEvent voteStart)
+        {
+            StartTimer(_totalTime).Forget();
+        }
+
+        private void OnVoteCompleteEvent(VoteCompleteEvent voteComplete)
+        {
+            ulong clientId = NetworkManager.Singleton.LocalClientId;
+            if (clientId == voteComplete.VoterClientId)
+            {
+                foreach (var votePanel in _votePanelDict)
+                {
+                    votePanel.Value.OnDisabled();
+                }
+            }
+
+            _votePanelDict[voteComplete.VoterClientId].OnVoteComplete();
+
+            if (!voteComplete.IsSkip)
+                _votePanelDict[voteComplete.TargetClientId].AddVoteCount();
+        }
+
+        private async UniTask StartTimer(int time)
+        {
+            int currentTime = time;
+
+            _timerToken = new CancellationTokenSource();
+
+            while (currentTime > 0)
+            {
+                try
+                {
+                    await UniTask.Delay(1000, cancellationToken: _timerToken.Token);
+                }
+                catch (System.OperationCanceledException)
+                {
+                    return;
+                }
+
+                currentTime--;
+                _timerText.text = $"Prooeeding In : {currentTime}s";
+            }
+        }
+
+        private void SortedVoteDatas(ulong clientId, ref VoteData[] voteDatas)
+        {
+            Array.Sort(voteDatas, (a, b) => a.PlayerData.IsDead.CompareTo(b.PlayerData.IsDead));
+
+            int localIndex = Array.FindIndex(voteDatas, v =>
+                v.PlayerData.ClientId == clientId &&
+                v.PlayerData.IsDead == false);
+
+            if (localIndex > 0)
+            {
+                (voteDatas[0], voteDatas[localIndex]) = (voteDatas[localIndex], voteDatas[0]);
+            }
+        }
 
         public void OnClickVotePanel(int index)
         {
@@ -78,6 +142,11 @@ namespace LogKill.Vote
 
                 _votePanels[i].OnSelect(i == index);
             }
+        }
+
+        public void OnClickSkip()
+        {
+            VoteManager.Instance.VoteCompleteToServerRpc(0, true);
         }
     }
 }

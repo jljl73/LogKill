@@ -8,13 +8,28 @@ namespace LogKill.Character
 {
     public class PlayerDataManager : NetworkSingleton<PlayerDataManager>
     {
-        public Dictionary<ulong, PlayerData> PlayerDataDict { get; private set; } = new();
+        public Dictionary<ulong, PlayerData> PlayerDataDicts { get; private set; } = new();
+
+        public PlayerData ClientPlayerData { get; private set; }
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
         public override void OnNetworkSpawn()
         {
+            if (IsServer)
+            {
+                NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnected;
+            }
+
             EventBus.Subscribe<PlayerData>(OnUpdatePlayerData);
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (IsServer)
+            {
+                NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerDisconnected;
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -24,21 +39,21 @@ namespace LogKill.Character
 
             ulong clientId = rpcParams.Receive.SenderClientId;
 
-            if (PlayerDataDict.ContainsKey(clientId))
+            if (PlayerDataDicts.ContainsKey(clientId))
             {
-                PlayerDataDict[clientId] = playerData;
+                PlayerDataDicts[clientId] = playerData;
             }
             else
             {
-                PlayerDataDict.Add(clientId, playerData);
+                PlayerDataDicts.Add(clientId, playerData);
             }
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void RequestPlayerDataServerRpc(ServerRpcParams rpcParams = default)
         {
-            PlayerData[] playerDatas = new PlayerData[PlayerDataDict.Count];
-            PlayerDataDict.Values.CopyTo(playerDatas, 0);
+            PlayerData[] playerDatas = new PlayerData[PlayerDataDicts.Count];
+            PlayerDataDicts.Values.CopyTo(playerDatas, 0);
 
             BroadcastPlayerDataClientRpc(playerDatas);
         }
@@ -55,14 +70,34 @@ namespace LogKill.Character
             }
         }
 
+        public PlayerData[] GetPlayerDataToArray()
+        {
+            PlayerData[] playerDatas = new PlayerData[PlayerDataDicts.Count];
+            PlayerDataDicts.Values.CopyTo(playerDatas, 0);
+
+            return playerDatas;
+        }
+
         public int GetAlivePlayerCount()
         {
-            return PlayerDataDict.Values.Count(data => !data.IsDead);
+            return PlayerDataDicts.Values.Count(data => !data.IsDead);
         }
 
         private void OnUpdatePlayerData(PlayerData playerData)
         {
+            ClientPlayerData = playerData;
             SubmitPlayerDataToServerRpc(playerData);
+        }
+
+        private void OnPlayerDisconnected(ulong clientId)
+        {
+            if (!IsServer)
+                return;
+
+            if (PlayerDataDicts.ContainsKey(clientId))
+            {
+                PlayerDataDicts.Remove(clientId);
+            }
         }
     }
 }

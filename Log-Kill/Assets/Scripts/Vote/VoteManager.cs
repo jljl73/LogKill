@@ -1,8 +1,10 @@
 using LogKill.Character;
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.Log;
 using LogKill.UI;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,9 +12,11 @@ namespace LogKill.Vote
 {
     public class VoteManager : NetworkSingleton<VoteManager>
     {
-        private Dictionary<ulong, string> _clientSelectLogDicts = new();
-
         private LogService LogService => ServiceLocator.Get<LogService>();
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+
+        private Dictionary<ulong, string> _selectLogDicts = new();
+        private Dictionary<ulong, HashSet<ulong>> _voteResultDicts = new();
 
         private int _checkCount = 0;
         private int _voteCount = 0;
@@ -25,7 +29,8 @@ namespace LogKill.Vote
             _checkCount = 0;
             _voteCount = PlayerDataManager.Instance.GetAlivePlayerCount();
 
-            OnStartVotingClientRpc();
+            var voteDatas = CreateVoteDataArray();
+            OnStartVotingClientRpc(voteDatas);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -43,57 +48,93 @@ namespace LogKill.Vote
 
             ulong clientId = rpcParams.Receive.SenderClientId;
 
-            if (_clientSelectLogDicts.ContainsKey(clientId))
+            if (_selectLogDicts.ContainsKey(clientId))
             {
-                _clientSelectLogDicts[clientId] = logMessage;
+                _selectLogDicts[clientId] = logMessage;
             }
             else
             {
-                _clientSelectLogDicts.Add(clientId, logMessage);
+                _selectLogDicts.Add(clientId, logMessage);
             }
+
+            BroadcastSelectLogMessageToAllClientsClientRpc(clientId, logMessage);
+
+            var voteDatas = CreateVoteDataArray();
+            ShowVoteWindowClientRpc(voteDatas, new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new[] { clientId }
+                }
+            });
 
             _checkCount++;
 
-            CheckAllPlayerSelectLogMessage();
+            if (_checkCount == _voteCount)
+            {
+                OnEndSelectLogMessageClientRpc();
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void CreateVoteDataServerRpc()
+        public void VoteCompleteToServerRpc(ulong targetClientId, bool isSkip, ServerRpcParams rpcParams = default)
         {
             if (!IsServer) return;
 
-            List<VoteData> voteDataList = new();
+            ulong voterClientId = rpcParams.Receive.SenderClientId;
 
-            var playerDataDict = PlayerDataManager.Instance.PlayerDataDict;
-
-            foreach (var selectLog in _clientSelectLogDicts)
+            if (!isSkip)
             {
-                ulong clientId = selectLog.Key;
-                string logMessage = selectLog.Value;
-
-                if (playerDataDict.TryGetValue(clientId, out PlayerData playerData))
+                if (!_voteResultDicts.ContainsKey(targetClientId))
                 {
-                    voteDataList.Add(new VoteData(playerData, logMessage));
+                    _voteResultDicts[targetClientId] = new HashSet<ulong>();
                 }
+
+                _voteResultDicts[targetClientId].Add(voterClientId);
             }
 
-            BroadcastVoteDataToAllClientsClientRpc(voteDataList.ToArray());
+            BroadcastVoteCompleteToAllClientsClientRpc(voterClientId, targetClientId, isSkip);
+        }
+
+
+        [ClientRpc]
+        private void OnStartVotingClientRpc(VoteData[] voteDatas)
+        {
+            // TODO 회의 시작 애니메이션
+
+            bool isDead = PlayerDataManager.Instance.ClientPlayerData.IsDead;
+
+            if (isDead)
+                ShowVoteWindow(voteDatas);
+            else
+                ShowSelectLogWindow();
         }
 
         [ClientRpc]
-        public void BroadcastVoteDataToAllClientsClientRpc(VoteData[] voteDatas)
+        private void ShowVoteWindowClientRpc(VoteData[] voteDatas, ClientRpcParams rpcParams = default)
         {
+            ShowVoteWindow(voteDatas);
+        }
 
-            foreach (var voteData in voteDatas)
+        [ClientRpc]
+        private void BroadcastSelectLogMessageToAllClientsClientRpc(ulong clientId, string logMessage)
+        {
+            EventBus.Publish<SelectLogMessageEvent>(new SelectLogMessageEvent
             {
-                Debug.Log($"{voteData.PlayerData.Name} - {voteData.LogMessage}");
-            }
+                ClientId = clientId,
+                LogMessage = logMessage
+            });
         }
 
         [ClientRpc]
-        private void OnStartVotingClientRpc()
+        private void BroadcastVoteCompleteToAllClientsClientRpc(ulong voterClientId, ulong targetClientId, bool isSkip)
         {
-            ShowSelectLogWindow();
+            EventBus.Publish<VoteCompleteEvent>(new VoteCompleteEvent
+            {
+                VoterClientId = voterClientId,
+                TargetClientId = targetClientId,
+                IsSkip = isSkip
+            });
         }
 
         [ClientRpc]
@@ -102,10 +143,15 @@ namespace LogKill.Vote
             Debug.Log("OnEndVotingClientRpc");
         }
 
+        [ClientRpc]
+        private void OnEndSelectLogMessageClientRpc()
+        {
+            EventBus.Publish<VoteStartEvent>(new VoteStartEvent());
+        }
+
         private void ShowSelectLogWindow()
         {
             var logList = LogService.GetRandomLogList();
-
             var debugLogList = new List<string>() { "TestLog 1", "TestLog 2", "Test Log3" };
 
             var selectLogWindow = UIManager.Instance.ShowWindow<SelectLogWindow>();
@@ -115,15 +161,27 @@ namespace LogKill.Vote
         private void ShowVoteWindow(VoteData[] voteDatas)
         {
             var voteWindow = UIManager.Instance.ShowWindow<VoteWindow>();
+            voteWindow.InitVotePanel(voteDatas);
         }
 
-
-        private void CheckAllPlayerSelectLogMessage()
+        private VoteData[] CreateVoteDataArray()
         {
-            if (_checkCount == _voteCount)
+            if (!IsServer) return null;
+
+            var playerDataDict = PlayerDataManager.Instance.PlayerDataDicts;
+            var voteDataList = new List<VoteData>();
+
+            foreach (var playerDatakvp in playerDataDict)
             {
-                CreateVoteDataServerRpc();
+                ulong clientId = playerDatakvp.Key;
+                PlayerData playerData = playerDatakvp.Value;
+
+                string logMessage = _selectLogDicts.TryGetValue(clientId, out string log) ? log : "";
+
+                voteDataList.Add(new VoteData(playerData, logMessage));
             }
+
+            return voteDataList.ToArray();
         }
     }
 }

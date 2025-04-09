@@ -61,10 +61,9 @@ namespace LogKill.Character
                 ulong clientId = NetworkManager.Singleton.LocalClientId;
                 string playerName = $"Player {clientId}";
                 _playerData = new PlayerData(clientId, playerName);
+                EventBus.Publish<PlayerData>(_playerData);
 
                 _networkSync.UpdateColorType(_playerData.ColorType);
-
-                PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
 
                 CameraController.Instance.SetTarget(transform);
             }

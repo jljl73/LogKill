@@ -48,6 +48,8 @@ namespace LogKill.LobbySystem
                     var lobbyList = await LobbyManager.Instance.GetLobbyListAsync();
                     UpdateLobbyList(lobbyList);
 
+                    _quickJoinButton.interactable = lobbyList.Count > 0;
+
                     await UniTask.Delay(NetworkConstants.LOBBY_LIST_UPDATE_MS, cancellationToken: _lobbyListRefreshToken.Token);
                 }
             }
@@ -80,6 +82,8 @@ namespace LogKill.LobbySystem
             {
                 Destroy(lobbyItem);
             }
+
+            _lobbyListItems.Clear();
 
             foreach (Lobby lobby in lobbies)
             {

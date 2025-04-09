@@ -35,7 +35,7 @@ namespace LogKill.LobbySystem
             await SignInAnonymouslyAsync();
         }
 
-        public async UniTask CreateLobbyAsync(string lobbyName, int maxPlayers, int imposterCount, bool isPrivate = false)
+        public async UniTask CreateLobbyAsync(string lobbyName, int maxPlayers, int imposterCount, bool isPrivate = true)
         {
             try
             {
@@ -55,6 +55,7 @@ namespace LogKill.LobbySystem
                 StartHeartbeatLobbyAlive().Forget();
 
                 await StartRelayWithHost();
+                await UpdateIsPrivate(false);
 
                 Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
             }

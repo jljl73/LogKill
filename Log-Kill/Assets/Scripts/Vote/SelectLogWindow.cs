@@ -65,7 +65,6 @@ namespace LogKill.Vote
                 }
                 catch (System.OperationCanceledException)
                 {
-                    Debug.Log("Timer cancelled");
                     return;
                 }
 
@@ -94,6 +93,11 @@ namespace LogKill.Vote
             {
                 _selectLogItems[i].OnSelect(i == index);
             }
+        }
+
+        public void OnClickSelectComplete()
+        {
+            SubmitLogMessage();
         }
     }
 }
