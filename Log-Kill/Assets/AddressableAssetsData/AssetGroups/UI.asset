@@ -22,13 +22,13 @@ MonoBehaviour:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 156c8945fd7518040913a1018c549460
-    m_Address: Assets/Prefabs/UI/Vote/SelectLogWindow.prefab
+    m_Address: Assets/Prefabs/Vote/SelectLogWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1ab25e3122cc1004bb2db86e024ffdf6
-    m_Address: Assets/Prefabs/UI/Vote/VoteWindow.prefab
+    m_Address: Assets/Prefabs/Vote/VoteWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI
@@ -40,19 +40,19 @@ MonoBehaviour:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8db8c113cf118fc4d86fc0b8867c4af8
-    m_Address: Assets/Prefabs/UI/Lobby/LobbyListWindow.prefab
+    m_Address: Assets/Prefabs/Lobby/LobbyListWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dacc662304fddaf49a6295622b3cdf38
-    m_Address: Assets/Prefabs/UI/Lobby/CreateLobbyWindow.prefab
+    m_Address: Assets/Prefabs/Lobby/CreateLobbyWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e383cfa53236c7e45a9b895e8fe0d101
-    m_Address: Assets/Prefabs/UI/LobbyHUD.prefab
+    m_Address: Assets/Prefabs/Lobby/LobbyHUD.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
     - UI

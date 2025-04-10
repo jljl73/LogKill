@@ -29,7 +29,9 @@ namespace LogKill.Room
 
             if (IsClient)
             {
-                GameManager.Instance.StartSession().Forget();
+                // GameManager.Instance.StartSession().Forget();
+
+                GameManager.Instance.OnJoinRoomPlayer();
             }
         }
 
@@ -73,8 +75,14 @@ namespace LogKill.Room
                 _playerLoadStatus[clientId] = true;
                 CheckAllPlayersLoaded();
             }
+        }
 
-            OnPlayerSpawn(clientId);
+        [ServerRpc(RequireOwnership = false)]
+        public void PlayerSpawnServerRpc(ulong clientId)
+        {
+            if (!IsServer) return;
+
+            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(_playerPrefab, clientId);
         }
 
         private void CheckAllPlayersLoaded()
@@ -86,11 +94,6 @@ namespace LogKill.Room
             }
 
             StartNextPhaseClientRpc();
-        }
-
-        private void OnPlayerSpawn(ulong clientId)
-        {
-            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(_playerPrefab, clientId);
         }
 
         #endregion

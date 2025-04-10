@@ -37,6 +37,16 @@ namespace LogKill
             }
         }
 
+		public void OnJoinRoomPlayer()
+        {
+			SessionManager.Instance.PlayerSpawnServerRpc(NetworkManager.Singleton.LocalClientId);
+
+			UIManager.Instance.CloseAllWindows();
+
+			var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
+			lobbyHUD.Initialize();
+		}
+
         public async UniTask StartSession()
 		{
 			Debug.Log(">> Start: Init Session");

@@ -12,14 +12,14 @@ namespace LogKill.UI
         [SerializeField] private TMP_InputField _lobbyCodeInputField;
         [SerializeField] private Button _joinButton;
 
-        public override UniTask InitializeAsync()
+        public async override UniTask InitializeAsync()
         {
             _lobbyCodeInputField.onValueChanged.AddListener(value =>
             {
                 _joinButton.interactable = !string.IsNullOrEmpty(value);
             });
 
-            return base.InitializeAsync();
+            await UniTask.Yield();
         }
 
         public override void OnShow()
@@ -27,31 +27,31 @@ namespace LogKill.UI
             _joinButton.interactable = false;
             _lobbyCodeInputField.text = string.Empty;
 
-            LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
+            //LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
         }
 
         public override void OnHide()
         {
-            LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
+            //LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
         }
 
-        private void OnPlayerJoinedEvent(Lobby lobby)
-        {
-            Debug.Log("OnlineModeWindow OnPlayerJoinedEvent");
+        //private void OnPlayerJoinedEvent(Lobby lobby)
+        //{
+        //    Debug.Log("OnlineModeWindow OnPlayerJoinedEvent");
 
-            if (lobby == null)
-            {
-                _joinButton.interactable = true;
-            }
-            else
-            {
-                // TODO: Scene Move
-                UIManager.Instance.CloseAllWindows();
+        //    if (lobby == null)
+        //    {
+        //        _joinButton.interactable = true;
+        //    }
+        //    else
+        //    {
+        //        // TODO: Scene Move
+        //        UIManager.Instance.CloseAllWindows();
 
-                var lobbyHUD = UIManager.Instance.ShowHUD<InGameHud>();
-                lobbyHUD.Initialize();
-            }
-        }
+        //        var lobbyHUD = UIManager.Instance.ShowHUD<InGameHud>();
+        //        lobbyHUD.Initialize();
+        //    }
+        //}
 
         public void OnClickCreateLobby()
         {
@@ -70,7 +70,11 @@ namespace LogKill.UI
             _joinButton.interactable = false;
 
             string lobbyCode = _lobbyCodeInputField.text;
-            await LobbyManager.Instance.JoinLobbyByCodeAsync(lobbyCode);
+
+            if (!await LobbyManager.Instance.JoinLobbyByCodeAsync(lobbyCode))
+            {
+                Debug.Log("입장 실패");
+            }
         }
     }
 }

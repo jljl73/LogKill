@@ -20,6 +20,26 @@ namespace LogKill.LobbySystem
         private CancellationTokenSource _lobbyHeartbeatToken;
         private LobbyEventCallbacks _lobbyEventCallbacks;
 
+        #region Filter
+        private QueryLobbiesOptions _lobbyListFilter = new QueryLobbiesOptions
+        {
+            Count = 30,
+            Filters = new List<QueryFilter>{
+                        new QueryFilter(
+                            field: QueryFilter.FieldOptions.S1,
+                            op: QueryFilter.OpOptions.EQ,
+                            value: ELobbyStatus.Ready.ToString()
+                        )
+                    },
+            Order = new List<QueryOrder>{
+                        new QueryOrder(
+                            asc: false,
+                            field: QueryOrder.FieldOptions.Created
+                        )
+                    }
+        };
+        #endregion
+
         public string PlayerId { get; private set; }
         public string PlayerName { get; private set; }
         public Lobby CurrentLobby { get; private set; }
@@ -34,7 +54,7 @@ namespace LogKill.LobbySystem
             await SignInAnonymouslyAsync();
         }
 
-        public async UniTask CreateLobbyAsync(string lobbyName, int maxPlayers, int imposterCount, bool isPrivate = true)
+        public async UniTask CreateLobbyAsync(string lobbyName, int maxPlayers, int imposterCount, bool isPrivate = false)
         {
             try
             {
@@ -44,12 +64,22 @@ namespace LogKill.LobbySystem
                     IsPrivate = isPrivate,
                     Data = new Dictionary<string, DataObject>
                     {
-                        { NetworkConstants.GAMESTART_KEY, new DataObject(DataObject.VisibilityOptions.Member, "false") },
-                        { NetworkConstants.IMPOSTER_COUNT_KEY, new DataObject(DataObject.VisibilityOptions.Public, imposterCount.ToString()) }
+                        { NetworkConstants.LOBBY_STATUS_KEY, new DataObject(
+                            DataObject.VisibilityOptions.Public,
+                            ELobbyStatus.Initialize.ToString(),
+                            DataObject.IndexOptions.S1
+                            )
+                        },
+                        { NetworkConstants.IMPOSTER_COUNT_KEY, new DataObject(
+                            DataObject.VisibilityOptions.Public,
+                            imposterCount.ToString(),
+                            DataObject.IndexOptions.N1
+                            )
+                        }
                     }
                 };
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, lobbyOptions);
-                await RegisterEvents(CurrentLobby);
+                // await RegisterEvents(CurrentLobby);
 
                 StartHeartbeatLobbyAlive().Forget();
 
@@ -88,7 +118,7 @@ namespace LogKill.LobbySystem
             await OnPlayerJoinedEvent();
         }
 
-        public async UniTask JoinLobbyByCodeAsync(string lobbyCode)
+        public async UniTask<bool> JoinLobbyByCodeAsync(string lobbyCode)
         {
             try
             {
@@ -97,11 +127,16 @@ namespace LogKill.LobbySystem
                 await RegisterEvents(CurrentLobby);
 
                 await StartRelayWithClient();
+
+                return true;
             }
             catch (LobbyServiceException e)
             {
                 Debug.LogError($"Failed JoinLobbyByCode : {e.Message}");
+
             }
+
+            return false;
 
             await OnPlayerJoinedEvent();
         }
@@ -198,26 +233,7 @@ namespace LogKill.LobbySystem
         {
             try
             {
-                #region Filter
-                QueryLobbiesOptions options = new QueryLobbiesOptions
-                {
-                    Count = 25,
-                    Filters = new List<QueryFilter>{
-                    new QueryFilter(
-                        field: QueryFilter.FieldOptions.AvailableSlots,
-                        op: QueryFilter.OpOptions.GT,
-                        value: "0"
-                    )
-                },
-                    Order = new List<QueryOrder>{
-                    new QueryOrder(
-                        asc: false,
-                        field: QueryOrder.FieldOptions.Created
-                    )
-                }
-                };
-                #endregion
-                QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync();
+                QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync(_lobbyListFilter);
                 return response.Results;
             }
             catch (LobbyServiceException e)
@@ -329,7 +345,18 @@ namespace LogKill.LobbySystem
             {
                 Data = new Dictionary<string, DataObject>
                     {
-                        {NetworkConstants.JOINCODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, joinCode) }
+                        {NetworkConstants.LOBBY_STATUS_KEY, new DataObject(
+                            DataObject.VisibilityOptions.Public,
+                            ELobbyStatus.Ready.ToString(),
+                            DataObject.IndexOptions.S1
+                            )
+                        },
+                        {NetworkConstants.JOINCODE_KEY, new DataObject(
+                            DataObject.VisibilityOptions.Member,
+                            joinCode,
+                            DataObject.IndexOptions.S2
+                            )
+                        }
                     }
             });
 

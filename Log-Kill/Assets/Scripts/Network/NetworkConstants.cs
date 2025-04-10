@@ -2,6 +2,13 @@ using UnityEngine;
 
 namespace LogKill.Network
 {
+    public enum ELobbyStatus
+    {
+        Initialize,
+        Ready,
+        Play,
+    }
+
     public class NetworkConstants
     {
         public static readonly int LOBBY_INFOMATION_UPDATE_MS = 1100;
@@ -14,7 +21,7 @@ namespace LogKill.Network
 
         public static readonly string IMPOSTER_COUNT_KEY = "ImposterCount";
 
-        public static readonly string GAMESTART_KEY = "GameStart";
+        public static readonly string LOBBY_STATUS_KEY = "LobbyStatus";
 
         public static readonly string JOINCODE_KEY = "JoinCode";
     }
