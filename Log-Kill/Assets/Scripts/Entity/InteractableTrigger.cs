@@ -1,4 +1,7 @@
 using System;
+using LogKill.Character;
+using LogKill.Core;
+using LogKill.Event;
 using UnityEngine;
 
 namespace LogKill.Entity
@@ -6,6 +9,7 @@ namespace LogKill.Entity
     public class InteractableTrigger : MonoBehaviour
     {
         private IInteractable _interactable;
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
         public void Interact()
         {
@@ -19,6 +23,11 @@ namespace LogKill.Entity
                 _interactable = interactable;
                 interactable.EnableInteraction();
             }
+
+            if(collision.TryGetComponent<Player>(out var player))
+            {
+                EventBus.Publish(new PlayerRangeChagnedEvent(player, true));
+            }
         }
 
         private void OnTriggerExit2D(Collider2D collision)
@@ -28,6 +37,11 @@ namespace LogKill.Entity
                 if (interactable == _interactable)
                     _interactable = null;
                 interactable.DisableInteraction();
+            }
+
+            if(collision.TryGetComponent<Player>(out var player))
+            {
+                EventBus.Publish(new PlayerRangeChagnedEvent(player, false));
             }
         }
     }

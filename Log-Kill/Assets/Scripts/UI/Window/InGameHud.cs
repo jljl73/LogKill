@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using LogKill.Character;
 using LogKill.Core;
 using LogKill.Entity;
 using LogKill.Event;
 using LogKill.UI;
+using LogKill.Vote;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,19 +15,34 @@ namespace LogKill.UI
     {
         [SerializeField] private Slider _missionProgressBar;
         [SerializeField] private Button _interactButton;
+        [SerializeField] private Button _reportButton;
+        [SerializeField] private Button _breakButton;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private IInteractable _interactableEntity;
+        private List<Player> _nearbyPlayers = new List<Player>();
+        private List<Player> _deadPlayers = new List<Player>();
+        private bool IsImposter => true;
 
         public override async UniTask InitializeAsync()
         {
             _interactButton?.onClick.AddListener(OnClickInteract);
+            _reportButton?.onClick.AddListener(OnClickReport);
+            _breakButton?.onClick.AddListener(OnClickBreak);
+
             _interactButton.interactable = _interactableEntity != null;
 
             EventBus.Subscribe<InteractEvent>(OnInteractEvent);
             EventBus.Subscribe<MissionProgressEvent>(OnMissionProgressEvent);
+            EventBus.Subscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
 
             await UniTask.Yield();
+        }
+
+        public override void OnShow()
+        {
+            base.OnShow();
+            // If I'm imposter, active the break button
         }
 
         private void OnInteractEvent(InteractEvent context)
@@ -42,6 +60,56 @@ namespace LogKill.UI
             }
         }
 
+        private void OnPlayerRangeEvent(PlayerRangeChagnedEvent context)
+        {
+            if (context.IsNearby)
+            {
+                _nearbyPlayers.Add(context.TargetPlayer);
+                if (context.TargetPlayer.IsDead)
+                {
+                    _deadPlayers.Add(context.TargetPlayer);
+                }
+            }
+            else
+            {
+                _nearbyPlayers.Remove(context.TargetPlayer);
+                if (context.TargetPlayer.IsDead)
+                {
+                    _deadPlayers.Remove(context.TargetPlayer);
+                }
+            }
+
+            ValidateReportButton();
+            ValidateBreakButton();
+        }
+
+        private void ValidateReportButton()
+        {
+            if (_deadPlayers.Count > 0)
+            {
+                _reportButton.interactable = true;
+            }
+            else
+            {
+                _reportButton.interactable = false;
+            }
+        }
+
+        private void ValidateBreakButton()
+        {
+            if (IsImposter == false)
+                return;
+
+            if (_nearbyPlayers.Count > 0)
+            {
+                _breakButton.interactable = true;
+            }
+            else
+            {
+                _breakButton.interactable = false;
+            }
+        }
+
         private void OnMissionProgressEvent(MissionProgressEvent context)
         {
             _missionProgressBar.value = (float)context.Progress / context.AllProgress;
@@ -50,6 +118,19 @@ namespace LogKill.UI
         public void OnClickInteract()
         {
             _interactableEntity?.Interact();
+        }
+
+        public void OnClickReport()
+        {
+            VoteManager.Instance.OnStartVotingServerRpc();
+        }
+
+        public void OnClickBreak()
+        {
+            if (_nearbyPlayers.Count == 0)
+                return;
+
+            PlayerDataManager.Instance.RequestPlayerKillServerRpc(_nearbyPlayers[0].ClientId);
         }
     }
 }

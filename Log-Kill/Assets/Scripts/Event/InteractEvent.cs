@@ -1,3 +1,4 @@
+using LogKill.Character;
 using LogKill.Entity;
 using UnityEngine;
 
@@ -13,5 +14,11 @@ namespace LogKill
         public EInteractType InteractType;
         public IInteractable InteractableEntity; 
         public bool Enable;
+    }
+
+    public struct PlayerKillEvent
+    {
+        public Player Killer;
+        public Player Victim;
     }
 }

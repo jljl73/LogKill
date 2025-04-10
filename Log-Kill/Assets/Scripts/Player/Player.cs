@@ -15,6 +15,9 @@ namespace LogKill.Character
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
+        public bool IsDead => _playerData.IsDead;
+        public ulong ClientId => _playerData.ClientId;
+
         private void Awake()
         {
             _movement = GetComponent<PlayerMovement>();
