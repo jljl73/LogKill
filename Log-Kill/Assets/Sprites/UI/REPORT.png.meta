@@ -142,12 +142,12 @@ TextureImporter:
       name: REPORT_0
       rect:
         serializedVersion: 2
-        x: 165
-        y: 23
-        width: 1696
-        height: 2001
+        x: 0
+        y: 0
+        width: 128
+        height: 128
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: c41961da14269474e8005e6e993e48bc
     internalID: 0
     vertices: []
     indices: 
