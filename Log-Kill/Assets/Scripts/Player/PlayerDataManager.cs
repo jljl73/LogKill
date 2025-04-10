@@ -86,7 +86,7 @@ namespace LogKill.Character
         }
 
         [ClientRpc]
-        private void BroadcastPlayerKillClientRpc(ulong targetClientId, ServerRpcParams rpcParams = default)
+        private void BroadcastPlayerKillClientRpc(ulong targetClientId)
         {
             if (PlayerDataDicts.TryGetValue(targetClientId, out PlayerData playerData))
             {
