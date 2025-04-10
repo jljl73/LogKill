@@ -1,5 +1,4 @@
 using LogKill.Core;
-using LogKill.Vote;
 using Unity.Netcode;
 using UnityEngine;
 

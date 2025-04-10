@@ -10,19 +10,18 @@ namespace LogKill.Vote
     public class SelectLogWindow : WindowBase
     {
         [SerializeField] private SelectLogItem[] _selectLogItems;
-
         [SerializeField] private TMP_Text _timerText;
 
-        [SerializeField] private int _totalTime = 10;
-
         private CancellationTokenSource _timerToken;
+
+        private const int TOTAL_TIME = 10;
 
         private int _selectLogIndex;
         private int _logCount;
 
         public override void OnShow()
         {
-            StartTimer(_totalTime).Forget();
+            StartTimer(TOTAL_TIME).Forget();
         }
 
         public override void OnHide()

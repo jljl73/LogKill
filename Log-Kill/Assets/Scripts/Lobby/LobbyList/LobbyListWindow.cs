@@ -12,18 +12,19 @@ namespace LogKill.LobbySystem
 {
     public class LobbyListWindow : WindowBase
     {
-        [SerializeField] private GameObject _lobbyListContent;
-        [SerializeField] private GameObject _lobbyListItemPrefab;
-
+        [SerializeField] private List<LobbyListItem> _lobbyListItems = new();
         [SerializeField] private Button _quickJoinButton;
 
         private CancellationTokenSource _lobbyListRefreshToken;
 
-        private List<GameObject> _lobbyListItems = new List<GameObject>();
-
         public override void OnShow()
         {
-            StartLobbyListRefresh();
+            foreach (var lobbyListItem in _lobbyListItems)
+            {
+                lobbyListItem.gameObject.SetActive(false);
+            }
+
+            StartLobbyListRefresh().Forget();
 
             LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
         }
@@ -77,20 +78,15 @@ namespace LogKill.LobbySystem
 
         private void UpdateLobbyList(List<Lobby> lobbies)
         {
-            // TODO Object Polling
-            foreach (GameObject lobbyItem in _lobbyListItems)
+            foreach (var lobbyListItem in _lobbyListItems)
             {
-                Destroy(lobbyItem);
+                lobbyListItem.gameObject.SetActive(false);
             }
 
-            _lobbyListItems.Clear();
-
-            foreach (Lobby lobby in lobbies)
+            for (int index = 0; index < lobbies.Count; index++)
             {
-                LobbyListItem lobbyItem = Instantiate(_lobbyListItemPrefab, _lobbyListContent.transform).GetComponent<LobbyListItem>();
-                lobbyItem.Initialize(lobby);
-
-                _lobbyListItems.Add(lobbyItem.gameObject);
+                _lobbyListItems[index].Initialize(lobbies[index]);
+                _lobbyListItems[index].gameObject.SetActive(true);
             }
         }
 

@@ -18,12 +18,12 @@ namespace LogKill.Vote
         [SerializeField] private TMP_Text _timerText;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
-
         private CancellationTokenSource _timerToken;
+
+        private const int TOTAL_TIME = 90;
 
         private Dictionary<ulong, VotePanel> _votePanelDict = new();
 
-        private int _totalTime = 90;
 
         public void InitVotePanel(VoteData[] voteDatas)
         {
@@ -33,21 +33,26 @@ namespace LogKill.Vote
 
             SortedVoteDatas(clientId, ref voteDatas);
 
-            VoteData clientVote = voteDatas[0];
-            bool isImposter = clientVote.PlayerData.PlayerType == EPlayerType.Imposter;
+            int localIndex = Array.FindIndex(voteDatas, v => v.PlayerData.ClientId == clientId);
 
-            for (int i = 0; i < voteDatas.Length; i++)
+            VoteData localVote = voteDatas[localIndex];
+            bool isImposter = localVote.PlayerData.PlayerType == EPlayerType.Imposter;
+
+            for (int index = 0; index < _votePanels.Length; index++)
             {
-                VotePanel votePanel = _votePanels[i];
-                votePanel.Initialize(clientId, voteDatas[i], isImposter);
-                votePanel.gameObject.SetActive(true);
+                VotePanel votePanel = _votePanels[index];
 
-                _votePanelDict[voteDatas[i].PlayerData.ClientId] = votePanel;
-            }
+                if (index < voteDatas.Length)
+                {
+                    votePanel.Initialize(clientId, voteDatas[index], isImposter);
+                    votePanel.gameObject.SetActive(true);
 
-            for (int i = voteDatas.Length; i < _votePanels.Length; i++)
-            {
-                _votePanels[i].gameObject.SetActive(false);
+                    _votePanelDict[voteDatas[index].PlayerData.ClientId] = votePanel;
+                }
+                else
+                {
+                    votePanel.gameObject.SetActive(false);
+                }
             }
 
             _timerText.text = "Log Selecting...";
@@ -78,12 +83,13 @@ namespace LogKill.Vote
 
         private void OnVoteStartEvent(VoteStartEvent voteStart)
         {
-            StartTimer(_totalTime).Forget();
+            StartTimer(TOTAL_TIME).Forget();
         }
 
         private void OnVoteCompleteEvent(VoteCompleteEvent voteComplete)
         {
             ulong clientId = NetworkManager.Singleton.LocalClientId;
+
             if (clientId == voteComplete.VoterClientId)
             {
                 foreach (var votePanel in _votePanelDict)

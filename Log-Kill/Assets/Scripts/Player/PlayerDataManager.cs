@@ -78,6 +78,16 @@ namespace LogKill.Character
             return playerDatas;
         }
 
+        public PlayerData? GetPlayerData(ulong clietId)
+        {
+            if (PlayerDataDicts.TryGetValue(clietId, out PlayerData playerData))
+            {
+                return playerData;
+            }
+
+            return null;
+        }
+
         public int GetAlivePlayerCount()
         {
             return PlayerDataDicts.Values.Count(data => !data.IsDead);

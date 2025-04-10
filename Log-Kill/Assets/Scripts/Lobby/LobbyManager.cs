@@ -18,12 +18,11 @@ namespace LogKill.LobbySystem
         private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
 
         private CancellationTokenSource _lobbyHeartbeatToken;
+        private LobbyEventCallbacks _lobbyEventCallbacks;
 
         public string PlayerId { get; private set; }
         public string PlayerName { get; private set; }
         public Lobby CurrentLobby { get; private set; }
-
-        private LobbyEventCallbacks _lobbyEventCallbacks;
 
         public event Action<Lobby> LobbyChangedEvent;
         public event Action<Lobby> PlayerJoinedEvent;
@@ -263,6 +262,11 @@ namespace LogKill.LobbySystem
         public int GetPlayerCount()
         {
             return CurrentLobby.Players.Count;
+        }
+
+        public int GetImposterCount()
+        {
+            return int.Parse(CurrentLobby.Data[NetworkConstants.IMPOSTER_COUNT_KEY].Value);
         }
 
         public string GetLobbyCode()

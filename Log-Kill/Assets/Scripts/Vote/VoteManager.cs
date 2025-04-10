@@ -4,7 +4,6 @@ using LogKill.Event;
 using LogKill.Log;
 using LogKill.UI;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,6 +25,9 @@ namespace LogKill.Vote
         {
             if (!IsServer) return;
 
+            _selectLogDicts.Clear();
+            _voteResultDicts.Clear();
+
             _checkCount = 0;
             _voteCount = PlayerDataManager.Instance.GetAlivePlayerCount();
 
@@ -37,6 +39,42 @@ namespace LogKill.Vote
         public void OnEndVotingServerRpc()
         {
             if (!IsServer) return;
+
+            int maxVoteCount = 0;
+
+            List<ulong> maxVotedClientList = new();
+
+            foreach (var voteResult in _voteResultDicts)
+            {
+                ulong clientId = voteResult.Key;
+                int voteCount = voteResult.Value.Count;
+
+                if (voteCount > maxVoteCount)
+                {
+                    maxVoteCount = voteCount;
+                    maxVotedClientList.Clear();
+                    maxVotedClientList.Add(clientId);
+                }
+                else if (voteCount == maxVoteCount)
+                {
+                    maxVotedClientList.Add(clientId);
+                }
+            }
+
+            if (maxVotedClientList.Count == 1 && maxVoteCount > 0)
+            {
+                ulong maxVotedClientId = maxVotedClientList[0];
+                PlayerData? playerData = PlayerDataManager.Instance.GetPlayerData(maxVotedClientId);
+
+                if (playerData != null)
+                {
+                    Debug.Log($"플레이어 {playerData.Value.Name} 는 {playerData.Value.PlayerType} 이였습니다.");
+                }
+            }
+            else
+            {
+                Debug.Log("아무도 퇴출되지 않았습니다");
+            }
 
             OnEndVotingClientRpc();
         }
@@ -72,6 +110,7 @@ namespace LogKill.Vote
 
             if (_checkCount == _voteCount)
             {
+                _checkCount = 0;
                 OnEndSelectLogMessageClientRpc();
             }
         }
@@ -94,13 +133,21 @@ namespace LogKill.Vote
             }
 
             BroadcastVoteCompleteToAllClientsClientRpc(voterClientId, targetClientId, isSkip);
+
+            _checkCount++;
+
+            if (_checkCount == _voteCount)
+            {
+                _checkCount = 0;
+                OnEndVotingServerRpc();
+            }
         }
 
 
         [ClientRpc]
         private void OnStartVotingClientRpc(VoteData[] voteDatas)
         {
-            // TODO 회의 시작 애니메이션
+            // TODO Emergency Meeting Animation
 
             bool isDead = PlayerDataManager.Instance.ClientPlayerData.IsDead;
 
