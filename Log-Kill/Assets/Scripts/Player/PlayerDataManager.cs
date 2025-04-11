@@ -70,6 +70,31 @@ namespace LogKill.Character
             }
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestPlayerKillServerRpc(ulong targetClientId, ServerRpcParams rpcParams = default)
+        {
+            if (!IsServer) return;
+
+            // TODO : Check if the killer is impostor or not
+
+            if (PlayerDataDicts.TryGetValue(targetClientId, out PlayerData playerData))
+            {
+                playerData.IsDead = true;
+                PlayerDataDicts[targetClientId] = playerData;
+                BroadcastPlayerKillClientRpc(targetClientId);
+            }
+        }
+
+        [ClientRpc]
+        private void BroadcastPlayerKillClientRpc(ulong targetClientId)
+        {
+            if (PlayerDataDicts.TryGetValue(targetClientId, out PlayerData playerData))
+            {
+                playerData.IsDead = true;
+                PlayerDataDicts[targetClientId] = playerData;
+            }
+        }
+
         public PlayerData[] GetPlayerDataToArray()
         {
             PlayerData[] playerDatas = new PlayerData[PlayerDataDicts.Count];
