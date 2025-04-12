@@ -29,7 +29,7 @@ namespace LogKill
         {
             OnClear();
             UIManager.Instance.CloseCurrentWindow();
-            MissionService.ReportMissionClearServerRpc(NetworkManager.Singleton.LocalClientId, _missionId);
+            MissionService.ReportMissionClear(_missionId);
             EventBus.Publish(new MissionClearEvent { MissionId = _missionId, });
         }
 
