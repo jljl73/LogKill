@@ -67,7 +67,6 @@ namespace LogKill.Character
                 _movement.Initialize();
                 _inputHandler.Initialize();
 
-                _playerData = new PlayerData(NetworkManager.Singleton.LocalClientId);
                 PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
 
                 _networkSync.UpdateColorType(_playerData.ColorType);

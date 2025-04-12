@@ -8,6 +8,9 @@ namespace LogKill.Log
         // Mission
         MissionFail = 1,
         MissionTime = 2,
+
+        // Player
+        PlayerKill = 101,
     }
 
     public interface ILog

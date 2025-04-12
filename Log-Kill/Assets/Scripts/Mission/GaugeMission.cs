@@ -63,7 +63,6 @@ namespace LogKill.Mission
                 else
                 {
                     LogService.Log(new MissionFailLog());
-                    LogService.Print(ELogType.MissionFail);
                     CancelMission();
                 }
                 _tweener.Complete();

@@ -4,6 +4,7 @@ using LogKill.Character;
 using LogKill.Core;
 using LogKill.Entity;
 using LogKill.Event;
+using LogKill.Log;
 using LogKill.UI;
 using LogKill.Vote;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace LogKill.UI
         [SerializeField] private Button _breakButton;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LogService LogService => ServiceLocator.Get<LogService>();
         private IInteractable _interactableEntity;
         private List<Player> _nearbyPlayers = new List<Player>();
         private List<Player> _deadPlayers = new List<Player>();
@@ -141,7 +143,10 @@ namespace LogKill.UI
             if (_nearbyPlayers.Count == 0)
                 return;
 
+            LogService.Log(new KillLog());
             PlayerDataManager.Instance.RequestPlayerKillServerRpc(_nearbyPlayers[0].ClientId);
+            _nearbyPlayers.RemoveAt(0);
+            ValidateBreakButton();
         }
     }
 }

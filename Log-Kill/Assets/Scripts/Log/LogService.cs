@@ -25,6 +25,8 @@ namespace LogKill.Log
             {
                 _logDicts.Add(newLog.LogType, newLog);
             }
+
+            Debug.Log(log.Content);
         }
 
         public void Print(ELogType logType)
