@@ -1,6 +1,10 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Core;
+using LogKill.Event;
 using LogKill.LobbySystem;
+using LogKill.Room;
 using TMPro;
+using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,67 +16,51 @@ namespace LogKill.UI
         [SerializeField] private TMP_Text _playerCountText;
         [SerializeField] private TMP_Text _lobbyCodeText;
 
-        [SerializeField] private Button _accessStateToggleButton;
         [SerializeField] private TMP_Text _accessStateText;
+        [SerializeField] private Button _accessStateToggleButton;
+
+        [SerializeField] private LobbyPlayerListPanel _lobbyPlayerListPanel;
+        [SerializeField] private Button _lobbyPlayerListPanelButton;
 
         [SerializeField] private Button _startButton;
 
-        private int _maxPlayerCount;
-        private int _currentPlayerCount;
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
-        private bool _isHost;
-        private bool _isPrivate;
 
         public override void OnShow()
         {
-            var Lobby = LobbyManager.Instance.CurrentLobby;
+            var Lobby = LobbyManager.CurrentLobby;
 
-            _isHost = LobbyManager.Instance.GetIsHost();
-
-            _accessStateToggleButton.gameObject.SetActive(_isHost);
-            _startButton.gameObject.SetActive(_isHost);
-
-            if (_isHost)
+            bool isHost = LobbyManager.GetIsHost();
+            if (isHost)
             {
-                _isPrivate = Lobby.IsPrivate;
-                UpdateAccessStateText(_isPrivate);
+                _accessStateToggleButton.gameObject.SetActive(true);
+                _startButton.gameObject.SetActive(true);
+
+                _lobbyPlayerListPanel.Initialize();
+                _lobbyPlayerListPanelButton.gameObject.SetActive(true);
+                _lobbyPlayerListPanel.gameObject.SetActive(false);
+
+                UpdateAccessStateText(Lobby.IsPrivate);
+            }
+            else
+            {
+                _accessStateToggleButton.gameObject.SetActive(false);
+                _startButton.gameObject.SetActive(false);
+                _lobbyPlayerListPanelButton.gameObject.SetActive(false);
             }
 
-            _maxPlayerCount = Lobby.MaxPlayers;
-            _currentPlayerCount = Lobby.Players.Count;
-
-            UpdatePlayerCount(_currentPlayerCount, _maxPlayerCount);
+            UpdatePlayerCount(Lobby.Players.Count, Lobby.MaxPlayers);
 
             _lobbyCodeText.text = Lobby.LobbyCode;
 
-            LobbyManager.Instance.LobbyChangedEvent += OnLobbyChangedEvent;
-            LobbyManager.Instance.LobbyLeavedEvent += OnLobbyLeavedEvent;
+            EventBus.Subscribe<LobbyChangedEvent>(OnLobbyChangedEvent);
         }
 
         public override void OnHide()
         {
-            LobbyManager.Instance.LobbyChangedEvent -= OnLobbyChangedEvent;
-            LobbyManager.Instance.LobbyLeavedEvent -= OnLobbyLeavedEvent;
-        }
-
-        private void OnLobbyChangedEvent(Lobby lobby)
-        {
-            if (lobby == null)
-            {
-                Debug.Log("Lobby is Null");
-            }
-            else
-            {
-                UpdatePlayerCount(lobby.Players.Count, lobby.MaxPlayers);
-            }
-        }
-
-        private void OnLobbyLeavedEvent()
-        {
-            // TODO Scene Move
-            UIManager.Instance.HideCurrentHUD();
-            var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
-            onlineModeWindow.Initialize();
+            EventBus.Unsubscribe<LobbyChangedEvent>(OnLobbyChangedEvent);
         }
 
         private void UpdateAccessStateText(bool isPrivate)
@@ -91,35 +79,58 @@ namespace LogKill.UI
 
         private void UpdatePlayerCount(int currentPlayerCount, int maxPlayerCount)
         {
-            _currentPlayerCount = currentPlayerCount;
-            _maxPlayerCount = maxPlayerCount;
-
             _playerCountText.text = $"{currentPlayerCount} / {maxPlayerCount}";
 
-            _startButton.interactable = _currentPlayerCount == _maxPlayerCount;
+            //_startButton.interactable = _currentPlayerCount == _maxPlayerCount;
+            _startButton.interactable = true;
+        }
+
+        private void UpdateLobbyPlayerListPanel(ulong clientId)
+        {
+            if (!LobbyManager.GetIsHost()) return;
+
+            _lobbyPlayerListPanel.UpdatePlayerList(clientId);
+        }
+
+        private void OnLobbyChangedEvent(LobbyChangedEvent context)
+        {
+            UpdatePlayerCount(context.CurrentPlayers, context.MaxPlayers);
+
+            UpdateLobbyPlayerListPanel(context.ClientId);
         }
 
         public async void OnClickAccessStateToggle()
         {
-            _isPrivate = !_isPrivate;
-
             _accessStateToggleButton.interactable = false;
 
-            await LobbyManager.Instance.UpdateIsPrivate(_isPrivate);
-            await UniTask.Delay(1000);
-            UpdateAccessStateText(_isPrivate);
+            bool changeIsPrivate = !LobbyManager.GetIsPrivate();
+            await LobbyManager.UpdateIsPrivate(changeIsPrivate);
+            await UniTask.Delay(500);
+            UpdateAccessStateText(changeIsPrivate);
 
             _accessStateToggleButton.interactable = true;
         }
 
-        public void OnClickGameStart()
+        public void OnClickLobbyPlayerListPanel()
         {
-            Debug.Log("GameStart");
+            if (!_lobbyPlayerListPanel.gameObject.activeSelf)
+            {
+                _lobbyPlayerListPanel.OnShow();
+            }
+            else
+            {
+                _lobbyPlayerListPanel.OnHide();
+            }
         }
 
-        public async void OnClickExit()
+        public void OnClickGameStart()
         {
-            await LobbyManager.Instance.LeaveLobbyAsync();
+            SessionManager.Instance.NotifyGameStartServerRpc();
+        }
+
+        public void OnClickExit()
+        {
+            NetworkManager.Singleton.Shutdown();
         }
     }
 }

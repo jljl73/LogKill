@@ -1,3 +1,4 @@
+using LogKill.Core;
 using LogKill.UI;
 using System.Collections.Generic;
 using TMPro;
@@ -29,6 +30,8 @@ namespace LogKill.LobbySystem
 
         private int _imposterCount;
         private int _maxPlayerCount;
+
+        private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
         public override void OnShow()
         {
@@ -89,7 +92,7 @@ namespace LogKill.LobbySystem
             _createButton.interactable = false;
 
             string lobbyName = GetValidLobbyName(_lobbyNameInputField.text);
-            await LobbyManager.Instance.CreateLobbyAsync(lobbyName, _maxPlayerCount, _imposterCount);
+            await LobbyManager.CreateLobbyAsync(lobbyName, _maxPlayerCount, _imposterCount);
         }
 
         public void OnClickBack()

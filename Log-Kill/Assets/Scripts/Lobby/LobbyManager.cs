@@ -13,18 +13,19 @@ using UnityEngine;
 
 namespace LogKill.LobbySystem
 {
-    public class LobbyManager : MonoSingleton<LobbyManager>
+    public class LobbyManager : Core.IService
     {
         private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
 
         private CancellationTokenSource _lobbyHeartbeatToken;
-        private LobbyEventCallbacks _lobbyEventCallbacks;
 
         #region Filter
         private QueryLobbiesOptions _lobbyListFilter = new QueryLobbiesOptions
         {
             Count = 30,
             Filters = new List<QueryFilter>{
+
+                        // Lobby Status is Ready
                         new QueryFilter(
                             field: QueryFilter.FieldOptions.S1,
                             op: QueryFilter.OpOptions.EQ,
@@ -44,11 +45,8 @@ namespace LogKill.LobbySystem
         public string PlayerName { get; private set; }
         public Lobby CurrentLobby { get; private set; }
 
-        public event Action<Lobby> LobbyChangedEvent;
-        public event Action<Lobby> PlayerJoinedEvent;
-        public event Action LobbyLeavedEvent;
 
-        public async UniTask InitializeAsync()
+        public async void Initialize()
         {
             await UnityServicesInitializeAsync();
             await SignInAnonymouslyAsync();
@@ -79,12 +77,10 @@ namespace LogKill.LobbySystem
                     }
                 };
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, lobbyOptions);
-                // await RegisterEvents(CurrentLobby);
 
                 StartHeartbeatLobbyAlive().Forget();
 
                 await StartRelayWithHost();
-                await UpdateIsPrivate(false);
 
                 Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
             }
@@ -96,26 +92,25 @@ namespace LogKill.LobbySystem
             {
                 Debug.LogError($"Failed CreateLobby : {e.Message}");
             }
-
-            await OnPlayerJoinedEvent();
         }
 
-        public async UniTask JoinLobbyByIdAsync(string lobbyId)
+        public async UniTask<bool> JoinLobbyByIdAsync(string lobbyId)
         {
             try
             {
                 var joinOptions = new JoinLobbyByIdOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId, joinOptions);
-                await RegisterEvents(CurrentLobby);
 
                 await StartRelayWithClient();
+
+                return true;
             }
             catch (LobbyServiceException e)
             {
                 Debug.LogError($"Failed JoinLobbyById : {e.Message}");
             }
 
-            await OnPlayerJoinedEvent();
+            return false;
         }
 
         public async UniTask<bool> JoinLobbyByCodeAsync(string lobbyCode)
@@ -124,7 +119,6 @@ namespace LogKill.LobbySystem
             {
                 var joinOptions = new JoinLobbyByCodeOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, joinOptions);
-                await RegisterEvents(CurrentLobby);
 
                 await StartRelayWithClient();
 
@@ -137,26 +131,25 @@ namespace LogKill.LobbySystem
             }
 
             return false;
-
-            await OnPlayerJoinedEvent();
         }
 
-        public async UniTask JoinQuickMatch()
+        public async UniTask<bool> JoinQuickMatch()
         {
             try
             {
                 var joinOptions = new QuickJoinLobbyOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync(joinOptions);
-                await RegisterEvents(CurrentLobby);
 
                 await StartRelayWithClient();
+
+                return true;
             }
             catch (LobbyServiceException e)
             {
                 Debug.LogError($"Failed JoinQuickMatch : {e.Message}");
             }
 
-            await OnPlayerJoinedEvent();
+            return false;
         }
 
         public async UniTask LeaveLobbyAsync()
@@ -186,7 +179,6 @@ namespace LogKill.LobbySystem
             finally
             {
                 CurrentLobby = null;
-                NetworkManager.Singleton.Shutdown();
             }
         }
 
@@ -369,39 +361,6 @@ namespace LogKill.LobbySystem
             await RelayManager.JoinRelay(joinCode);
 
             NetworkManager.Singleton.StartClient();
-        }
-
-        private async UniTask RegisterEvents(Lobby lobby)
-        {
-            try
-            {
-                _lobbyEventCallbacks = new LobbyEventCallbacks();
-                _lobbyEventCallbacks.LobbyChanged += OnLobbyChangedEvent;
-                _lobbyEventCallbacks.KickedFromLobby += OnKickedFromLobbyEvent;
-
-                await LobbyService.Instance.SubscribeToLobbyEventsAsync(lobby.Id, _lobbyEventCallbacks);
-            }
-            catch (LobbyServiceException e)
-            {
-                Debug.Log($"Failed RegisterEvents : {e.Message}");
-            }
-        }
-
-        private void OnLobbyChangedEvent(ILobbyChanges lobbyChanges)
-        {
-            lobbyChanges.ApplyToLobby(CurrentLobby);
-            LobbyChangedEvent?.Invoke(CurrentLobby);
-        }
-
-        private void OnKickedFromLobbyEvent()
-        {
-            LobbyLeavedEvent?.Invoke();
-        }
-
-        private async UniTask OnPlayerJoinedEvent()
-        {
-            CurrentLobby = await GetLobbyAsync(CurrentLobby.Id);
-            PlayerJoinedEvent?.Invoke(CurrentLobby);
         }
 
         private void StopHeartbeatLobbyAlive()

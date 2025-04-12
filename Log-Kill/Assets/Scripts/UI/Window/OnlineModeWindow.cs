@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Core;
 using LogKill.LobbySystem;
 using TMPro;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +11,8 @@ namespace LogKill.UI
     {
         [SerializeField] private TMP_InputField _lobbyCodeInputField;
         [SerializeField] private Button _joinButton;
+
+        private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
         public async override UniTask InitializeAsync()
         {
@@ -71,7 +73,7 @@ namespace LogKill.UI
 
             string lobbyCode = _lobbyCodeInputField.text;
 
-            if (!await LobbyManager.Instance.JoinLobbyByCodeAsync(lobbyCode))
+            if (!await LobbyManager.JoinLobbyByCodeAsync(lobbyCode))
             {
                 Debug.Log("입장 실패");
             }
