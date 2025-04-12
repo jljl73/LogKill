@@ -1754,8 +1754,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee7885473e371564883c5f31ec3a2e8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _missionPrefab: {fileID: 546044784904469821, guid: 0cbcfa707be11a84c8844d1f09e220fe, type: 3}
-  _missionData: []
+  _missionPrefab: {fileID: 6206894079358634027, guid: 0cbcfa707be11a84c8844d1f09e220fe, type: 3}
+  _missionData:
+  - {fileID: 11400000, guid: b8c37a07010b7f247bb8d7d730d1c66b, type: 2}
+  - {fileID: 11400000, guid: 0e7ef540f49119d46a3f93d5fcb5517d, type: 2}
+  - {fileID: 11400000, guid: fda918e873979ab49b69235e8e2f8cf5, type: 2}
+  - {fileID: 11400000, guid: 92f1211b4464ea34ab2a343496d8d878, type: 2}
+  - {fileID: 11400000, guid: 268b39f7a2d6421419ac8de59a2ea255, type: 2}
   _missionSpawnPoint:
   - {fileID: 8346718035622333886}
   - {fileID: 4510419538586451896}
