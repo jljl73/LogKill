@@ -51,6 +51,8 @@ namespace LogKill.UI
 				try
 				{
 					var asset = await ResourceManager.LoadAsset(path);
+					// Ensure the prefab is inactive before instantiation
+					asset.SetActive(false);
 					WindowBase prefab = asset.GetComponent<WindowBase>();
 					if (prefab != null)
 					{

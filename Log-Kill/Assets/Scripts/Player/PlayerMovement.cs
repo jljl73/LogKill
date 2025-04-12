@@ -7,6 +7,9 @@ namespace LogKill.Character
         [SerializeField] private float _speed = 5f;
 
         private Rigidbody2D _rigid;
+        private Vector2 _moveDir;
+        private float _povAngle;
+
         public void Initialize()
         {
             _rigid = GetComponent<Rigidbody2D>();
@@ -14,8 +17,17 @@ namespace LogKill.Character
 
         public void Move(Vector2 direction)
         {
-            Vector2 nextVec = direction * _speed * Time.fixedDeltaTime;
-            _rigid.MovePosition(_rigid.position + nextVec);
+            Vector2 nextVec = direction * _speed;
+            _rigid.MovePosition(_rigid.position + nextVec * Time.fixedDeltaTime);
+
+            if (nextVec.sqrMagnitude > 0.01f)
+                _moveDir = nextVec;
+        }
+
+        public float GetAimDirectionAngle()
+        {
+            _povAngle = Mathf.LerpAngle(_povAngle, Mathf.Atan2(_moveDir.y, _moveDir.x) * Mathf.Rad2Deg, 0.1f);
+            return _povAngle;
         }
     }
 }
