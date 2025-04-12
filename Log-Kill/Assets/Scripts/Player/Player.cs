@@ -60,14 +60,13 @@ namespace LogKill.Character
 
             _animator.Initialize();
             _networkSync.Initialize();
+            _playerData = new PlayerData(OwnerClientId);
 
             if (IsOwner)
             {
                 _movement.Initialize();
                 _inputHandler.Initialize();
 
-                ulong clientId = NetworkManager.Singleton.LocalClientId;
-                _playerData = new PlayerData(clientId);
                 _networkSync.UpdateColorType(_playerData.ColorType);
                 _interactableTrigger.Initalize(this);
                 _interactableTrigger.gameObject.SetActive(true);
@@ -77,7 +76,6 @@ namespace LogKill.Character
             else
             {
                 enabled = false;
-                _playerData = new PlayerData(OwnerClientId);
                 _interactableTrigger.gameObject.SetActive(false);
             }
         }
@@ -92,9 +90,9 @@ namespace LogKill.Character
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
-            
+
             var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
-            CameraController.Instance.SetTarget(target.transform);
+            CameraController.Instance.SetTarget(target?.transform);
         }
     }
 }

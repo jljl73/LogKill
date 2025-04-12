@@ -69,12 +69,7 @@ namespace LogKill.Character
         [ClientRpc]
         private void BroadcastPlayerKillClientRpc(ulong targetClientId)
         {
-            if (PlayerDataDicts.TryGetValue(targetClientId, out PlayerData playerData))
-            {
-                playerData.IsDead = true;
-                PlayerDataDicts[targetClientId] = playerData;
-                EventBus.Publish(new PlayerKillEvent() { VictimId = targetClientId });
-            }
+            EventBus.Publish(new PlayerKillEvent() { VictimId = targetClientId });
         }
 
         public PlayerData[] GetPlayerDataToArray()
