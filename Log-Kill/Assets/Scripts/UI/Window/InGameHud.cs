@@ -43,7 +43,7 @@ namespace LogKill.UI
         {
             base.OnShow();
             _breakButton.gameObject.SetActive(IsImposter);
-            
+
             _interactButton.interactable = false;
             _reportButton.interactable = false;
             _breakButton.interactable = false;
@@ -68,22 +68,26 @@ namespace LogKill.UI
         {
             if (context.IsNearby)
             {
-                _nearbyPlayers.Add(context.TargetPlayer);
                 if (context.TargetPlayer.IsDead)
                 {
                     _deadPlayers.Add(context.TargetPlayer);
                 }
+                else
+                {
+                    _nearbyPlayers.Add(context.TargetPlayer);
+                }
             }
             else
             {
-                _nearbyPlayers.Remove(context.TargetPlayer);
                 if (context.TargetPlayer.IsDead)
                 {
                     _deadPlayers.Remove(context.TargetPlayer);
                 }
+                else
+                {
+                    _nearbyPlayers.Remove(context.TargetPlayer);
+                }
             }
-
-            Debug.Log($"Nearby Players: {_nearbyPlayers.Count}, Target Player: {context.TargetPlayer.ClientId} IsNearby: {context.IsNearby} IsDead: {context.TargetPlayer.IsDead}");
 
             ValidateReportButton();
             ValidateBreakButton();

@@ -70,6 +70,7 @@ namespace LogKill.Character
                 _playerData = new PlayerData(clientId);
                 _networkSync.UpdateColorType(_playerData.ColorType);
                 _interactableTrigger.Initalize(this);
+                _interactableTrigger.gameObject.SetActive(true);
 
                 CameraController.Instance.SetTarget(transform);
             }
@@ -77,6 +78,7 @@ namespace LogKill.Character
             {
                 enabled = false;
                 _playerData = new PlayerData(OwnerClientId);
+                _interactableTrigger.gameObject.SetActive(false);
             }
         }
 
