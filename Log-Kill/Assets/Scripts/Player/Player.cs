@@ -12,9 +12,9 @@ namespace LogKill.Character
         private PlayerNetworkSync _networkSync;
 
         private PlayerData _playerData;
-
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
+        public PlayerData PlayerData => _playerData;
         public bool IsDead => _playerData.IsDead;
         public ulong ClientId => _playerData.ClientId;
 
@@ -38,11 +38,6 @@ namespace LogKill.Character
             {
                 OnDead();
             }
-
-            if (Input.GetKeyDown(KeyCode.U))
-            {
-                PlayerDataManager.Instance.RequestPlayerDataServerRpc();
-            }
         }
 
         private void FixedUpdate()
@@ -58,12 +53,10 @@ namespace LogKill.Character
             if (IsOwner)
             {
                 _movement.Initialize();
-                _inputHandler.Initialize(IsOwner);
+                _inputHandler.Initialize();
 
                 ulong clientId = NetworkManager.Singleton.LocalClientId;
-                string playerName = $"Player {clientId}";
-                _playerData = new PlayerData(clientId, playerName);
-                EventBus.Publish<PlayerData>(_playerData);
+                _playerData = new PlayerData(clientId);
 
                 _networkSync.UpdateColorType(_playerData.ColorType);
 

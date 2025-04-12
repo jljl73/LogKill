@@ -28,12 +28,12 @@ namespace LogKill.Character
         public FixedString32Bytes Name;
         public bool IsDead;
 
-        public PlayerData(ulong id, string name, bool isDead = false)
+        public PlayerData(ulong id, bool isDead = false)
         {
             ClientId = id;
             PlayerType = EPlayerType.Normal;
             ColorType = (EColorType)id;
-            Name = name;
+            Name = $"Player {id}";
             IsDead = isDead;
         }
 
