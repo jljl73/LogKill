@@ -102,6 +102,17 @@ namespace LogKill.Character
             return PlayerDataDicts.Values.Count(data => !data.IsDead);
         }
 
+        public Player GetRandomAlivePlayer()
+        {
+            var alivePlayers = PlayerDataDicts.Values.Where(data => !data.IsDead).ToList();
+            if (alivePlayers.Count == 0)
+                return null;
+
+            int randomIndex = Random.Range(0, alivePlayers.Count);
+            ulong randomClientId = alivePlayers[randomIndex].ClientId;
+            return NetworkManager.Singleton.ConnectedClients[randomClientId].PlayerObject.GetComponent<Player>();
+        }
+
         private void OnUpdatePlayerData(PlayerData playerData)
         {
             ClientPlayerData = playerData;

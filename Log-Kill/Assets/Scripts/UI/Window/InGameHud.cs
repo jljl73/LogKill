@@ -83,6 +83,8 @@ namespace LogKill.UI
                 }
             }
 
+            Debug.Log($"Nearby Players: {_nearbyPlayers.Count}, Target Player: {context.TargetPlayer.ClientId} IsNearby: {context.IsNearby} IsDead: {context.TargetPlayer.IsDead}");
+
             ValidateReportButton();
             ValidateBreakButton();
         }

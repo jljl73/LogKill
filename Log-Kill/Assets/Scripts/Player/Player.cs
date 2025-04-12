@@ -51,6 +51,13 @@ namespace LogKill.Character
 
         public override void OnNetworkSpawn()
         {
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            EventBus.Subscribe<PlayerKillEvent>(OnDead);
+
             _animator.Initialize();
             _networkSync.Initialize();
 
@@ -63,7 +70,6 @@ namespace LogKill.Character
                 _playerData = new PlayerData(clientId);
                 _networkSync.UpdateColorType(_playerData.ColorType);
                 _interactableTrigger.Initalize(this);
-                EventBus.Subscribe<PlayerKillEvent>(OnDead);
 
                 CameraController.Instance.SetTarget(transform);
             }
@@ -84,7 +90,9 @@ namespace LogKill.Character
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
-            CameraController.Instance.SetTarget(null);
+            
+            var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
+            CameraController.Instance.SetTarget(target.transform);
         }
     }
 }
