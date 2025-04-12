@@ -1,3 +1,4 @@
+using LogKill.Core;
 using LogKill.Network;
 using System;
 using TMPro;
@@ -28,9 +29,9 @@ namespace LogKill.LobbySystem
             _playerCountText.text = $"{lobby.Players.Count}/{lobby.MaxPlayers}";
         }
 
-        public async void OnClickJoin()
+        public void RegisterJoinEvent(Action<string> callback)
         {
-            await LobbyManager.Instance.JoinLobbyByIdAsync(_lobby.Id);
+            _joinButton.onClick.AddListener(() => callback?.Invoke(_lobby?.Id));
         }
     }
 }

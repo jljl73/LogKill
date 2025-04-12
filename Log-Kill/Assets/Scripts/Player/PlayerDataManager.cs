@@ -33,11 +33,11 @@ namespace LogKill.Character
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SubmitPlayerDataToServerRpc(PlayerData playerData, ServerRpcParams rpcParams = default)
+        public void SubmitPlayerDataToServerRpc(PlayerData playerData)
         {
             if (!IsServer) return;
 
-            ulong clientId = rpcParams.Receive.SenderClientId;
+            ulong clientId = playerData.ClientId;
 
             if (PlayerDataDicts.ContainsKey(clientId))
             {
@@ -47,27 +47,8 @@ namespace LogKill.Character
             {
                 PlayerDataDicts.Add(clientId, playerData);
             }
-        }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestPlayerDataServerRpc(ServerRpcParams rpcParams = default)
-        {
-            PlayerData[] playerDatas = new PlayerData[PlayerDataDicts.Count];
-            PlayerDataDicts.Values.CopyTo(playerDatas, 0);
-
-            BroadcastPlayerDataClientRpc(playerDatas);
-        }
-
-        [ClientRpc]
-        public void BroadcastPlayerDataClientRpc(PlayerData[] playerDatas)
-        {
-            foreach (var item in playerDatas)
-            {
-                if (item.ClientId == NetworkManager.Singleton.LocalClientId)
-                {
-                    Debug.Log($"Name : {item.Name} | IsDead : {item.IsDead} | ColorType : {item.ColorType}");
-                }
-            }
+            Debug.Log("SubmitPlayerDataToServerRpc : " + PlayerDataDicts.Count);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -107,9 +88,11 @@ namespace LogKill.Character
         {
             if (PlayerDataDicts.TryGetValue(clietId, out PlayerData playerData))
             {
+                Debug.Log("Name : " + playerData.Name);
                 return playerData;
             }
 
+            Debug.Log("PlayerData Is Null");
             return null;
         }
 
