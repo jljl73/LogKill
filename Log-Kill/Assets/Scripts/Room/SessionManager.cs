@@ -18,10 +18,6 @@ namespace LogKill.Room
         private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
         private Dictionary<ulong, bool> _playerLoadStatus = new Dictionary<ulong, bool>(); // ���� �ε� ����
-        private Dictionary<ulong, Player> _playerDicts = new Dictionary<ulong, Player>();
-
-        public Dictionary<ulong, Player> PlayerDicts { get => _playerDicts; }
-
 
         public override void OnNetworkSpawn()
         {
@@ -63,8 +59,6 @@ namespace LogKill.Room
             _playerLoadStatus[clientId] = false;
 
             OnPlayerSpawn(clientId);
-
-            Debug.Log("Before BroadcastLobbyChangedClientRpc");
             BroadcastLobbyChangedClientRpc(clientId);
         }
 
@@ -111,9 +105,7 @@ namespace LogKill.Room
             }
 
             // TODO 임포스터 할당
-            // LobbyManager.Instance.GetImposterCount();
-
-            // NetworkManager.Singleton.ConnectedClients
+            GameManager.Instance.SelectImposters();
 
             StartNextPhaseClientRpc();
         }
@@ -157,17 +149,6 @@ namespace LogKill.Room
             var playerInstance = Instantiate(_playerPrefab);
             playerInstance.SpawnAsPlayerObject(clientId);
 
-            var player = playerInstance.GetComponent<Player>();
-
-            if (_playerDicts.ContainsKey(clientId))
-            {
-                _playerDicts[clientId] = player;
-            }
-            else
-            {
-                _playerDicts.Add(clientId, player);
-            }
-
             PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(new PlayerData(clientId));
         }
 
@@ -178,11 +159,6 @@ namespace LogKill.Room
                 if (client.PlayerObject != null && client.PlayerObject.IsSpawned)
                 {
                     client.PlayerObject.Despawn();
-
-                    if (_playerDicts.ContainsKey(clientId))
-                    {
-                        _playerLoadStatus.Remove(clientId);
-                    }
                 }
             }
         }

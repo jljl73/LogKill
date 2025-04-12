@@ -1,11 +1,14 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Character;
 using LogKill.Core;
+using LogKill.LobbySystem;
 using LogKill.Event;
 using LogKill.Map;
 using LogKill.Mission;
 using LogKill.Room;
 using LogKill.UI;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -17,6 +20,8 @@ namespace LogKill
 
 		private EventBus EventBus => ServiceLocator.Get<EventBus>();
 		private MapService MapService => ServiceLocator.Get<MapService>();
+		private EventBus EventBus => ServiceLocator.Get<EventBus>();
+		private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
 		private async UniTask Start()
 		{
@@ -52,6 +57,25 @@ namespace LogKill
 			var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
 			onlineModeWindow.Initialize();
 		}
+
+		public void SelectImposters()
+        {
+			int imposterCount = LobbyManager.GetImposterCount();
+
+			var playerDataDicts = PlayerDataManager.Instance.PlayerDataDicts;
+
+			var suffleClientKeys = playerDataDicts.Keys.OrderBy(x => Random.value).ToList();
+
+            for (int i = 0; i < imposterCount; i++)
+            {
+				var clientId = suffleClientKeys[i];
+				var playerData = playerDataDicts[clientId];
+				playerData.PlayerType = EPlayerType.Imposter;
+
+				EventBus.Publish<PlayerData>(playerData);
+			}
+        }
+
 
 		public async UniTask StartSession()
 		{

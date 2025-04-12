@@ -53,16 +53,16 @@ namespace LogKill.UI
             {
                 var playerListItem = _playerListItems[(int)clientId];
 
-                if (PlayerDataManager.Instance.PlayerDataDicts.TryGetValue(clientId, out PlayerData playerData))
+                var playerData = PlayerDataManager.Instance.GetPlayerData(clientId);
+
+                if (playerData.HasValue)
                 {
-                    playerListItem.GetComponentInChildren<Image>().color = playerData.GetColor();
+                    playerListItem.GetComponentInChildren<Image>().color = playerData.Value.GetColor();
                     playerListItem.SetActive(true);
 
                     _playerListDicts.Add(clientId, playerListItem);
                 }
-
             }
-
         }
     }
 }
