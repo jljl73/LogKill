@@ -73,6 +73,7 @@ namespace LogKill.Character
             {
                 playerData.IsDead = true;
                 PlayerDataDicts[targetClientId] = playerData;
+                EventBus.Publish(new PlayerKillEvent() { VictimId = targetClientId });
             }
         }
 

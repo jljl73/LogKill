@@ -10,6 +10,12 @@ namespace LogKill.Entity
     {
         private IInteractable _interactable;
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private Player _player;
+
+        public void Initalize(Player player)
+        {
+            _player = player;
+        }
 
         public void Interact()
         {
@@ -26,7 +32,8 @@ namespace LogKill.Entity
 
             if (collision.TryGetComponent<Player>(out var player))
             {
-                EventBus.Publish(new PlayerRangeChagnedEvent(player, true));
+                if (player != _player)
+                    EventBus.Publish(new PlayerRangeChagnedEvent(player, true));
             }
         }
 
@@ -43,7 +50,8 @@ namespace LogKill.Entity
 
             if (collision.TryGetComponent<Player>(out var player))
             {
-                EventBus.Publish(new PlayerRangeChagnedEvent(player, false));
+                if (player != _player)
+                    EventBus.Publish(new PlayerRangeChagnedEvent(player, false));
             }
         }
     }

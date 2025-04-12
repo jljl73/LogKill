@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 8706631356134499985}
   - component: {fileID: 7543531367583375005}
   - component: {fileID: 7280032007832106133}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PlayerPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,6 +339,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 798bae00ac4a45f41b48e48001eaf3fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &7543531367583375005
 MonoBehaviour:
   m_ObjectHideFlags: 0

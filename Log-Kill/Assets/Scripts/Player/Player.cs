@@ -1,4 +1,5 @@
 using LogKill.Core;
+using LogKill.Entity;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ namespace LogKill.Character
 {
     public class Player : NetworkBehaviour
     {
+        [SerializeField] private InteractableTrigger _interactableTrigger;
+
         private PlayerMovement _movement;
         private PlayerInputHandler _inputHandler;
         private PlayerAnimator _animator;
@@ -36,13 +39,14 @@ namespace LogKill.Character
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                OnDead();
+                // OnDead();
             }
         }
 
         private void FixedUpdate()
         {
-            _movement.Move(_inputHandler.MoveDirection);
+            if (_movement)
+                _movement.Move(_inputHandler.MoveDirection);
         }
 
         public override void OnNetworkSpawn()
@@ -57,20 +61,22 @@ namespace LogKill.Character
 
                 ulong clientId = NetworkManager.Singleton.LocalClientId;
                 _playerData = new PlayerData(clientId);
-
                 _networkSync.UpdateColorType(_playerData.ColorType);
+                _interactableTrigger.Initalize(this);
+                EventBus.Subscribe<PlayerKillEvent>(OnDead);
 
                 CameraController.Instance.SetTarget(transform);
             }
             else
             {
                 enabled = false;
+                _playerData = new PlayerData(OwnerClientId);
             }
         }
 
-        public void OnDead()
+        public void OnDead(PlayerKillEvent context)
         {
-            if (_playerData.IsDead)
+            if (_playerData.IsDead || context.VictimId != _playerData.ClientId)
                 return;
 
             _playerData.IsDead = true;

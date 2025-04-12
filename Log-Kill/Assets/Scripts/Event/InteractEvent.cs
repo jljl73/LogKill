@@ -18,7 +18,6 @@ namespace LogKill
 
     public struct PlayerKillEvent
     {
-        public Player Killer;
-        public Player Victim;
+        public ulong VictimId;
     }
 }
