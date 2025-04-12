@@ -1,11 +1,9 @@
 using Cysharp.Threading.Tasks;
 using LogKill.Core;
-using LogKill.LobbySystem;
 using LogKill.Map;
 using LogKill.Mission;
 using LogKill.Room;
 using LogKill.UI;
-using LogKill.Vote;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,31 +21,30 @@ namespace LogKill
 			ServiceLocator.AutoRegisterServices();
 
 			await UIManager.Instance.InitializeAsync();
-			await LobbyManager.Instance.InitializeAsync();
 
-            var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
-			onlineModeWindow.Initialize();
+			OnMoveTitleScene();
 		}
 
-        private void Update()
+		public void OnMoveLobbyScene()
         {
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-				VoteManager.Instance.OnStartVotingServerRpc();
-            }
-        }
-
-		public void OnJoinRoomPlayer()
-        {
-			SessionManager.Instance.PlayerSpawnServerRpc(NetworkManager.Singleton.LocalClientId);
-
+			UIManager.Instance.HideCurrentHUD();
 			UIManager.Instance.CloseAllWindows();
 
 			var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
 			lobbyHUD.Initialize();
 		}
 
-        public async UniTask StartSession()
+		public void OnMoveTitleScene()
+        {
+			UIManager.Instance.HideCurrentHUD();
+			UIManager.Instance.CloseAllWindows();
+
+			var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
+			onlineModeWindow.Initialize();
+		}
+
+
+		public async UniTask StartSession()
 		{
 			Debug.Log(">> Start: Init Session");
 			List<UniTask> tasks = new();
