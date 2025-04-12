@@ -15,7 +15,8 @@ namespace LogKill.Map
 
         public async UniTask LoadMap(int mapIndex)
         {
-            await ResourceManager.CreateAsset(_mapPrefabName);
+            var map = await ResourceManager.CreateAsset(_mapPrefabName);
+            map.GetComponent<IWorldMap>().Initialize();
             Debug.Log("<< Finished: Load Map");
         }
     }

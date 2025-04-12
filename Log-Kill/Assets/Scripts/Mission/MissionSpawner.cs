@@ -1,29 +1,26 @@
 using System.Collections.Generic;
+using LogKill.Entity;
 using UnityEngine;
 
 namespace LogKill.Mission
 {
     public class MissionSpawner : MonoBehaviour
     {
-        [SerializeField] private GameObject _missionPrefab;
+        [SerializeField] private BatteryEntity _missionPrefab;
+        [SerializeField] private List<MissionData> _missionData = new();
         [SerializeField] private List<Transform> _missionSpawnPoint = new();
 
-        private List<GameObject> _spawnedMissions = new List<GameObject>();
-
-        private void Start()
-        {
-            SpawnMission();
-        }
-
-        private void SpawnMission(int count = 5)
+        private List<BatteryEntity> _spawnedMissions = new ();
+        
+        public void SpawnMission(int count = 5)
         {
             Shuffle();
 
             for (int i = 0; i < count; i++)
             {
                 var spawnPoint = _missionSpawnPoint[i];
-                var mission = Instantiate(_missionPrefab, spawnPoint.position, Quaternion.identity);
-                mission.transform.SetParent(spawnPoint);
+                var mission = Instantiate(_missionPrefab, spawnPoint.position, Quaternion.identity, spawnPoint);
+                mission.Initialize(_missionData[i]);
                 _spawnedMissions.Add(mission);
             }
         }
@@ -40,7 +37,7 @@ namespace LogKill.Mission
             }
         }
 
-        private void DespawnMission()
+        public void DespawnMission()
         {
             foreach (var mission in _spawnedMissions)
             {

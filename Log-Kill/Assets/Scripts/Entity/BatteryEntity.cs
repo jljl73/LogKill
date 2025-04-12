@@ -21,12 +21,9 @@ namespace LogKill.Entity
             EventBus?.Unsubscribe<MissionClearEvent>(OnMissionClearEvent);
         }
 
-        private void OnMissionClearEvent(MissionClearEvent context)
+        public void Initialize(MissionData missionData)
         {
-            if (context.MissionId == _missionData.MissionId)
-            {
-                Destroy(gameObject);
-            }
+            _missionData = missionData;
         }
 
         public void Interact()
@@ -55,6 +52,14 @@ namespace LogKill.Entity
                 InteractableEntity = this,
             };
             EventBus.Publish(context);
+        }
+
+        private void OnMissionClearEvent(MissionClearEvent context)
+        {
+            if (context.MissionId == _missionData.MissionId)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

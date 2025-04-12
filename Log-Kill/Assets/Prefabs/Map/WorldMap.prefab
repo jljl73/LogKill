@@ -174,6 +174,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6431982324760930097}
+  - component: {fileID: 2224816423396089740}
   m_Layer: 0
   m_Name: WorldMap
   m_TagString: Untagged
@@ -200,6 +201,19 @@ Transform:
   - {fileID: 7232773391826737198}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2224816423396089740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230377947137573274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 060e6036c341c3143a6a6234e2956c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _missionSpawner: {fileID: 285695801294383859}
 --- !u!1 &274641757971660541
 GameObject:
   m_ObjectHideFlags: 0
@@ -1741,6 +1755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _missionPrefab: {fileID: 546044784904469821, guid: 0cbcfa707be11a84c8844d1f09e220fe, type: 3}
+  _missionData: []
   _missionSpawnPoint:
   - {fileID: 8346718035622333886}
   - {fileID: 4510419538586451896}
