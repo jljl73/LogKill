@@ -68,12 +68,12 @@ namespace LogKill.Vote
 
                 if (playerData != null)
                 {
-                    Debug.Log($"ÇÃ·¹ÀÌ¾î {playerData.Value.Name} ´Â {playerData.Value.PlayerType} ÀÌ¿´½À´Ï´Ù.");
+                    Debug.Log($"ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ {playerData.Value.Name} ï¿½ï¿½ {playerData.Value.PlayerType} ï¿½Ì¿ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
                 }
             }
             else
             {
-                Debug.Log("¾Æ¹«µµ ÅðÃâµÇÁö ¾Ê¾Ò½À´Ï´Ù");
+                Debug.Log("ï¿½Æ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò½ï¿½ï¿½Ï´ï¿½");
             }
 
             OnEndVotingClientRpc();
@@ -149,7 +149,8 @@ namespace LogKill.Vote
         {
             // TODO Emergency Meeting Animation
 
-            bool isDead = PlayerDataManager.Instance.ClientPlayerData.IsDead;
+            // bool isDead = PlayerDataManager.Instance.ClientPlayerData.IsDead;
+            var isDead = PlayerDataManager.Instance.PlayerDataDicts[NetworkManager.Singleton.LocalClientId].IsDead;
 
             if (isDead)
                 ShowVoteWindow(voteDatas);
@@ -187,7 +188,8 @@ namespace LogKill.Vote
         [ClientRpc]
         private void OnEndVotingClientRpc()
         {
-            Debug.Log("OnEndVotingClientRpc");
+            UIManager.Instance.CloseAllWindows();
+            PlayerDataManager.Instance.StartStage();
         }
 
         [ClientRpc]

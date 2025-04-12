@@ -52,6 +52,7 @@ namespace LogKill.Character
         public override void OnNetworkSpawn()
         {
             Initialize();
+            PlayerDataManager.Instance.AddPlayer(this);
         }
 
         private void Initialize()
@@ -93,8 +94,13 @@ namespace LogKill.Character
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
 
-            var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
-            CameraController.Instance.SetTarget(target?.transform);
+            if (IsOwner)
+            {
+                _interactableTrigger.gameObject.SetActive(false);
+
+                var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
+                CameraController.Instance.SetTarget(target?.transform);
+            }
         }
     }
 }

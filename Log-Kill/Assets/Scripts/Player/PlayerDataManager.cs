@@ -9,10 +9,31 @@ namespace LogKill.Character
     public class PlayerDataManager : NetworkSingleton<PlayerDataManager>
     {
         public Dictionary<ulong, PlayerData> PlayerDataDicts { get; private set; } = new();
+        public Dictionary<ulong, Player> PlayerDicts { get; private set; } = new();
 
         public PlayerData ClientPlayerData { get; private set; }
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+
+        public void AddPlayer(Player player)
+        {
+            if (PlayerDicts.ContainsKey(player.ClientId))
+            {
+                PlayerDicts[player.ClientId] = player;
+            }
+            else
+            {
+                PlayerDicts.Add(player.ClientId, player);
+            }
+        }
+
+        public void StartStage()
+        {
+            foreach (var player in PlayerDicts.Values)
+            {
+                player.transform.position = Vector3.zero;
+            }
+        }
 
         public override void OnNetworkSpawn()
         {
@@ -120,6 +141,11 @@ namespace LogKill.Character
             if (PlayerDataDicts.ContainsKey(clientId))
             {
                 PlayerDataDicts.Remove(clientId);
+            }
+
+            if (PlayerDicts.ContainsKey(clientId))
+            {
+                PlayerDicts.Remove(clientId);
             }
         }
     }
