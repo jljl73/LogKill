@@ -42,7 +42,11 @@ namespace LogKill.UI
         public override void OnShow()
         {
             base.OnShow();
-            // If I'm imposter, active the break button
+            _breakButton.gameObject.SetActive(IsImposter);
+            
+            _interactButton.interactable = false;
+            _reportButton.interactable = false;
+            _breakButton.interactable = false;
         }
 
         private void OnInteractEvent(InteractEvent context)
@@ -112,6 +116,7 @@ namespace LogKill.UI
 
         private void OnMissionProgressEvent(MissionProgressEvent context)
         {
+            Debug.Log($"Mission Progress: {context.Progress}/{context.AllProgress}");
             _missionProgressBar.value = (float)context.Progress / context.AllProgress;
         }
 

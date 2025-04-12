@@ -24,7 +24,7 @@ namespace LogKill.Entity
                 interactable.EnableInteraction();
             }
 
-            if(collision.TryGetComponent<Player>(out var player))
+            if (collision.TryGetComponent<Player>(out var player))
             {
                 EventBus.Publish(new PlayerRangeChagnedEvent(player, true));
             }
@@ -35,11 +35,13 @@ namespace LogKill.Entity
             if (collision.TryGetComponent<IInteractable>(out var interactable))
             {
                 if (interactable == _interactable)
+                {
                     _interactable = null;
-                interactable.DisableInteraction();
+                    interactable.DisableInteraction();
+                }
             }
 
-            if(collision.TryGetComponent<Player>(out var player))
+            if (collision.TryGetComponent<Player>(out var player))
             {
                 EventBus.Publish(new PlayerRangeChagnedEvent(player, false));
             }
