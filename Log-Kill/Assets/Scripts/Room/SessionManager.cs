@@ -2,8 +2,7 @@ using Cysharp.Threading.Tasks;
 using LogKill.Character;
 using LogKill.Core;
 using LogKill.Event;
-using LogKill.UI;
-using LogKill.Vote;
+using LogKill.LobbySystem;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,9 +14,14 @@ namespace LogKill.Room
         [SerializeField]
         private NetworkObject _playerPrefab;
 
-        private Dictionary<ulong, bool> _playerLoadStatus = new Dictionary<ulong, bool>(); // ���� �ε� ����
-
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
+
+        private Dictionary<ulong, bool> _playerLoadStatus = new Dictionary<ulong, bool>(); // ���� �ε� ����
+        private Dictionary<ulong, Player> _playerDicts = new Dictionary<ulong, Player>();
+
+        public Dictionary<ulong, Player> PlayerDicts { get => _playerDicts; }
+
 
         public override void OnNetworkSpawn()
         {
@@ -29,9 +33,7 @@ namespace LogKill.Room
 
             if (IsClient)
             {
-                // GameManager.Instance.StartSession().Forget();
-
-                GameManager.Instance.OnJoinRoomPlayer();
+                GameManager.Instance.OnMoveLobbyScene();
             }
         }
 
@@ -41,6 +43,13 @@ namespace LogKill.Room
             {
                 NetworkManager.Singleton.OnClientConnectedCallback -= OnPlayerConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerDisconnected;
+            }
+
+            if (IsClient)
+            {
+                GameManager.Instance.OnMoveTitleScene();
+
+                LobbyManager.LeaveLobbyAsync().Forget();
             }
         }
 
@@ -52,6 +61,11 @@ namespace LogKill.Room
                 return;
 
             _playerLoadStatus[clientId] = false;
+
+            OnPlayerSpawn(clientId);
+
+            Debug.Log("Before BroadcastLobbyChangedClientRpc");
+            BroadcastLobbyChangedClientRpc(clientId);
         }
 
         private void OnPlayerDisconnected(ulong clientId)
@@ -63,6 +77,9 @@ namespace LogKill.Room
             {
                 _playerLoadStatus.Remove(clientId);
             }
+
+            OnPlayerDespawn(clientId);
+            BroadcastLobbyChangedClientRpc(clientId);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -78,11 +95,11 @@ namespace LogKill.Room
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void PlayerSpawnServerRpc(ulong clientId)
+        public void NotifyGameStartServerRpc()
         {
             if (!IsServer) return;
 
-            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(_playerPrefab, clientId);
+            BroadcastGameStartClientRpc();
         }
 
         private void CheckAllPlayersLoaded()
@@ -93,10 +110,22 @@ namespace LogKill.Room
                     return;
             }
 
+            // TODO 임포스터 할당
+            // LobbyManager.Instance.GetImposterCount();
+
+            // NetworkManager.Singleton.ConnectedClients
+
             StartNextPhaseClientRpc();
         }
 
         #endregion
+
+
+        [ClientRpc]
+        private void BroadcastGameStartClientRpc()
+        {
+            GameManager.Instance.StartSession().Forget();
+        }
 
         [ClientRpc]
         private void StartNextPhaseClientRpc()
@@ -107,6 +136,55 @@ namespace LogKill.Room
                 MissionCount = 5,
             };
             EventBus.Publish(context);
+        }
+
+        [ClientRpc]
+        public void BroadcastLobbyChangedClientRpc(ulong clientId)
+        {
+            var context = new LobbyChangedEvent()
+            {
+                ClientId = clientId,
+                CurrentPlayers = NetworkManager.Singleton.ConnectedClients.Count,
+                MaxPlayers = LobbyManager.GetMaxPlayers(),
+                IsPrivate = LobbyManager.GetIsPrivate()
+            };
+
+            EventBus.Publish<LobbyChangedEvent>(context);
+        }
+
+        private void OnPlayerSpawn(ulong clientId)
+        {
+            var playerInstance = Instantiate(_playerPrefab);
+            playerInstance.SpawnAsPlayerObject(clientId);
+
+            var player = playerInstance.GetComponent<Player>();
+
+            if (_playerDicts.ContainsKey(clientId))
+            {
+                _playerDicts[clientId] = player;
+            }
+            else
+            {
+                _playerDicts.Add(clientId, player);
+            }
+
+            PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(new PlayerData(clientId));
+        }
+
+        private void OnPlayerDespawn(ulong clientId)
+        {
+            if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client))
+            {
+                if (client.PlayerObject != null && client.PlayerObject.IsSpawned)
+                {
+                    client.PlayerObject.Despawn();
+
+                    if (_playerDicts.ContainsKey(clientId))
+                    {
+                        _playerLoadStatus.Remove(clientId);
+                    }
+                }
+            }
         }
     }
 }
