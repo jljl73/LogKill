@@ -12,6 +12,7 @@ namespace LogKill.Character
         public Dictionary<ulong, Player> PlayerDicts { get; private set; } = new();
 
         public PlayerData ClientPlayerData { get; private set; }
+        public Player Me { get; private set; }
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
@@ -24,6 +25,11 @@ namespace LogKill.Character
             else
             {
                 PlayerDicts.Add(player.ClientId, player);
+            }
+
+            if(player.ClientId == NetworkManager.Singleton.LocalClientId)
+            {
+                Me = player;
             }
         }
 

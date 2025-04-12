@@ -20,7 +20,6 @@ namespace LogKill
 
 		private EventBus EventBus => ServiceLocator.Get<EventBus>();
 		private MapService MapService => ServiceLocator.Get<MapService>();
-		private EventBus EventBus => ServiceLocator.Get<EventBus>();
 		private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
 		private async UniTask Start()
@@ -75,7 +74,6 @@ namespace LogKill
 				EventBus.Publish<PlayerData>(playerData);
 			}
         }
-
 
 		public async UniTask StartSession()
 		{

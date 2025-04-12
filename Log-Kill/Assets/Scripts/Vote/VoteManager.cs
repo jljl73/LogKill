@@ -150,7 +150,7 @@ namespace LogKill.Vote
             // TODO Emergency Meeting Animation
 
             // bool isDead = PlayerDataManager.Instance.ClientPlayerData.IsDead;
-            var isDead = PlayerDataManager.Instance.PlayerDataDicts[NetworkManager.Singleton.LocalClientId].IsDead;
+            var isDead = PlayerDataManager.Instance.Me.IsDead;
 
             if (isDead)
                 ShowVoteWindow(voteDatas);
