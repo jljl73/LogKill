@@ -1,5 +1,6 @@
 using LogKill.Core;
 using LogKill.Entity;
+using LogKill.Log;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace LogKill.Character
 
         private PlayerData _playerData;
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LogService LogService => ServiceLocator.Get<LogService>();
 
         public PlayerData PlayerData => _playerData;
         public bool IsDead => _playerData.IsDead;
@@ -73,6 +75,7 @@ namespace LogKill.Character
                 _interactableTrigger.gameObject.SetActive(true);
 
                 CameraController.Instance.SetTarget(transform);
+                LogService.Log(new NothingLog());
             }
             else
             {

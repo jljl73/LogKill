@@ -201,10 +201,10 @@ namespace LogKill.Vote
         private void ShowSelectLogWindow()
         {
             var logList = LogService.GetRandomLogList();
-            var debugLogList = new List<string>() { "TestLog 1", "TestLog 2", "Test Log3" };
+            // var debugLogList = new List<string>() { "TestLog 1", "TestLog 2", "Test Log3" };
 
             var selectLogWindow = UIManager.Instance.ShowWindow<SelectLogWindow>();
-            selectLogWindow.InitLogList(debugLogList);
+            selectLogWindow.InitLogList(logList);
         }
 
         private void ShowVoteWindow(VoteData[] voteDatas)

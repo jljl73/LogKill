@@ -8,6 +8,7 @@ namespace LogKill.Log
         // Mission
         MissionFail = 1,
         MissionTime = 2,
+        MissionSuccess = 3,
 
         // Player
         PlayerKill = 101,

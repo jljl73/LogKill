@@ -58,6 +58,7 @@ namespace LogKill.Mission
             {
                 if (IsCatch())
                 {
+                    LogService.Log(new MissionSuccessLog());
                     ClearMission();
                 }
                 else
