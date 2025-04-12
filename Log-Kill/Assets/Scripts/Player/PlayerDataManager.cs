@@ -47,8 +47,6 @@ namespace LogKill.Character
             {
                 PlayerDataDicts.Add(clientId, playerData);
             }
-
-            Debug.Log("SubmitPlayerDataToServerRpc : " + PlayerDataDicts.Count);
         }
 
         [ServerRpc(RequireOwnership = false)]
