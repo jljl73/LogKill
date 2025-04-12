@@ -86,7 +86,6 @@ namespace LogKill.Character
         {
             if (PlayerDataDicts.TryGetValue(clietId, out PlayerData playerData))
             {
-                Debug.Log("Name : " + playerData.Name);
                 return playerData;
             }
 
