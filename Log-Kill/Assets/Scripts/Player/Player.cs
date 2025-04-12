@@ -55,8 +55,8 @@ namespace LogKill.Character
                 _movement.Initialize();
                 _inputHandler.Initialize();
 
-                ulong clientId = NetworkManager.Singleton.LocalClientId;
-                _playerData = new PlayerData(clientId);
+                _playerData = new PlayerData(NetworkManager.Singleton.LocalClientId);
+                PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(_playerData);
 
                 _networkSync.UpdateColorType(_playerData.ColorType);
 
