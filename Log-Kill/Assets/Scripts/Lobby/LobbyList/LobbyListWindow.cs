@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Core;
 using LogKill.Network;
 using LogKill.UI;
 using System;
@@ -15,7 +16,21 @@ namespace LogKill.LobbySystem
         [SerializeField] private List<LobbyListItem> _lobbyListItems = new();
         [SerializeField] private Button _quickJoinButton;
 
+        [SerializeField] private MessageBoxWindow _messageBoxWindow;
+
         private CancellationTokenSource _lobbyListRefreshToken;
+
+        private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
+
+        public async override UniTask InitializeAsync()
+        {
+            foreach (var lobbyListItem in _lobbyListItems)
+            {
+                lobbyListItem.RegisterJoinEvent(OnJoinEvent);
+            }
+
+            await UniTask.Yield();
+        }
 
         public override void OnShow()
         {
@@ -24,9 +39,9 @@ namespace LogKill.LobbySystem
                 lobbyListItem.gameObject.SetActive(false);
             }
 
-            StartLobbyListRefresh().Forget();
+            _messageBoxWindow.gameObject.SetActive(false);
 
-            // LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
+            StartLobbyListRefresh().Forget();
         }
 
         public override void OnHide()
@@ -34,8 +49,6 @@ namespace LogKill.LobbySystem
             _lobbyListRefreshToken?.Cancel();
             _lobbyListRefreshToken?.Dispose();
             _lobbyListRefreshToken = null;
-
-            // LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
         }
 
         private async UniTask StartLobbyListRefresh()
@@ -46,7 +59,7 @@ namespace LogKill.LobbySystem
             {
                 while (!_lobbyListRefreshToken.Token.IsCancellationRequested)
                 {
-                    var lobbyList = await LobbyManager.Instance.GetLobbyListAsync();
+                    var lobbyList = await LobbyManager.GetLobbyListAsync();
                     UpdateLobbyList(lobbyList);
 
                     _quickJoinButton.interactable = lobbyList.Count > 0;
@@ -59,22 +72,6 @@ namespace LogKill.LobbySystem
                 Debug.Log("LobbyList loop safely cancelled");
             }
         }
-
-        //private void OnPlayerJoinedEvent(Lobby lobby)
-        //{
-        //    if (lobby == null)
-        //    {
-        //        _quickJoinButton.interactable = true;
-        //    }
-        //    else
-        //    {
-        //        // TODO: Scene Move
-        //        UIManager.Instance.CloseAllWindows();
-
-        //        var lobbyHUD = UIManager.Instance.ShowHUD<InGameHud>();
-        //        // lobbyHUD.Initialize();
-        //    }
-        //}
 
         private void UpdateLobbyList(List<Lobby> lobbies)
         {
@@ -89,12 +86,23 @@ namespace LogKill.LobbySystem
                 _lobbyListItems[index].gameObject.SetActive(true);
             }
         }
+        private async void OnJoinEvent(string lobbyId)
+        {
+            if (!await LobbyManager.JoinLobbyByIdAsync(lobbyId))
+            {
+                _messageBoxWindow.OnShow("존재하지 않는 방입니다.");
+            }
+        }
 
         public async void OnClickQuickJoin()
         {
             _quickJoinButton.interactable = false;
 
-            await LobbyManager.Instance.JoinQuickMatch();
+            if (!await LobbyManager.JoinQuickMatch())
+            {
+                _messageBoxWindow.OnShow("방이 존재하지 않습니다");
+                _quickJoinButton.interactable = true;
+            }
         }
 
         public void OnClickBack()
