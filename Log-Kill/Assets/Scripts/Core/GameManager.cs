@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.Map;
 using LogKill.Mission;
 using LogKill.Room;
@@ -10,10 +11,11 @@ using UnityEngine;
 
 namespace LogKill
 {
-    public class GameManager : MonoSingleton<GameManager>
+	public class GameManager : MonoSingleton<GameManager>
 	{
 		[SerializeField] private MissionData _missionData;
 
+		private EventBus EventBus => ServiceLocator.Get<EventBus>();
 		private MapService MapService => ServiceLocator.Get<MapService>();
 
 		private async UniTask Start()
@@ -22,11 +24,19 @@ namespace LogKill
 
 			await UIManager.Instance.InitializeAsync();
 
+			EventBus.Subscribe<GameStartEvent>(OnGameStart);
+
 			OnMoveTitleScene();
 		}
 
+		public void OnGameStart(GameStartEvent context)
+		{
+			UIManager.Instance.CloseAllWindows();
+			UIManager.Instance.ShowHUD<InGameHud>();
+		}
+
 		public void OnMoveLobbyScene()
-        {
+		{
 			UIManager.Instance.HideCurrentHUD();
 			UIManager.Instance.CloseAllWindows();
 
@@ -35,14 +45,13 @@ namespace LogKill
 		}
 
 		public void OnMoveTitleScene()
-        {
+		{
 			UIManager.Instance.HideCurrentHUD();
 			UIManager.Instance.CloseAllWindows();
 
 			var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
 			onlineModeWindow.Initialize();
 		}
-
 
 		public async UniTask StartSession()
 		{
@@ -53,7 +62,7 @@ namespace LogKill
 
 			await tasks;
 			SessionManager.Instance.NotifyPlayerLoadedServerRpc(NetworkManager.Singleton.LocalClientId);
-            Debug.Log("<< Finished: Init Session");
-        }
+			Debug.Log("<< Finished: Init Session");
+		}
 	}
 }
