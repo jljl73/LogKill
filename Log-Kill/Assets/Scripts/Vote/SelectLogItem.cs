@@ -6,26 +6,23 @@ namespace LogKill.Vote
 {
     public class SelectLogItem : MonoBehaviour
     {
-        private Button _button;
-        private TMP_Text _logText;
+        [SerializeField] private Button _button;
+        [SerializeField] private TMP_Text _logText;
 
-        private void Awake()
-        {
-            _button = GetComponent<Button>();
-            _logText = GetComponentInChildren<TMP_Text>();
-        }
+        [SerializeField] private Color _normalColor;
+        [SerializeField] private Color _selectedColor;
 
         public void Initialize(string logText)
         {
-            if (logText != string.Empty)
+            if (string.IsNullOrWhiteSpace(logText))
             {
-                _logText.text = logText;
-                _button.image.color = new Color(1f, 1f, 1f, 0.5f);
-                gameObject.SetActive(true);
+                gameObject.SetActive(false);
             }
             else
             {
-                gameObject.SetActive(false);
+                _logText.text = logText;
+                _button.image.color = _normalColor;
+                gameObject.SetActive(true);
             }
         }
 
@@ -33,15 +30,15 @@ namespace LogKill.Vote
         {
             if (isSelect)
             {
-                _button.image.color = Color.black;
+                _button.image.color = _selectedColor;
             }
             else
             {
-                _button.image.color = new Color(1f, 1f, 1f, 0.5f);
+                _button.image.color = _normalColor;
             }
         }
 
-        public string GetLogText()
+        public string GetLogMessage()
         {
             return _logText.text;
         }

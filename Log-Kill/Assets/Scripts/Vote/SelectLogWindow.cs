@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Core;
 using LogKill.UI;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,20 +10,16 @@ namespace LogKill.Vote
 {
     public class SelectLogWindow : WindowBase
     {
-        [SerializeField] private SelectLogItem[] _selectLogItems;
+        [SerializeField] private List<SelectLogItem>  _selectLogItemList = new();
+        [SerializeField] private GameObject _disabeldText;
         [SerializeField] private TMP_Text _timerText;
 
         private CancellationTokenSource _timerToken;
 
-        private const int TOTAL_TIME = 10;
-
-        private int _selectLogIndex;
         private int _logCount;
+        private int _selectLogIndex;
 
-        public override void OnShow()
-        {
-            StartTimer(TOTAL_TIME).Forget();
-        }
+        private VoteService VoteService => ServiceLocator.Get<VoteService>();
 
         public override void OnHide()
         {
@@ -31,22 +28,25 @@ namespace LogKill.Vote
             _timerToken = null;
         }
 
-        public void InitLogList(List<string> logList)
+        public void StartSelectLog(List<string> logList, int totalTime = 10)
         {
-            _logCount = Mathf.Min(logList.Count, _selectLogItems.Length);
+            StartTimer(totalTime).Forget();
 
-            for (int i = 0; i < _selectLogItems.Length; i++)
+            for (int i = 0; i < _selectLogItemList.Count; i++)
             {
-                if (i < _logCount)
+                if (i < logList.Count)
                 {
-                    _selectLogItems[i].Initialize(logList[i]);
+                    _selectLogItemList[i].Initialize(logList[i]);
                 }
                 else
                 {
-                    _selectLogItems[i].Initialize("");
+                    _selectLogItemList[i].Initialize(string.Empty);
                 }
             }
 
+            _disabeldText.gameObject.SetActive(logList.Count == 0);
+
+            _logCount = logList.Count;
             _selectLogIndex = -1;
         }
 
@@ -68,7 +68,7 @@ namespace LogKill.Vote
                 }
 
                 currentTime--;
-                _timerText.text = $"Prooeeding In : {currentTime}s";
+                _timerText.text = $"남은 시간 : {currentTime}초";
             }
 
             SubmitLogMessage();
@@ -76,10 +76,12 @@ namespace LogKill.Vote
 
         private void SubmitLogMessage()
         {
-            int logIndex = (_selectLogIndex == -1) ? Random.Range(0, _logCount) : _selectLogIndex;
-            string logText = _selectLogItems[logIndex].GetLogText();
+            if (_selectLogIndex == -1)
+                _selectLogIndex = Random.Range(0, _logCount);
 
-            VoteManager.Instance.SubmitLogMessageToServerRpc(logText);
+            string selectLogMessage = _selectLogItemList[_selectLogIndex].GetLogMessage();
+
+            VoteService.ReportSelectLogMessage(selectLogMessage);
         }
 
         public void OnClickSelectLog(int index)
@@ -88,15 +90,10 @@ namespace LogKill.Vote
 
             _selectLogIndex = index;
 
-            for (int i = 0; i < _selectLogItems.Length; i++)
+            for (int i = 0; i < _selectLogItemList.Count; i++)
             {
-                _selectLogItems[i].OnSelect(i == index);
+                _selectLogItemList[i].OnSelect(i == index);
             }
-        }
-
-        public void OnClickSelectComplete()
-        {
-            SubmitLogMessage();
         }
     }
 }
