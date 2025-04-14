@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LogKill.Core;
+using LogKill.Utils;
 using UnityEngine;
 
 namespace LogKill.Log
@@ -8,8 +9,6 @@ namespace LogKill.Log
     public class LogService : IService
     {
         private Dictionary<ELogType, ILog> _logDicts = new();
-
-        private System.Random _random = new();
 
         public void Initialize()
         {
@@ -35,22 +34,58 @@ namespace LogKill.Log
                 Debug.Log(log.Content);
         }
 
-        public List<string> GetRandomLogList(int count = 3)
+        public List<string> GetCreminalScoreWeightedRandomLogList(int count = 3)
         {
-            List<string> logList = _logDicts.Values
-                .Select(log => log.Content)
-                .ToList();
+            var result = new List<string>();
+            var logCandidates = new List<ILog>(_logDicts.Values);
 
-            // Suffle
-            int logCount = logList.Count;
-            for (int i = 0; i < logCount - 1; i++)
+            if (logCandidates.Count == 0)
+                return result;
+
+            count = Mathf.Min(count, logCandidates.Count);
+
+            Util.Suffle<ILog>(logCandidates);
+
+            for (int i = 0; i < count; i++)
             {
-                int j = _random.Next(i, logCount);
-                (logList[i], logList[j]) = (logList[j], logList[i]);
+                float totalWeight = logCandidates.Sum(log => log.CriminalScore);
+                float randWeight = Random.Range(0f, totalWeight);
+
+                float cumulative = 0f;
+                for (int j = 0; j < logCandidates.Count; j++)
+                {
+                    cumulative += logCandidates[j].CriminalScore;
+
+                    if (randWeight <= cumulative)
+                    {
+                        result.Add(logCandidates[j].Content);
+                        logCandidates.RemoveAt(j);
+                        break;
+                    }
+                }
             }
 
-            int limitCount = Mathf.Min(logCount, count);
-            return logList.GetRange(0, limitCount);
+            return result;
+        }
+
+        public List<string> GetRandomLogList(int count = 3)
+        {
+            var result = new List<string>();
+            var logList = new List<ILog>(_logDicts.Values);
+
+            if (count == 0)
+                return result;
+
+            count = Mathf.Min(count, logList.Count);
+
+            Util.Suffle<ILog>(logList);
+
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(logList[i].Content);
+            }
+
+            return result;
         }
     }
 }
