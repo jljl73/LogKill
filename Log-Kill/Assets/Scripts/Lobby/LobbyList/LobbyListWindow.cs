@@ -36,7 +36,8 @@ namespace LogKill.LobbySystem
         {
             foreach (var lobbyListItem in _lobbyListItems)
             {
-                lobbyListItem.gameObject.SetActive(false);
+                if (lobbyListItem.gameObject.activeSelf)
+                    lobbyListItem.gameObject.SetActive(false);
             }
 
             _messageBoxWindow.gameObject.SetActive(false);
@@ -60,9 +61,15 @@ namespace LogKill.LobbySystem
                 while (!_lobbyListRefreshToken.Token.IsCancellationRequested)
                 {
                     var lobbyList = await LobbyManager.GetLobbyListAsync();
-                    UpdateLobbyList(lobbyList);
+
+                    if (lobbyList == null)
+                    {
+                        await UniTask.Delay(NetworkConstants.LOBBY_LIST_UPDATE_MS, cancellationToken: _lobbyListRefreshToken.Token);
+                        continue;
+                    }
 
                     _quickJoinButton.interactable = lobbyList.Count > 0;
+                    UpdateLobbyList(lobbyList);
 
                     await UniTask.Delay(NetworkConstants.LOBBY_LIST_UPDATE_MS, cancellationToken: _lobbyListRefreshToken.Token);
                 }
@@ -75,17 +82,23 @@ namespace LogKill.LobbySystem
 
         private void UpdateLobbyList(List<Lobby> lobbies)
         {
-            foreach (var lobbyListItem in _lobbyListItems)
+            for (int index = 0; index < _lobbyListItems.Count; index++)
             {
-                lobbyListItem.gameObject.SetActive(false);
-            }
+                if (index < lobbies.Count)
+                {
+                    _lobbyListItems[index].Initialize(lobbies[index]);
 
-            for (int index = 0; index < lobbies.Count; index++)
-            {
-                _lobbyListItems[index].Initialize(lobbies[index]);
-                _lobbyListItems[index].gameObject.SetActive(true);
+                    if (!_lobbyListItems[index].gameObject.activeSelf)
+                        _lobbyListItems[index].gameObject.SetActive(true);
+                }
+                else
+                {
+                    if (_lobbyListItems[index].gameObject.activeSelf)
+                        _lobbyListItems[index].gameObject.SetActive(false);
+                }
             }
         }
+
         private async void OnJoinEvent(string lobbyId)
         {
             if (!await LobbyManager.JoinLobbyByIdAsync(lobbyId))
