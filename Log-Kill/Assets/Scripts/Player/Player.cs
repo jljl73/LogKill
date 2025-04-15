@@ -20,6 +20,7 @@ namespace LogKill.Character
         private LogService LogService => ServiceLocator.Get<LogService>();
 
         public PlayerData PlayerData => _playerData;
+        public EPlayerType PlayerType => _playerData.PlayerType;
         public bool IsDead => _playerData.IsDead;
         public ulong ClientId => _playerData.ClientId;
 

@@ -1,22 +1,25 @@
+using LogKill.Character;
 using UnityEngine;
 
 namespace LogKill.Event
 {
-    public struct SelectLogMessageEvent
-    {
-        public ulong ClientId;
-        public string LogMessage;
-    }
-
     public struct VoteStartEvent
     {
-
+        public ulong ReportClientId;
+    }
+    public struct VoteEndEvent
+    {
+        public string ResultMessage;
     }
 
     public struct VoteCompleteEvent
     {
-        public ulong VoterClientId;
         public ulong TargetClientId;
-        public bool IsSkip;
+    }
+
+    public struct UpdateVoteResultEvent
+    {
+        public ulong TargetClientId;
+        public int VoteCount;
     }
 }

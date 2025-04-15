@@ -7,47 +7,57 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace LogKill.Vote
 {
     public class VoteWindow : WindowBase
     {
         [SerializeField] private VotePanel[] _votePanels;
+        [SerializeField] private Button _skipButton;
         [SerializeField] private TMP_Text _timerText;
 
-        private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private CancellationTokenSource _timerToken;
-
-        private const int TOTAL_TIME = 90;
-
         private Dictionary<ulong, VotePanel> _votePanelDict = new();
 
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private VoteService VoteService => ServiceLocator.Get<VoteService>();
 
-        public void InitVotePanel(VoteData[] voteDatas)
+        public override void OnShow()
         {
-            _votePanelDict.Clear();
+            StartTimer(VoteService.VOTE_TOTAL_TIME).Forget();
 
-            ulong clientId = NetworkManager.Singleton.LocalClientId;
+            EventBus.Subscribe<VoteCompleteEvent>(OnVoteCompleteEvent);
+            EventBus.Subscribe<UpdateVoteResultEvent>(OnUpdateVoteResultEvent);
+        }
 
-            SortedVoteDatas(clientId, ref voteDatas);
+        public override void OnHide()
+        {
+            EventBus.Unsubscribe<VoteCompleteEvent>(OnVoteCompleteEvent);
+            EventBus.Unsubscribe<UpdateVoteResultEvent>(OnUpdateVoteResultEvent);
 
-            int localIndex = Array.FindIndex(voteDatas, v => v.PlayerData.ClientId == clientId);
+            _timerToken?.Cancel();
+            _timerToken?.Dispose();
+            _timerToken = null;
+        }
 
-            VoteData localVote = voteDatas[localIndex];
-            bool isImposter = localVote.PlayerData.PlayerType == EPlayerType.Imposter;
+        public void StartVoting(VoteData[] voteDatas)
+        {
+            PlayerData localPlayerData = PlayerDataManager.Instance.Me.PlayerData;
 
-            for (int index = 0; index < _votePanels.Length; index++)
+            for (int i = 0; i < _votePanels.Length; i++)
             {
-                VotePanel votePanel = _votePanels[index];
+                VotePanel votePanel = _votePanels[i];
 
-                if (index < voteDatas.Length)
+                if (i < voteDatas.Length)
                 {
-                    votePanel.Initialize(clientId, voteDatas[index], isImposter);
+                    votePanel.InitVotePanel(localPlayerData, voteDatas[i]);
                     votePanel.gameObject.SetActive(true);
 
-                    _votePanelDict[voteDatas[index].PlayerData.ClientId] = votePanel;
+                    ulong clientId = voteDatas[i].PlayerData.ClientId;
+                    if (!_votePanelDict.ContainsKey(clientId))
+                        _votePanelDict.Add(clientId, votePanel);
                 }
                 else
                 {
@@ -55,53 +65,7 @@ namespace LogKill.Vote
                 }
             }
 
-            _timerText.text = "Log Selecting...";
-        }
-
-        public override void OnShow()
-        {
-            EventBus.Subscribe<SelectLogMessageEvent>(OnSelectLogMessageEvent);
-            EventBus.Subscribe<VoteStartEvent>(OnVoteStartEvent);
-            EventBus.Subscribe<VoteCompleteEvent>(OnVoteCompleteEvent);
-        }
-
-        public override void OnHide()
-        {
-            EventBus.Unsubscribe<SelectLogMessageEvent>(OnSelectLogMessageEvent);
-            EventBus.Unsubscribe<VoteStartEvent>(OnVoteStartEvent);
-            EventBus.Unsubscribe<VoteCompleteEvent>(OnVoteCompleteEvent);
-
-            _timerToken?.Cancel();
-            _timerToken?.Dispose();
-            _timerToken = null;
-        }
-
-        private void OnSelectLogMessageEvent(SelectLogMessageEvent selectLogMessage)
-        {
-            _votePanelDict[selectLogMessage.ClientId].OnSelectLogMessage(selectLogMessage.LogMessage);
-        }
-
-        private void OnVoteStartEvent(VoteStartEvent voteStart)
-        {
-            StartTimer(TOTAL_TIME).Forget();
-        }
-
-        private void OnVoteCompleteEvent(VoteCompleteEvent voteComplete)
-        {
-            ulong clientId = NetworkManager.Singleton.LocalClientId;
-
-            if (clientId == voteComplete.VoterClientId)
-            {
-                foreach (var votePanel in _votePanelDict)
-                {
-                    votePanel.Value.OnDisabled();
-                }
-            }
-
-            _votePanelDict[voteComplete.VoterClientId].OnVoteComplete();
-
-            if (!voteComplete.IsSkip)
-                _votePanelDict[voteComplete.TargetClientId].AddVoteCount();
+            _skipButton.interactable = !localPlayerData.IsDead;
         }
 
         private async UniTask StartTimer(int time)
@@ -122,21 +86,30 @@ namespace LogKill.Vote
                 }
 
                 currentTime--;
-                _timerText.text = $"Prooeeding In : {currentTime}s";
+                _timerText.text = $"남은 시간 : {currentTime}초";
             }
+
+            OnClickSkip();
         }
 
-        private void SortedVoteDatas(ulong clientId, ref VoteData[] voteDatas)
+        private void OnVoteCompleteEvent(VoteCompleteEvent context)
         {
-            Array.Sort(voteDatas, (a, b) => a.PlayerData.IsDead.CompareTo(b.PlayerData.IsDead));
-
-            int localIndex = Array.FindIndex(voteDatas, v =>
-                v.PlayerData.ClientId == clientId &&
-                v.PlayerData.IsDead == false);
-
-            if (localIndex > 0)
+            foreach (var votePanel in _votePanels)
             {
-                (voteDatas[0], voteDatas[localIndex]) = (voteDatas[localIndex], voteDatas[0]);
+                if (!votePanel.gameObject.activeSelf) continue;
+
+                votePanel.OnDisabledPanel();
+            }
+
+            _skipButton.interactable = false;
+            VoteService.ReportVoteComplete(context.TargetClientId);
+        }
+
+        private void OnUpdateVoteResultEvent(UpdateVoteResultEvent context)
+        {
+            if (_votePanelDict.TryGetValue(context.TargetClientId, out VotePanel votePanel))
+            {
+                votePanel.OnUpdateVoteResult(context.VoteCount);
             }
         }
 
@@ -152,7 +125,10 @@ namespace LogKill.Vote
 
         public void OnClickSkip()
         {
-            VoteManager.Instance.VoteCompleteToServerRpc(0, true);
+            EventBus.Publish<VoteCompleteEvent>(new VoteCompleteEvent
+            {
+                TargetClientId = VoteService.SKIP_VOTE_ID
+            });
         }
     }
 }

@@ -1,6 +1,5 @@
 using LogKill.Character;
 using Unity.Netcode;
-using UnityEngine;
 
 namespace LogKill.Vote
 {

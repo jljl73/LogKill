@@ -1,5 +1,8 @@
+using LogKill.Character;
 using LogKill.Core;
+using LogKill.Event;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +11,6 @@ namespace LogKill.Vote
     public class VotePanel : MonoBehaviour
     {
         [SerializeField] private Image _icon;
-        [SerializeField] private Image _voteCompleteImage;
 
         [SerializeField] private Button _panelButton;
 
@@ -17,41 +19,36 @@ namespace LogKill.Vote
         [SerializeField] private TMP_Text _voteCountText;
 
         [SerializeField] private GameObject _deadPanel;
-        [SerializeField] private GameObject _loadingPanel;
-        [SerializeField] private GameObject _disabledPanel;
         [SerializeField] private GameObject _buttonGroup;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
-        private int _voteCount = 0;
         private ulong _targetClientId;
 
-        public void Initialize(ulong clientId, VoteData voteData, bool isImposter)
+        public void InitVotePanel(PlayerData localPlayerData, VoteData voteData)
         {
             _icon.color = voteData.PlayerData.GetColor();
-            _voteCompleteImage.gameObject.SetActive(false);
 
+            if (localPlayerData.GetIsImposter() && voteData.PlayerData.PlayerType == EPlayerType.Imposter)
+                _nameText.color = Color.red;
+            else
+                _nameText.color = Color.black;
             _nameText.text = voteData.PlayerData.Name.Value;
-            _nameText.color = (isImposter) ? Color.red : Color.black;
 
             _logText.text = voteData.LogMessage;
 
-            if (voteData.PlayerData.IsDead)
-            {
-                _panelButton.interactable = false;
+            _deadPanel.SetActive(voteData.PlayerData.IsDead);
 
-                _deadPanel.SetActive(true);
-                _loadingPanel.SetActive(false);
-            }
+            if (localPlayerData.IsDead)
+                _panelButton.interactable = false;
             else
             {
-                _panelButton.interactable = clientId != voteData.PlayerData.ClientId;
-
-                _deadPanel.SetActive(false);
-                _loadingPanel.SetActive(voteData.LogMessage == "");
+                if (voteData.PlayerData.IsDead || localPlayerData.ClientId == voteData.PlayerData.ClientId)
+                    _panelButton.interactable = false;
+                else
+                    _panelButton.interactable = true;
             }
 
-            _voteCount = 0;
             _targetClientId = voteData.PlayerData.ClientId;
         }
 
@@ -60,38 +57,26 @@ namespace LogKill.Vote
             _buttonGroup.SetActive(isSelect);
         }
 
-        public void OnDisabled()
+        public void OnDisabledPanel()
         {
+            if (_buttonGroup.activeSelf)
+                _buttonGroup.SetActive(false);
+
             _panelButton.interactable = false;
-            _buttonGroup.SetActive(false);
-            _disabledPanel.SetActive(true);
         }
 
-        public void OnSelectLogMessage(string logMessage)
+        public void OnUpdateVoteResult(int voteCount)
         {
-            _loadingPanel.SetActive(false);
-            _logText.text = logMessage;
+            _voteCountText.text = voteCount.ToString();
         }
-
-        public void OnVoteComplete()
-        {
-            _voteCompleteImage.gameObject.SetActive(true);
-        }
-
-        public void AddVoteCount()
-        {
-            _voteCount++;
-            _voteCountText.text = _voteCount.ToString();
-        }
-
 
         public void OnClickVote()
         {
-            _buttonGroup.SetActive(false);
-
-            VoteManager.Instance.VoteCompleteToServerRpc(_targetClientId, false);
+            EventBus.Publish<VoteCompleteEvent>(new VoteCompleteEvent 
+            { 
+                TargetClientId = _targetClientId
+            });
         }
-
 
         public void OnClickExit()
         {

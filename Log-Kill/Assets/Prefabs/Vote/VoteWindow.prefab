@@ -154,7 +154,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1721476406790363987
 RectTransform:
   m_ObjectHideFlags: 0
@@ -241,6 +241,7 @@ MonoBehaviour:
   - {fileID: 7519247384465465089}
   - {fileID: 3706313546882105810}
   - {fileID: 2463711376595516767}
+  _skipButton: {fileID: 4958474546271372304}
   _timerText: {fileID: 2477696078386179951}
 --- !u!1 &961489613567006402
 GameObject:

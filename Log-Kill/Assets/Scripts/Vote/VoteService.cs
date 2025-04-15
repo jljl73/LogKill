@@ -1,36 +1,89 @@
+using LogKill.Character;
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.Log;
 using LogKill.UI;
+using System;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace LogKill.Vote
 {
-    public class VoteService : NetworkBehaviour, IService
+    public class VoteService : IService
     {
-        private LogService LogService => ServiceLocator.Get<LogService>();
+        public static readonly ulong SKIP_VOTE_ID = ulong.MaxValue;
 
+        public static readonly int SELECT_LOG_TOTAL_TIME = 10;
+        public static readonly int VOTE_TOTAL_TIME = 90;
+
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LogService LogService => ServiceLocator.Get<LogService>();
+        private IVoteNetController VoteNetController => ServiceLocator.Get<IVoteNetController>();
 
         public void Initialize()
         {
-
+            EventBus.Subscribe<VoteStartEvent>(OnVoteStart);
+            EventBus.Subscribe<VoteEndEvent>(OnVoteEnd);
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void StartVotingServerRpc()
+        public void OnVoteStart(VoteStartEvent context)
         {
-            StartVotingClientRpc();
+            VoteNetController.NotifyVoteStartServerRpc(context.ReportClientId);
         }
 
-        [ClientRpc]
-        public void StartVotingClientRpc()
+        public void OnVoteEnd(VoteEndEvent context)
         {
-            Debug.Log("StartVotingClientRpc");
+            // UIManager.Instance.CloseAllWindows();
+            Debug.Log(context.ResultMessage);
+        }
 
-            var logList = LogService.GetRandomLogList();
-
+        public void ShowSelectLogWindow()
+        {
             var selectLogWindow = UIManager.Instance.ShowWindow<SelectLogWindow>();
-            selectLogWindow.InitLogList(logList);
+
+            bool isDead = PlayerDataManager.Instance.Me.IsDead;
+            if (isDead)
+            {
+                selectLogWindow.WaitSelectLog();
+            }
+            else
+            {
+                var logList = LogService.GetCreminalScoreWeightedRandomLogList();
+                selectLogWindow.StartSelectLog(logList);
+            }
+        }
+
+        public void ShowVoteWindow(VoteData[] voteDatas)
+        {
+            var voteWindow = UIManager.Instance.ShowWindow<VoteWindow>();
+
+            VoteData[] sortedVoteDatas = GetSortedVoteDatas(NetworkManager.Singleton.LocalClientId, voteDatas);
+
+            voteWindow.StartVoting(sortedVoteDatas);
+        }
+
+        public void ReportSelectLogMessage(string selectLogMessage)
+        {
+            VoteNetController.SubmitSelectLogMessageServerRpc(
+                NetworkManager.Singleton.LocalClientId, 
+                PlayerDataManager.Instance.Me.PlayerData, 
+                selectLogMessage);
+        }
+
+        public void ReportVoteComplete(ulong targetClientId)
+        {
+            VoteNetController.SubmitVoteServerRpc(
+                NetworkManager.Singleton.LocalClientId, 
+                targetClientId);
+        }
+
+        private VoteData[] GetSortedVoteDatas(ulong localClientId, VoteData[] voteDatas)
+        {
+            return voteDatas
+                .OrderBy(v => v.PlayerData.IsDead)
+                .ThenByDescending(v => v.PlayerData.ClientId == localClientId && !v.PlayerData.IsDead)
+                .ToArray();
         }
     }
 }

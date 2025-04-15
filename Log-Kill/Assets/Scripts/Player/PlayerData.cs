@@ -46,6 +46,11 @@ namespace LogKill.Character
             serializer.SerializeValue(ref IsDead);
         }
 
+        public bool GetIsImposter()
+        {
+            return PlayerType == EPlayerType.Imposter;
+        }
+
         public Color GetColor()
         {
             switch (ColorType)

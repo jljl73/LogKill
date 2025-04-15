@@ -16,6 +16,7 @@ namespace LogKill.Vote
         {
             if (string.IsNullOrWhiteSpace(logText))
             {
+                _logText.text = string.Empty;
                 gameObject.SetActive(false);
             }
             else

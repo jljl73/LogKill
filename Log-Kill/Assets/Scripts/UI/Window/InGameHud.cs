@@ -7,6 +7,7 @@ using LogKill.Event;
 using LogKill.Log;
 using LogKill.UI;
 using LogKill.Vote;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,8 @@ namespace LogKill.UI
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
+        private VoteService VoteService => ServiceLocator.Get<VoteService>();
+
         private IInteractable _interactableEntity;
         private List<Player> _nearbyPlayers = new List<Player>();
         private List<Player> _deadPlayers = new List<Player>();
@@ -135,7 +138,10 @@ namespace LogKill.UI
 
         public void OnClickReport()
         {
-            VoteManager.Instance.OnStartVotingServerRpc();
+            VoteService.OnVoteStart(new VoteStartEvent() 
+            { 
+                ReportClientId = NetworkManager.Singleton.LocalClientId
+            });
         }
 
         public void OnClickBreak()

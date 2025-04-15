@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using LogKill.Character;
 using LogKill.Core;
 using LogKill.UI;
 using System.Collections.Generic;
@@ -10,8 +11,8 @@ namespace LogKill.Vote
 {
     public class SelectLogWindow : WindowBase
     {
-        [SerializeField] private List<SelectLogItem>  _selectLogItemList = new();
-        [SerializeField] private GameObject _disabeldText;
+        [SerializeField] private List<SelectLogItem> _selectLogItemList = new();
+        [SerializeField] private GameObject _waitText;
         [SerializeField] private TMP_Text _timerText;
 
         private CancellationTokenSource _timerToken;
@@ -21,6 +22,11 @@ namespace LogKill.Vote
 
         private VoteService VoteService => ServiceLocator.Get<VoteService>();
 
+        public override void OnShow()
+        {
+            StartTimer(VoteService.SELECT_LOG_TOTAL_TIME).Forget();
+        }
+
         public override void OnHide()
         {
             _timerToken?.Cancel();
@@ -28,26 +34,28 @@ namespace LogKill.Vote
             _timerToken = null;
         }
 
-        public void StartSelectLog(List<string> logList, int totalTime = 10)
+        public void StartSelectLog(List<string> logList)
         {
-            StartTimer(totalTime).Forget();
-
             for (int i = 0; i < _selectLogItemList.Count; i++)
             {
                 if (i < logList.Count)
-                {
                     _selectLogItemList[i].Initialize(logList[i]);
-                }
                 else
-                {
                     _selectLogItemList[i].Initialize(string.Empty);
-                }
             }
 
-            _disabeldText.gameObject.SetActive(logList.Count == 0);
+            _waitText.SetActive(false);
 
             _logCount = logList.Count;
             _selectLogIndex = -1;
+        }
+
+        public void WaitSelectLog()
+        {
+            foreach (var selectLogItem in _selectLogItemList)
+                selectLogItem.Initialize(string.Empty);
+
+            _waitText.SetActive(true);
         }
 
         private async UniTask StartTimer(int time)
@@ -60,7 +68,7 @@ namespace LogKill.Vote
             {
                 try
                 {
-                     await UniTask.Delay(1000, cancellationToken: _timerToken.Token);
+                    await UniTask.Delay(1000, cancellationToken: _timerToken.Token);
                 }
                 catch (System.OperationCanceledException)
                 {
