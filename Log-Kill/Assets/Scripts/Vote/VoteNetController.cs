@@ -144,8 +144,7 @@ namespace LogKill.Vote
             else
             {
                 // TODO resultClientId Kick
-
-                PlayerData playerData = PlayerDataManager.Instance.GetPlayerData(resultClientId).Value;
+                PlayerData playerData = PlayerDataManager.Instance.GetPlayer(resultClientId).PlayerData;
 
                 if (playerData.PlayerType == EPlayerType.Imposter)
                     resultMessage = $"{playerData.Name}은 임포스터가 맞았습니다.";

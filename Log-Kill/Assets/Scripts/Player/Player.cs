@@ -1,5 +1,6 @@
 using LogKill.Core;
 using LogKill.Entity;
+using LogKill.Event;
 using LogKill.Log;
 using Unity.Netcode;
 using UnityEngine;
@@ -16,13 +17,17 @@ namespace LogKill.Character
         private PlayerNetworkSync _networkSync;
 
         private PlayerData _playerData;
-        private EventBus EventBus => ServiceLocator.Get<EventBus>();
-        private LogService LogService => ServiceLocator.Get<LogService>();
+        private NetworkVariable<EColorType> _colorType = new NetworkVariable<EColorType>(EColorType.White, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
         public PlayerData PlayerData => _playerData;
         public EPlayerType PlayerType => _playerData.PlayerType;
+        public EColorType ColorType => _colorType.Value;
         public bool IsDead => _playerData.IsDead;
         public ulong ClientId => _playerData.ClientId;
+
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LogService LogService => ServiceLocator.Get<LogService>();
+
 
         private void Awake()
         {
@@ -39,11 +44,6 @@ namespace LogKill.Character
             Vector2 moveDir = _inputHandler.MoveDirection;
             _animator.UpdateSpeed(moveDir);
             _networkSync.UpdateDirection(moveDir);
-
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                // OnDead();
-            }
         }
 
         private void FixedUpdate()
@@ -58,20 +58,31 @@ namespace LogKill.Character
             PlayerDataManager.Instance.AddPlayer(this);
         }
 
+        public override void OnNetworkDespawn()
+        {
+            EventBus.Unsubscribe<PlayerKillEvent>(OnDead);
+            EventBus.Unsubscribe<SettingImposterEvent>(OnSettingImposter);
+
+            PlayerDataManager.Instance.RemovePlayer(OwnerClientId);
+        }
+
         private void Initialize()
         {
             EventBus.Subscribe<PlayerKillEvent>(OnDead);
+            EventBus.Subscribe<SettingImposterEvent>(OnSettingImposter);
 
             _animator.Initialize();
             _networkSync.Initialize();
-            _playerData = new PlayerData(OwnerClientId);
+
+            string name = $"Player {(int)_colorType.Value}";
+            _playerData = new PlayerData(OwnerClientId, _colorType.Value, name);
+            _animator.SetPlayerColor(_playerData.ColorType);
 
             if (IsOwner)
             {
                 _movement.Initialize();
                 _inputHandler.Initialize();
 
-                _networkSync.UpdateColorType(_playerData.ColorType);
                 _interactableTrigger.Initalize(this);
                 _interactableTrigger.gameObject.SetActive(true);
 
@@ -91,7 +102,6 @@ namespace LogKill.Character
                 return;
 
             _playerData.IsDead = true;
-            EventBus.Publish<PlayerData>(_playerData);
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
@@ -103,6 +113,19 @@ namespace LogKill.Character
                 var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
                 CameraController.Instance.SetTarget(target?.transform);
             }
+        }
+
+        public void OnSettingImposter(SettingImposterEvent context)
+        {
+            if (context.ClientId != _playerData.ClientId)
+                return;
+
+            _playerData.PlayerType = EPlayerType.Imposter;
+        }
+
+        public void SetColor(EColorType colorType)
+        {
+            _colorType.Value = colorType;
         }
     }
 }
