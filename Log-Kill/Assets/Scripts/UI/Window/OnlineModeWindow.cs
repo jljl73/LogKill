@@ -12,6 +12,8 @@ namespace LogKill.UI
         [SerializeField] private TMP_InputField _lobbyCodeInputField;
         [SerializeField] private Button _joinButton;
 
+        [SerializeField] private MessageBoxWindow _messageBoxWindow;
+
         private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
         public async override UniTask InitializeAsync()
@@ -29,31 +31,8 @@ namespace LogKill.UI
             _joinButton.interactable = false;
             _lobbyCodeInputField.text = string.Empty;
 
-            //LobbyManager.Instance.PlayerJoinedEvent += OnPlayerJoinedEvent;
+            _messageBoxWindow.gameObject.SetActive(false);
         }
-
-        public override void OnHide()
-        {
-            //LobbyManager.Instance.PlayerJoinedEvent -= OnPlayerJoinedEvent;
-        }
-
-        //private void OnPlayerJoinedEvent(Lobby lobby)
-        //{
-        //    Debug.Log("OnlineModeWindow OnPlayerJoinedEvent");
-
-        //    if (lobby == null)
-        //    {
-        //        _joinButton.interactable = true;
-        //    }
-        //    else
-        //    {
-        //        // TODO: Scene Move
-        //        UIManager.Instance.CloseAllWindows();
-
-        //        var lobbyHUD = UIManager.Instance.ShowHUD<InGameHud>();
-        //        lobbyHUD.Initialize();
-        //    }
-        //}
 
         public void OnClickCreateLobby()
         {
@@ -75,7 +54,10 @@ namespace LogKill.UI
 
             if (!await LobbyManager.JoinLobbyByCodeAsync(lobbyCode))
             {
-                Debug.Log("입장 실패");
+                _messageBoxWindow.OnShow("존재하지 않는 코드입니다.");
+
+                _lobbyCodeInputField.text = string.Empty;
+                _joinButton.interactable = true;
             }
         }
     }

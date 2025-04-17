@@ -7,4 +7,9 @@ namespace LogKill.Event
         public int UserCount;
         public int MissionCount;
     }
+
+    public struct SettingImposterEvent
+    {
+        public ulong ClientId;
+    }
 }

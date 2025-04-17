@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.Network;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,8 @@ namespace LogKill.LobbySystem
 {
     public class LobbyManager : Core.IService
     {
-        private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
-
         private CancellationTokenSource _lobbyHeartbeatToken;
+        private LobbyEventCallbacks _lobbyEventCallbacks;
 
         #region Filter
         private QueryLobbiesOptions _lobbyListFilter = new QueryLobbiesOptions
@@ -45,6 +45,8 @@ namespace LogKill.LobbySystem
         public string PlayerName { get; private set; }
         public Lobby CurrentLobby { get; private set; }
 
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private RelayManager RelayManager => ServiceLocator.Get<RelayManager>();
 
         public async void Initialize()
         {
@@ -77,9 +79,9 @@ namespace LogKill.LobbySystem
                     }
                 };
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, lobbyOptions);
-
                 StartHeartbeatLobbyAlive().Forget();
 
+                await SubscribeToLobbyEvents(CurrentLobby);
                 await StartRelayWithHost();
 
                 Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
@@ -101,6 +103,7 @@ namespace LogKill.LobbySystem
                 var joinOptions = new JoinLobbyByIdOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId, joinOptions);
 
+                await SubscribeToLobbyEvents(CurrentLobby);
                 await StartRelayWithClient();
 
                 return true;
@@ -120,6 +123,7 @@ namespace LogKill.LobbySystem
                 var joinOptions = new JoinLobbyByCodeOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, joinOptions);
 
+                await SubscribeToLobbyEvents(CurrentLobby);
                 await StartRelayWithClient();
 
                 return true;
@@ -140,6 +144,7 @@ namespace LogKill.LobbySystem
                 var joinOptions = new QuickJoinLobbyOptions { Player = GetPlayer() };
                 CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync(joinOptions);
 
+                await SubscribeToLobbyEvents(CurrentLobby);
                 await StartRelayWithClient();
 
                 return true;
@@ -179,6 +184,7 @@ namespace LogKill.LobbySystem
             finally
             {
                 CurrentLobby = null;
+                _lobbyEventCallbacks = null;
             }
         }
 
@@ -327,6 +333,19 @@ namespace LogKill.LobbySystem
                     { NetworkConstants.PLAYERNAME_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerName) }
                 }
             };
+        }
+
+        private async UniTask SubscribeToLobbyEvents(Lobby lobby)
+        {
+            _lobbyEventCallbacks = new LobbyEventCallbacks();
+
+            _lobbyEventCallbacks.LobbyChanged += (ILobbyChanges lobbyChanges) => 
+            {
+                if (CurrentLobby == null) return;
+                lobbyChanges.ApplyToLobby(CurrentLobby);
+            };
+
+            await LobbyService.Instance.SubscribeToLobbyEventsAsync(lobby.Id, _lobbyEventCallbacks);
         }
 
         private async UniTask StartRelayWithHost()

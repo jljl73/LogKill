@@ -59,7 +59,7 @@ namespace LogKill.Room
             _playerLoadStatus[clientId] = false;
 
             OnPlayerSpawn(clientId);
-            BroadcastLobbyChangedClientRpc(clientId);
+            BroadcastLobbyChangedClientRpc();
         }
 
         private void OnPlayerDisconnected(ulong clientId)
@@ -73,7 +73,7 @@ namespace LogKill.Room
             }
 
             OnPlayerDespawn(clientId);
-            BroadcastLobbyChangedClientRpc(clientId);
+            BroadcastLobbyChangedClientRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -105,7 +105,8 @@ namespace LogKill.Room
             }
 
             // TODO 임포스터 할당
-            GameManager.Instance.SelectImposters();
+            int imposterCount = LobbyManager.GetImposterCount();
+            PlayerDataManager.Instance.SettingImposters(imposterCount);
 
             StartNextPhaseClientRpc();
         }
@@ -131,12 +132,11 @@ namespace LogKill.Room
         }
 
         [ClientRpc]
-        public void BroadcastLobbyChangedClientRpc(ulong clientId)
+        public void BroadcastLobbyChangedClientRpc()
         {
             var context = new LobbyChangedEvent()
             {
-                ClientId = clientId,
-                CurrentPlayers = NetworkManager.Singleton.ConnectedClients.Count,
+                CurrentPlayers = NetworkManager.Singleton.ConnectedClientsIds.Count,
                 MaxPlayers = LobbyManager.GetMaxPlayers(),
                 IsPrivate = LobbyManager.GetIsPrivate()
             };
@@ -147,9 +147,12 @@ namespace LogKill.Room
         private void OnPlayerSpawn(ulong clientId)
         {
             var playerInstance = Instantiate(_playerPrefab);
-            playerInstance.SpawnAsPlayerObject(clientId);
 
-            PlayerDataManager.Instance.SubmitPlayerDataToServerRpc(new PlayerData(clientId));
+            EColorType color = PlayerDataManager.Instance.CheckPlayerAvailableColor();
+            var player = playerInstance.GetComponent<Player>();
+
+            player.SetColor(color);
+            playerInstance.SpawnAsPlayerObject(clientId);
         }
 
         private void OnPlayerDespawn(ulong clientId)
