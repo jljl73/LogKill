@@ -19,8 +19,8 @@ namespace LogKill.UI
         [SerializeField] private TMP_Text _accessStateText;
         [SerializeField] private Button _accessStateToggleButton;
 
-        [SerializeField] private LobbyPlayerListPanel _lobbyPlayerListPanel;
-        [SerializeField] private Button _lobbyPlayerListPanelButton;
+        [SerializeField] private PlayerListPanel _playerListPanel;
+        [SerializeField] private Button _playerListPanelButton;
 
         [SerializeField] private Button _startButton;
 
@@ -30,32 +30,27 @@ namespace LogKill.UI
 
         public override void OnShow()
         {
+            EventBus.Subscribe<LobbyChangedEvent>(OnLobbyChangedEvent);
+
             var Lobby = LobbyManager.CurrentLobby;
 
             bool isHost = LobbyManager.GetIsHost();
+
+            _accessStateToggleButton.gameObject.SetActive(isHost);
+            _startButton.gameObject.SetActive(isHost);
+            _playerListPanelButton.gameObject.SetActive(isHost);
+
+            _playerListPanel.Initialize();
+            _playerListPanel.gameObject.SetActive(false);
+
             if (isHost)
             {
-                _accessStateToggleButton.gameObject.SetActive(true);
-                _startButton.gameObject.SetActive(true);
-
-                _lobbyPlayerListPanel.Initialize();
-                _lobbyPlayerListPanelButton.gameObject.SetActive(true);
-                _lobbyPlayerListPanel.gameObject.SetActive(false);
-
                 UpdateAccessStateText(Lobby.IsPrivate);
-            }
-            else
-            {
-                _accessStateToggleButton.gameObject.SetActive(false);
-                _startButton.gameObject.SetActive(false);
-                _lobbyPlayerListPanelButton.gameObject.SetActive(false);
             }
 
             UpdatePlayerCount(Lobby.Players.Count, Lobby.MaxPlayers);
 
             _lobbyCodeText.text = Lobby.LobbyCode;
-
-            EventBus.Subscribe<LobbyChangedEvent>(OnLobbyChangedEvent);
         }
 
         public override void OnHide()
@@ -85,18 +80,17 @@ namespace LogKill.UI
             _startButton.interactable = true;
         }
 
-        private void UpdateLobbyPlayerListPanel(ulong clientId)
+        private void UpdatePlayerListPanel()
         {
             if (!LobbyManager.GetIsHost()) return;
 
-            _lobbyPlayerListPanel.UpdatePlayerList(clientId);
+            _playerListPanel.UpdatePlayerList();
         }
 
         private void OnLobbyChangedEvent(LobbyChangedEvent context)
         {
             UpdatePlayerCount(context.CurrentPlayers, context.MaxPlayers);
-
-            UpdateLobbyPlayerListPanel(context.ClientId);
+            UpdatePlayerListPanel();
         }
 
         public async void OnClickAccessStateToggle()
@@ -111,16 +105,9 @@ namespace LogKill.UI
             _accessStateToggleButton.interactable = true;
         }
 
-        public void OnClickLobbyPlayerListPanel()
+        public void OnClickPlayerListPanel()
         {
-            if (!_lobbyPlayerListPanel.gameObject.activeSelf)
-            {
-                _lobbyPlayerListPanel.OnShow();
-            }
-            else
-            {
-                _lobbyPlayerListPanel.OnHide();
-            }
+            _playerListPanel.TogglePanel();
         }
 
         public void OnClickGameStart()
