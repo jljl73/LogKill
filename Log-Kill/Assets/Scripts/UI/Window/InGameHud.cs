@@ -102,6 +102,7 @@ namespace LogKill.UI
         {
             if (_deadPlayers.Count > 0)
             {
+                LogService.Log(new IgnoredBodyLog());
                 _reportButton.interactable = true;
             }
             else

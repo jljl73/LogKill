@@ -12,6 +12,8 @@ namespace LogKill.Log
 
         // Player
         PlayerKill = 101,
+        IgnoredBody = 102,
+
     }
 
     public interface ILog
