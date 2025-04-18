@@ -48,8 +48,6 @@ namespace LogKill.LobbySystem
         public override void OnHide()
         {
             _lobbyListRefreshToken?.Cancel();
-            _lobbyListRefreshToken?.Dispose();
-            _lobbyListRefreshToken = null;
         }
 
         private async UniTask StartLobbyListRefresh()
@@ -68,8 +66,8 @@ namespace LogKill.LobbySystem
                         continue;
                     }
 
-                    _quickJoinButton.interactable = lobbyList.Count > 0;
                     UpdateLobbyList(lobbyList);
+                    _quickJoinButton.interactable = lobbyList.Count > 0;
 
                     await UniTask.Delay(NetworkConstants.LOBBY_LIST_UPDATE_MS, cancellationToken: _lobbyListRefreshToken.Token);
                 }
@@ -77,6 +75,11 @@ namespace LogKill.LobbySystem
             catch (OperationCanceledException)
             {
                 Debug.Log("LobbyList loop safely cancelled");
+            }
+            finally
+            {
+                _lobbyListRefreshToken?.Dispose();
+                _lobbyListRefreshToken = null;
             }
         }
 

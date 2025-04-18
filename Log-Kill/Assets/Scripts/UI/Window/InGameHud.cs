@@ -86,6 +86,7 @@ namespace LogKill.UI
             {
                 if (context.TargetPlayer.IsDead)
                 {
+                    LogService.Log(new IgnoredBodyLog());
                     _deadPlayers.Remove(context.TargetPlayer);
                 }
                 else
