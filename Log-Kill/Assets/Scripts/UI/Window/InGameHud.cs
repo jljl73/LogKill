@@ -86,6 +86,7 @@ namespace LogKill.UI
             {
                 if (context.TargetPlayer.IsDead)
                 {
+                    LogService.Log(new IgnoredBodyLog());
                     _deadPlayers.Remove(context.TargetPlayer);
                 }
                 else
@@ -102,7 +103,6 @@ namespace LogKill.UI
         {
             if (_deadPlayers.Count > 0)
             {
-                LogService.Log(new IgnoredBodyLog());
                 _reportButton.interactable = true;
             }
             else
