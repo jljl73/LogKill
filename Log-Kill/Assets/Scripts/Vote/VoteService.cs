@@ -34,7 +34,7 @@ namespace LogKill.Vote
 
         public void OnVoteEnd(VoteEndEvent context)
         {
-            // UIManager.Instance.CloseAllWindows();
+            UIManager.Instance.CloseAllWindows();
             Debug.Log(context.ResultMessage);
         }
 

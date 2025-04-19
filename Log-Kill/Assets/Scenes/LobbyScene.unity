@@ -710,6 +710,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _missionData: {fileID: 11400000, guid: b8c37a07010b7f247bb8d7d730d1c66b, type: 2}
+  _isDebugMode: 1
 --- !u!1 &1341575794
 GameObject:
   m_ObjectHideFlags: 0

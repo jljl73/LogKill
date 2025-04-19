@@ -50,7 +50,7 @@ namespace LogKill.UI
             _breakButton.gameObject.SetActive(IsImposter);
 
             _interactButton.interactable = false;
-            _reportButton.interactable = false;
+            _reportButton.interactable = GameManager.Instance.IsDebugMode || false;
             _breakButton.interactable = false;
         }
 
@@ -107,7 +107,7 @@ namespace LogKill.UI
             }
             else
             {
-                _reportButton.interactable = false;
+                _reportButton.interactable = GameManager.Instance.IsDebugMode || false;
             }
         }
 

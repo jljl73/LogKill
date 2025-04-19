@@ -37,9 +37,12 @@ namespace LogKill.Core
         {
             Type eventType = typeof(T);
 
-            if (_eventDictionary.ContainsKey(eventType))
+            if (_eventDictionary.TryGetValue(eventType, out var dict))
             {
-                foreach (var callback in _eventDictionary[eventType])
+                if (dict == null || dict.Count == 0)
+                    return;
+
+                foreach (var callback in dict)
                 {
                     ((Action<T>)callback).Invoke(eventData);
                 }

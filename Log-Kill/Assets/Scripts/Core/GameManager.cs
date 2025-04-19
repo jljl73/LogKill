@@ -15,7 +15,9 @@ namespace LogKill
 	public class GameManager : MonoSingleton<GameManager>
 	{
 		[SerializeField] private MissionData _missionData;
+		[SerializeField] private bool _isDebugMode = false;
 
+		public bool IsDebugMode => _isDebugMode;
 		private EventBus EventBus => ServiceLocator.Get<EventBus>();
 		private MapService MapService => ServiceLocator.Get<MapService>();
 
@@ -30,7 +32,7 @@ namespace LogKill
 			OnMoveTitleScene();
 		}
 
-        public void OnGameStart(GameStartEvent context)
+		public void OnGameStart(GameStartEvent context)
 		{
 			UIManager.Instance.CloseAllWindows();
 			UIManager.Instance.ShowHUD<InGameHud>();
