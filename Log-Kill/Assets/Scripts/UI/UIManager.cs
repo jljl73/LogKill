@@ -202,30 +202,6 @@ namespace LogKill.UI
 			return window as T;
 		}
 
-		public WindowBase ShowWindow(string windowID, bool remember = true)
-		{
-			WindowBase window = GetWindow(windowID);
-			if (window == null) return null;
-
-			if (_currentWindow != null)
-			{
-				if (_currentWindow == window)
-					return window;
-
-				if (remember && _currentWindow.RememberInHistory)
-				{
-					_windowHistory.Push(_currentWindow);
-				}
-
-				_currentWindow.Hide();
-			}
-
-			_currentWindow = window;
-			_currentWindow.Show();
-
-			return window;
-		}
-
 		public void CloseCurrentWindow()
 		{
 			if (_currentWindow != null)
@@ -267,10 +243,6 @@ namespace LogKill.UI
 			Debug.Log("Window queue cleared.");
 		}
 
-		private WindowBase GetWindow(string windowID)
-		{
-			return _windowCache.Values.FirstOrDefault(w => w.ID == windowID);
-		}
 
 		public T ShowHUD<T>() where T : HUDBase
 		{
@@ -296,25 +268,6 @@ namespace LogKill.UI
 			return hud as T;
 		}
 
-		public HUDBase ShowHUD(string hudID)
-		{
-			HUDBase hud = GetHUD(hudID);
-			if (hud == null) return null;
-
-			if (_currentHUD != null)
-			{
-				if (_currentHUD == hud)
-					return hud;
-
-				_currentHUD.Hide();
-			}
-
-			_currentHUD = hud;
-			_currentHUD.Show();
-
-			return hud;
-		}
-
 		public void HideCurrentHUD()
 		{
 			if (_currentHUD != null)
@@ -322,11 +275,6 @@ namespace LogKill.UI
 				_currentHUD.Hide();
 				_currentHUD = null;
 			}
-		}
-
-		private HUDBase GetHUD(string hudID)
-		{
-			return _hudCache.Values.FirstOrDefault(h => h.ID == hudID);
 		}
 
 		public T GetCurrentWindow<T>() where T : WindowBase

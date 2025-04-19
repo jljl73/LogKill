@@ -5,8 +5,6 @@ namespace LogKill.UI
 {
     public abstract class UIBase : MonoBehaviour
     {
-        public string ID;
-
         public virtual void Show()
         {
             gameObject.SetActive(true);
