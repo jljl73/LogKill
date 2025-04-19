@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2d971cd6cab51894c808115b5a387dae
+guid: 590fb58fec8b1e14c9b3545a980f4c66
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1824935819778241764
-    second: gameplay_view_0
+      213: 3156968575838143197
+    second: REPORT_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gameplay_view_0
+      name: REPORT_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 1
-        width: 1920
-        height: 1079
+        x: 165
+        y: 23
+        width: 1696
+        height: 2001
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e4b4cb8579735910800000000000000
-      internalID: 1824935819778241764
+      spriteID: dd247e1813ecfcb20800000000000000
+      internalID: 3156968575838143197
       vertices: []
       indices: 
       edges: []

@@ -103,8 +103,8 @@ TextureImporter:
       name: Vote_X_0
       rect:
         serializedVersion: 2
-        x: 919
-        y: 491
+        x: 19
+        y: 7
         width: 87
         height: 102
       alignment: 0

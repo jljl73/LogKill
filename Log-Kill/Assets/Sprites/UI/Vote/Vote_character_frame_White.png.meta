@@ -103,8 +103,8 @@ TextureImporter:
       name: Vote_character_frame_White_0
       rect:
         serializedVersion: 2
-        x: 919
-        y: 503
+        x: 2
+        y: 1
         width: 82
         height: 82
       alignment: 0

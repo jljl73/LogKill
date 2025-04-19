@@ -103,8 +103,8 @@ TextureImporter:
       name: Mission_button_0
       rect:
         serializedVersion: 2
-        x: 910
-        y: 817
+        x: 5
+        y: 27
         width: 227
         height: 61
       alignment: 0

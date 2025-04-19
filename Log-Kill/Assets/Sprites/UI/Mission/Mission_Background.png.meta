@@ -103,8 +103,8 @@ TextureImporter:
       name: Mission_Background_0
       rect:
         serializedVersion: 2
-        x: 510
-        y: 508
+        x: 16
+        y: 19
         width: 1028
         height: 1033
       alignment: 0

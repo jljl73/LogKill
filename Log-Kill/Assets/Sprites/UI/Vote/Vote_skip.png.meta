@@ -103,8 +103,8 @@ TextureImporter:
       name: Vote_skip_0
       rect:
         serializedVersion: 2
-        x: 873
-        y: 503
+        x: 7
+        y: 7
         width: 172
         height: 77
       alignment: 0

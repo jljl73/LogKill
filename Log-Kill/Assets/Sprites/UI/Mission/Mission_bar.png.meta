@@ -103,8 +103,8 @@ TextureImporter:
       name: Mission_bar_0
       rect:
         serializedVersion: 2
-        x: 1017
-        y: 999
+        x: 111
+        y: 4
         width: 16
         height: 107
       alignment: 0
