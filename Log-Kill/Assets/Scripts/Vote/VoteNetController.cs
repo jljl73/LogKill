@@ -105,14 +105,19 @@ namespace LogKill.Vote
         }
 
         [ClientRpc]
-        private void EndAllClientsVoteResultClientRpc(string resultMessage)
+        private void EndAllClientsVoteResultClientRpc(ulong targetClientId, string resultMessage)
         {
-            EventBus.Publish<VoteEndEvent>(new VoteEndEvent
-            { 
+            EventBus.Publish(new PlayerKillEvent()
+            {
+                VictimId = targetClientId,
+            });
+            
+            EventBus.Publish(new VoteEndEvent
+            {
+                TargetClientId = targetClientId,
                 ResultMessage = resultMessage
             });
         }
-
 
         private void CheckAllClientsSelectLog()
         {
@@ -152,7 +157,7 @@ namespace LogKill.Vote
                     resultMessage = $"{playerData.Name}은 임포스터가 아니였습니다.";
             }
 
-            EndAllClientsVoteResultClientRpc(resultMessage);
+            EndAllClientsVoteResultClientRpc(resultClientId, resultMessage);
         }
 
         private ulong GetVoteResultClientId()

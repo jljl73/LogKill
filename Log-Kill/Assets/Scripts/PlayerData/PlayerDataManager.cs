@@ -14,6 +14,12 @@ namespace LogKill.Character
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            ClearAllPlayers();
+        }
+
         public void AddPlayer(Player player)
         {
             if (PlayerDicts.ContainsKey(player.ClientId))
@@ -39,19 +45,36 @@ namespace LogKill.Character
             }
         }
 
-        public void StartStage()
+        public void ClearAllPlayers()
+        {
+            PlayerDicts.Clear();
+        }
+
+        public void StartWave()
+        {
+            SetDeactiveDeadPlayers();
+            MoveOriginPostiona();
+        }
+
+        private void SetDeactiveDeadPlayers()
         {
             foreach (var player in PlayerDicts.Values)
             {
-                player.transform.position = Vector3.zero;
+                if (player.IsDead)
+                {
+                    player.gameObject.SetActive(false);
+                }
             }
+        }
+
+        private void MoveOriginPostiona()
+        {
+            Me.transform.position = Vector3.zero;   
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void RequestPlayerKillServerRpc(ulong targetClientId, ServerRpcParams rpcParams = default)
         {
-            if (!IsServer) return;
-
             // TODO : Check if the killer is impostor or not
             ulong killerId = rpcParams.Receive.SenderClientId;
             if (PlayerDicts.ContainsKey(killerId))

@@ -23,11 +23,12 @@ namespace LogKill.UI
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
         private VoteService VoteService => ServiceLocator.Get<VoteService>();
+        private PlayerDataManager PlayerDataManager => PlayerDataManager.Instance;
 
         private IInteractable _interactableEntity;
         private List<Player> _nearbyPlayers = new List<Player>();
         private List<Player> _deadPlayers = new List<Player>();
-        private bool IsImposter => true;
+        private bool IsImposter => PlayerDataManager.Me.PlayerType == EPlayerType.Imposter;
 
         public override async UniTask InitializeAsync()
         {
@@ -71,6 +72,9 @@ namespace LogKill.UI
 
         private void OnPlayerRangeEvent(PlayerRangeChagnedEvent context)
         {
+            if(GameManager.Instance.GameState != EGameState.InGame)
+                return;
+
             if (context.IsNearby)
             {
                 if (context.TargetPlayer.IsDead)

@@ -316,6 +316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _interactableTrigger: {fileID: 5110770342539309249}
+  _fieldOfView2D: {fileID: 8163346772645290197}
 --- !u!114 &1533793684570731696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,7 +393,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3268571920371405536
 Transform:
   m_ObjectHideFlags: 0

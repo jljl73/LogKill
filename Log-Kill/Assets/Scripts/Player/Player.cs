@@ -10,6 +10,7 @@ namespace LogKill.Character
     public class Player : NetworkBehaviour
     {
         [SerializeField] private InteractableTrigger _interactableTrigger;
+        [SerializeField] private FieldOfView2D _fieldOfView2D;
 
         private PlayerMovement _movement;
         private PlayerInputHandler _inputHandler;
@@ -85,6 +86,7 @@ namespace LogKill.Character
 
                 _interactableTrigger.Initalize(this);
                 _interactableTrigger.gameObject.SetActive(true);
+                _fieldOfView2D.gameObject.SetActive(true);
 
                 CameraController.Instance.SetTarget(transform);
                 LogService.Log(new NothingLog());
@@ -93,6 +95,7 @@ namespace LogKill.Character
             {
                 enabled = false;
                 _interactableTrigger.gameObject.SetActive(false);
+                _fieldOfView2D.gameObject.SetActive(false);
             }
         }
 

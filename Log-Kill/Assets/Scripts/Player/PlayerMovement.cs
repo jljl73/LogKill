@@ -1,3 +1,4 @@
+using LogKill.UI;
 using UnityEngine;
 
 namespace LogKill.Character
@@ -17,6 +18,9 @@ namespace LogKill.Character
 
         public void Move(Vector2 direction)
         {
+            if (UIManager.Instance.IsWindowOpend)
+                return;
+
             Vector2 nextVec = direction * _speed;
             _rigid.MovePosition(_rigid.position + nextVec * Time.fixedDeltaTime);
 

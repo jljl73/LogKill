@@ -40,6 +40,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 876069b99d661074b8d4f8bd50da89d5
+    m_Address: Assets/Prefabs/Vote/VoteResultWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: d0456d723b073ce47a72ea5186532ac1, type: 2}
   m_SchemaSet:

@@ -1105,6 +1105,7 @@ MonoBehaviour:
   - Assets/Prefabs/Lobby/LobbyListWindow.prefab
   - Assets/Prefabs/Vote/SelectLogWindow.prefab
   - Assets/Prefabs/Vote/VoteWindow.prefab
+  - Assets/Prefabs/Vote/VoteResultWindow.prefab
   _hudPrefabPaths:
   - Assets/Prefabs/UI/InGameHud.prefab
   - Assets/Prefabs/Lobby/LobbyHUD.prefab

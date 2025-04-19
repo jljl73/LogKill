@@ -31,6 +31,7 @@ namespace LogKill.UI
 
 		private ResourceManager _resourceManager;
 		public ResourceManager ResourceManager => _resourceManager ??= ServiceLocator.Get<ResourceManager>();
+		public bool IsWindowOpend => _currentWindow != null;
 
 		public async UniTask InitializeAsync(IProgress<float> progress = null)
 		{

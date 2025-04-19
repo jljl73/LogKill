@@ -10,6 +10,7 @@ namespace LogKill.Event
     public struct VoteEndEvent
     {
         public string ResultMessage;
+        public ulong TargetClientId;
     }
 
     public struct VoteCompleteEvent
