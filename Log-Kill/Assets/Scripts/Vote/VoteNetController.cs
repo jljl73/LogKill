@@ -110,6 +110,7 @@ namespace LogKill.Vote
             EventBus.Publish(new PlayerKillEvent()
             {
                 VictimId = targetClientId,
+                IsBreak = false,
             });
             
             EventBus.Publish(new VoteEndEvent

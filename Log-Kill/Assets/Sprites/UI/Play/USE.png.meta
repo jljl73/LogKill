@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 590fb58fec8b1e14c9b3545a980f4c66
+guid: 4ff677ca130703f4eb531b3ba964275b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3156968575838143197
-    second: REPORT_0
+      213: -2087295343573658931
+    second: USE_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: REPORT_0
+      name: USE_0
       rect:
         serializedVersion: 2
-        x: 165
-        y: 23
-        width: 1696
-        height: 2001
+        x: 20
+        y: 10
+        width: 86
+        height: 108
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dd247e1813ecfcb20800000000000000
-      internalID: 3156968575838143197
+      spriteID: dc217f8a1ff6803e0800000000000000
+      internalID: -2087295343573658931
       vertices: []
       indices: 
       edges: []

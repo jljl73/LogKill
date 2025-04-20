@@ -69,7 +69,7 @@ namespace LogKill.Character
 
         private void MoveOriginPostiona()
         {
-            Me.transform.position = Vector3.zero;   
+            Me.transform.position = Vector3.zero;
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -95,7 +95,11 @@ namespace LogKill.Character
         [ClientRpc]
         private void BroadcastPlayerKillClientRpc(ulong targetClientId)
         {
-            EventBus.Publish(new PlayerKillEvent() { VictimId = targetClientId });
+            EventBus.Publish(new PlayerKillEvent()
+            {
+                VictimId = targetClientId,
+                IsBreak = true,
+            });
         }
 
         [ClientRpc]

@@ -38,6 +38,7 @@ namespace LogKill
 			await UIManager.Instance.InitializeAsync();
 
 			EventBus.Subscribe<GameStartEvent>(OnGameStart);
+			EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
 
 			OnMoveTitleScene();
 		}

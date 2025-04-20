@@ -2,6 +2,7 @@ using LogKill.Core;
 using LogKill.Entity;
 using LogKill.Event;
 using LogKill.Log;
+using LogKill.UI;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -115,6 +116,7 @@ namespace LogKill.Character
 
                 var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
                 CameraController.Instance.SetTarget(target?.transform);
+                UIManager.Instance.ShowWindow<DeathWindow>();
             }
         }
 

@@ -19,5 +19,6 @@ namespace LogKill
     public struct PlayerKillEvent
     {
         public ulong VictimId;
+        public bool IsBreak;
     }
 }
