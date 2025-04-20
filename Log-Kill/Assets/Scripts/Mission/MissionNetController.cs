@@ -78,7 +78,7 @@ namespace LogKill.Mission
         [ClientRpc]
         private void EndGameClientRpc()
         {
-            UIManager.Instance.ShowWindow<GameResultWindow>();
+            UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(false);
         }
 
         private void CheckGameEndCondition()

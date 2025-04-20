@@ -1,6 +1,9 @@
-﻿using LogKill.Character;
+﻿using Cysharp.Threading.Tasks;
+using LogKill.Character;
 using LogKill.Core;
 using LogKill.Event;
+using LogKill.LobbySystem;
+using LogKill.UI;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -112,12 +115,23 @@ namespace LogKill.Vote
                 VictimId = targetClientId,
                 IsBreak = false,
             });
-            
+
             EventBus.Publish(new VoteEndEvent
             {
                 TargetClientId = targetClientId,
                 ResultMessage = resultMessage
             });
+        }
+
+        [ClientRpc]
+        private void GameOverClientRpc(bool isImposterWin)
+        {
+            if (isImposterWin)
+                UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(true);
+            else
+                UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(false);
+
+            ServiceLocator.Get<LobbyManager>().LeaveLobbyAsync().Forget();
         }
 
         private void CheckAllClientsSelectLog()
@@ -146,19 +160,24 @@ namespace LogKill.Vote
             if (resultClientId == VoteService.SKIP_VOTE_ID)
             {
                 resultMessage = "투표 무효";
+                EndAllClientsVoteResultClientRpc(resultClientId, resultMessage);
+                return;
             }
+
+            // TODO resultClientId Kick
+            var player = PlayerDataManager.Instance.GetPlayer(resultClientId);
+            player.Die();
+            PlayerData playerData = player.PlayerData;
+
+            if (playerData.PlayerType == EPlayerType.Imposter)
+                resultMessage = $"{playerData.Name}은 임포스터가 맞았습니다.";
             else
-            {
-                // TODO resultClientId Kick
-                PlayerData playerData = PlayerDataManager.Instance.GetPlayer(resultClientId).PlayerData;
+                resultMessage = $"{playerData.Name}은 임포스터가 아니였습니다.";
 
-                if (playerData.PlayerType == EPlayerType.Imposter)
-                    resultMessage = $"{playerData.Name}은 임포스터가 맞았습니다.";
-                else
-                    resultMessage = $"{playerData.Name}은 임포스터가 아니였습니다.";
-            }
-
-            EndAllClientsVoteResultClientRpc(resultClientId, resultMessage);
+            if (PlayerDataManager.Instance.CheckGameOver(out bool isImposterWin))
+                GameOverClientRpc(isImposterWin);
+            else
+                EndAllClientsVoteResultClientRpc(resultClientId, resultMessage);
         }
 
         private ulong GetVoteResultClientId()

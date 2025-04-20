@@ -1,5 +1,7 @@
 using LogKill.Core;
 using LogKill.Event;
+using LogKill.UI;
+using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -176,5 +178,41 @@ namespace LogKill.Character
                 BroadcastSettingImposterClientRpc(randomId);
             }
         }
+
+        public bool CheckGameOver(out bool isImposterWin)
+        {
+            isImposterWin = false;
+            int imposterCount = 0;
+            int crewCount = 0;
+
+            foreach (var player in PlayerDicts.Values)
+            {
+                if (!player.IsDead)
+                {
+                    if (player.PlayerType == EPlayerType.Imposter)
+                    {
+                        imposterCount++;
+                    }
+                    else
+                    {
+                        crewCount++;
+                    }
+                }
+            }
+
+            if (imposterCount == 0)
+            {
+                isImposterWin = false;
+                return true;
+            }
+            else if (crewCount <= imposterCount)
+            {
+                isImposterWin = true;
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }

@@ -100,12 +100,17 @@ namespace LogKill.Character
             }
         }
 
+        public void Die()
+        {
+            _playerData.IsDead = true;
+        }
+
         public void OnDead(PlayerKillEvent context)
         {
             if (_playerData.IsDead || context.VictimId != _playerData.ClientId)
                 return;
 
-            _playerData.IsDead = true;
+            Die();
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();
@@ -118,6 +123,9 @@ namespace LogKill.Character
                 CameraController.Instance.SetTarget(target?.transform);
                 UIManager.Instance.ShowWindow<DeathWindow>();
             }
+
+            if (PlayerDataManager.Instance.CheckGameOver(out bool isImposterWin))
+                UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(isImposterWin);
         }
 
         public void OnSettingImposter(SettingImposterEvent context)
