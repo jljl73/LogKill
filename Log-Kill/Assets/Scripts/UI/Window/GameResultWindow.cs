@@ -1,4 +1,7 @@
+using LogKill.Core;
+using LogKill.LobbySystem;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace LogKill.UI
@@ -17,6 +20,13 @@ namespace LogKill.UI
             {
                 _resultText.text = "Crew Win!";
             }
+        }
+
+        public void OnClickCloseButton()
+        {
+            UIManager.Instance.CloseCurrentWindow();
+            NetworkManager.Singleton.Shutdown();
+            // TODO : 인게임 모두 초기화 Clinet Shutdown
         }
     }
 }

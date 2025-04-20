@@ -345,7 +345,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0285245d2fecbb144a3b5995fbcf0321, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ID: 
   RememberInHistory: 1
   _lobbyCodeInputField: {fileID: 7871328599327681515}
   _joinButton: {fileID: 2839821525955338481}

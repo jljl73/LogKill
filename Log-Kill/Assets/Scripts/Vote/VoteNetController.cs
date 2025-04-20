@@ -130,8 +130,6 @@ namespace LogKill.Vote
                 UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(true);
             else
                 UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(false);
-
-            ServiceLocator.Get<LobbyManager>().LeaveLobbyAsync().Forget();
         }
 
         private void CheckAllClientsSelectLog()
