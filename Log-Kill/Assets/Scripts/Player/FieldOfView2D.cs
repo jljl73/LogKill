@@ -12,12 +12,14 @@ namespace LogKill.Character
         [Range(0, 360)] 
         [SerializeField] private float _viewAngle = 90f;
         [SerializeField] private int _rayCount = 100;
+        [SerializeField] private LayerMask _targetMask;
         [SerializeField] private LayerMask _obstacleMask;
         [SerializeField] private PlayerMovement _playerMovement;
 
         private Mesh _mesh;
         private Vector3 _origin;
         private float _startingAngle;
+        private List<Transform> _visibleTargets = new List<Transform>();
 
         private void Start()
         {
@@ -30,6 +32,7 @@ namespace LogKill.Character
             _origin = transform.position;
             _startingAngle = _playerMovement.GetAimDirectionAngle();
             CreateViewMesh();
+            FindVisibleTargets();
         }
 
         private void CreateViewMesh()
@@ -70,10 +73,56 @@ namespace LogKill.Character
             _mesh.RecalculateNormals();
         }
 
+        private void FindVisibleTargets()
+        {
+            _visibleTargets.Clear();
+
+            Collider2D[] targetsInViewRadius = Physics2D.OverlapCircleAll(transform.position, _viewRadius, _targetMask);
+
+            foreach (var col in targetsInViewRadius)
+            {
+                Transform target = col.transform;
+                Vector3 dirToTarget = (target.position - transform.position).normalized;
+
+                float angleToTarget = Vector3.Angle(GetForward(), dirToTarget);
+
+                if (angleToTarget < _viewAngle / 2f)
+                {
+                    float distToTarget = Vector3.Distance(transform.position, target.position);
+
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToTarget, distToTarget, _obstacleMask);
+                    if (hit.collider == null)
+                    {
+                        _visibleTargets.Add(target);
+                        SetRendererVisible(target.gameObject, true);
+                    }
+                    else
+                    {
+                        SetRendererVisible(target.gameObject, false);
+                    }
+                }
+                else
+                {
+                    SetRendererVisible(target.gameObject, false);
+                }
+            }
+        }
+
+        private Vector3 GetForward()
+        {
+            return _playerMovement.MoveDirection;
+        }
+
         private Vector3 DirFromAngle(float angle)
         {
             float rad = angle * Mathf.Deg2Rad;
             return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad));
+        }
+
+         private void SetRendererVisible(GameObject go, bool visible)
+        {
+            var renderer = go.GetComponent<SpriteRenderer>();
+            renderer.enabled = visible;
         }
     }
 }

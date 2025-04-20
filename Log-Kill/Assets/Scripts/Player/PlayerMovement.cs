@@ -10,6 +10,7 @@ namespace LogKill.Character
         private Rigidbody2D _rigid;
         private Vector2 _moveDir;
         private float _povAngle;
+        public Vector2 MoveDirection => _moveDir;
 
         public void Initialize()
         {
