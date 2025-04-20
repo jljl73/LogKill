@@ -25,7 +25,7 @@ namespace LogKill.UI
 
                 while (alpha < 1f)
                 {
-                    alpha += Time.deltaTime;
+                    alpha += Time.deltaTime * 2.0f;
                     _canvasGroup.alpha = alpha;
                     await UniTask.Yield();
                 }
@@ -34,7 +34,7 @@ namespace LogKill.UI
 
                 while (alpha > 0)
                 {
-                    alpha -= Time.deltaTime;
+                    alpha -= Time.deltaTime * 2.0f;
                     _canvasGroup.alpha = alpha;
                     await UniTask.Yield();
                 }
@@ -42,7 +42,7 @@ namespace LogKill.UI
                 _cutScenes[i].gameObject.SetActive(false);
             }
 
-            UIManager.Instance.CloseCurrentWindow();
+            Hide();
         }
     }
 }

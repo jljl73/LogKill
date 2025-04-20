@@ -250,12 +250,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 682482ccbf4afb541bb1028019d49c56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RememberInHistory: 1
+  RememberInHistory: 0
   _canvasGroup: {fileID: 9064814701236762653}
   _cutScenes:
   - {fileID: 1929976662388122980}
   - {fileID: 3503589380173177982}
-  _duration: 2
+  _duration: 1.5
 --- !u!1 &8029988624733225821
 GameObject:
   m_ObjectHideFlags: 0
