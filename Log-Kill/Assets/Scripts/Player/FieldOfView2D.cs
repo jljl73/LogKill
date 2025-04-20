@@ -8,8 +8,8 @@ namespace LogKill.Character
     {
         [Header("View Settings")]
         [SerializeField] private float _viewRadius = 5f;
-        
-        [Range(0, 360)] 
+
+        [Range(0, 360)]
         [SerializeField] private float _viewAngle = 90f;
         [SerializeField] private int _rayCount = 100;
         [SerializeField] private LayerMask _targetMask;
@@ -119,10 +119,10 @@ namespace LogKill.Character
             return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad));
         }
 
-         private void SetRendererVisible(GameObject go, bool visible)
+        private void SetRendererVisible(GameObject go, bool visible)
         {
-            var renderer = go.GetComponent<SpriteRenderer>();
-            renderer.enabled = visible;
+            if (go.TryGetComponent<SpriteRenderer>(out var renderer))
+                renderer.enabled = visible;
         }
     }
 }
