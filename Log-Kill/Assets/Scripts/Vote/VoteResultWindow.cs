@@ -29,6 +29,7 @@ namespace LogKill.Vote
                 await UniTask.Delay(_textDelayTime);
             }
 
+            await UniTask.Delay(2000);
             UIManager.Instance.CloseCurrentWindow();
         }
     }

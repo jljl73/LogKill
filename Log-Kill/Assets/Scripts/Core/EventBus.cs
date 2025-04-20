@@ -44,7 +44,7 @@ namespace LogKill.Core
 
                 foreach (var callback in dict)
                 {
-                    ((Action<T>)callback).Invoke(eventData);
+                    ((Action<T>)callback)?.Invoke(eventData);
                 }
             }
         }

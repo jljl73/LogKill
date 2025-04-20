@@ -27,12 +27,12 @@ namespace LogKill.Vote
 
         public void InitVotePanel(PlayerData localPlayerData, VoteData voteData)
         {
-            _icon.color = voteData.PlayerData.GetColor();
+            _icon.sprite = GetColorSprite(voteData.PlayerData.ColorType);
 
             if (localPlayerData.GetIsImposter() && voteData.PlayerData.PlayerType == EPlayerType.Imposter)
                 _nameText.color = Color.red;
             else
-                _nameText.color = Color.black;
+                _nameText.color = Color.white;
             _nameText.text = voteData.PlayerData.Name.Value;
 
             _logText.text = voteData.LogMessage;
@@ -50,6 +50,11 @@ namespace LogKill.Vote
             }
 
             _targetClientId = voteData.PlayerData.ClientId;
+        }
+
+        private Sprite GetColorSprite(EColorType colorType)
+        {
+            return SpriteResourceManager.Instance.GetPlayerSprite(colorType);
         }
 
         public void OnSelect(bool isSelect)
@@ -72,8 +77,8 @@ namespace LogKill.Vote
 
         public void OnClickVote()
         {
-            EventBus.Publish<VoteCompleteEvent>(new VoteCompleteEvent 
-            { 
+            EventBus.Publish<VoteCompleteEvent>(new VoteCompleteEvent
+            {
                 TargetClientId = _targetClientId
             });
         }
