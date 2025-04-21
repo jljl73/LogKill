@@ -18,6 +18,9 @@ namespace LogKill.Log
         ImposterEncounter = 201,
         CrewmateEncounter = 202,
 
+        // Map
+        MapEnterLog = 301,
+
     }
 
     public interface ILog
