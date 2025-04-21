@@ -35,13 +35,14 @@ namespace LogKill
 		{
 			ServiceLocator.AutoRegisterServices();
 
-			await UIManager.Instance.InitializeAsync();
+            await UIManager.Instance.InitializeAsync();
+            await SoundManager.Instance.InitializeAsync();
 
-			EventBus.Subscribe<GameStartEvent>(OnGameStart);
-			EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
+            EventBus.Subscribe<GameStartEvent>(OnGameStart);
+            EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
 
-			OnMoveTitleScene();
-		}
+            OnMoveTitleScene();
+        }
 
 		public void OnGameStart(GameStartEvent context)
 		{

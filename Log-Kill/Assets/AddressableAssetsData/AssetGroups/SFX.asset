@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: SFX
+  m_EditorClassIdentifier: 
+  m_GroupName: SFX
+  m_GUID: 09f88fd78c963b5419b3dddfa5cfdd02
+  m_SerializeEntries:
+  - m_GUID: 2e05da56cda190942a44b093072dc34a
+    m_Address: Assets/Sprites/Sound/death.mp3
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SFX
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 793dcd3ddf8ec1848aed9aecb47bc08e
+    m_Address: Assets/Sounds/Walking.mp3
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SFX
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: d0456d723b073ce47a72ea5186532ac1, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 15e69be9ad8b4d4449d856425889ce93, type: 2}
+    - {fileID: 11400000, guid: 2ab19e63574dd16478a3829a0cfcf850, type: 2}
