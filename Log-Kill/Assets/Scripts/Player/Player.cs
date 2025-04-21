@@ -95,10 +95,12 @@ namespace LogKill.Character
                 _fieldOfView2D.gameObject.SetActive(true);
 
                 CameraController.Instance.SetTarget(transform);
+                gameObject.tag = "Player";
                 LogService.Log(new NothingLog());
             }
             else
             {
+                gameObject.tag = "untagged";
                 enabled = false;
                 _interactableTrigger.gameObject.SetActive(false);
                 _fieldOfView2D.gameObject.SetActive(false);
