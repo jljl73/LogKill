@@ -38,6 +38,7 @@ namespace LogKill.Vote
             _logText.text = voteData.LogMessage;
 
             _deadPanel.SetActive(voteData.PlayerData.IsDead);
+            _buttonGroup.SetActive(false);
 
             if (localPlayerData.IsDead)
                 _panelButton.interactable = false;
