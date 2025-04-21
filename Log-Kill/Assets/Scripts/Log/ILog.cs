@@ -14,6 +14,10 @@ namespace LogKill.Log
         PlayerKill = 101,
         IgnoredBody = 102,
 
+        // Encounter
+        ImposterEncounter = 201,
+        CrewmateEncounter = 202,
+
     }
 
     public interface ILog

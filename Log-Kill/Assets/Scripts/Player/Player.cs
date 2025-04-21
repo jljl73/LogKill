@@ -62,6 +62,9 @@ namespace LogKill.Character
 
         public override void OnNetworkDespawn()
         {
+            if (IsOwner)
+                EventBus.Unsubscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
+
             EventBus.Unsubscribe<PlayerKillEvent>(OnDead);
             EventBus.Unsubscribe<SettingImposterEvent>(OnSettingImposter);
 
@@ -82,6 +85,8 @@ namespace LogKill.Character
 
             if (IsOwner)
             {
+                EventBus.Subscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
+
                 _movement.Initialize();
                 _inputHandler.Initialize();
 
@@ -128,7 +133,12 @@ namespace LogKill.Character
                 UIManager.Instance.ShowWindow<GameResultWindow>().ShowResult(isImposterWin);
         }
 
-        public void OnSettingImposter(SettingImposterEvent context)
+        public void SetColor(EColorType colorType)
+        {
+            _colorType.Value = colorType;
+        }
+
+        private void OnSettingImposter(SettingImposterEvent context)
         {
             if (context.ClientId != _playerData.ClientId)
                 return;
@@ -136,9 +146,24 @@ namespace LogKill.Character
             _playerData.PlayerType = EPlayerType.Imposter;
         }
 
-        public void SetColor(EColorType colorType)
+        private void OnPlayerRangeEvent(PlayerRangeChagnedEvent context)
         {
-            _colorType.Value = colorType;
+            if (GameManager.Instance.GameState != EGameState.InGame)
+                return;
+
+            if (!context.IsNearby)
+            {
+                if (context.TargetPlayer.IsDead)
+                {
+                    LogService.Log(new IgnoredBodyLog());
+                    return;
+                }
+
+                if (context.TargetPlayer.PlayerType == EPlayerType.Imposter)
+                    LogService.Log(new ImposterEncounterLog());
+                else
+                    LogService.Log(new CrewmateEncounterLog());
+            }
         }
     }
 }
