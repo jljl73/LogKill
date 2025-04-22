@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace LogKill.Log
 {
@@ -6,7 +6,7 @@ namespace LogKill.Log
     {
         public ELogType LogType => ELogType.CrewmateEncounter;
 
-        public string Content => string.Format("Å©·ç¿ø°ú ¸¶ÁÖÄ£ È½¼ö : {0}", Value);
+        public string Content => string.Format("í¬ë£¨ì›ê³¼ ë§ˆì£¼ì¹œ íšŸìˆ˜ : {0}", Value);
         public int Value { get; private set; } = 1;
 
         public float CriminalScore
