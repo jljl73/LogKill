@@ -13,7 +13,7 @@ namespace LogKill.Core
     }
 
     public enum ESFX
-    { 
+    {
         Walking, Death
     }
 
@@ -62,7 +62,7 @@ namespace LogKill.Core
             }
             else
             {
-                Debug.LogWarning($"[BGM] - {bgm} À» Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+                Debug.LogWarning($"[BGM] - {bgm} ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             }
         }
 
@@ -75,12 +75,34 @@ namespace LogKill.Core
         {
             if (_sfxClips.TryGetValue(sfx.ToString(), out AudioClip clip))
             {
+                _sfxPlayer.loop = false;
+                _sfxPlayer.pitch = 1.0f;
                 _sfxPlayer.PlayOneShot(clip);
             }
             else
             {
-                Debug.LogWarning($"[SFX] - {sfx} À» Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+                Debug.LogWarning($"[SFX] - {sfx} ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             }
+        }
+
+        public void PlaySFXLoop(ESFX sfx, float pitch = 1.0f)
+        {
+            if (_sfxClips.TryGetValue(sfx.ToString(), out AudioClip clip))
+            {
+                _sfxPlayer.clip = clip;
+                _sfxPlayer.loop = true;
+                _sfxPlayer.pitch = pitch;
+                _sfxPlayer.Play();
+            }
+            else
+            {
+                Debug.LogWarning($"[SFX] - {sfx} ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+            }
+        }
+
+        public void StopSFX()
+        {
+            _sfxPlayer.Stop();
         }
 
         private async UniTask LoadAllClipAsync(string label, Dictionary<string, AudioClip> targetDict)
@@ -90,7 +112,7 @@ namespace LogKill.Core
 
             if (locationsHandle.Status != AsyncOperationStatus.Succeeded || locationsHandle.Result.Count == 0)
             {
-                Debug.LogWarning($"[SoundManager] '{label}' ¶óº§¿¡ ÇØ´çÇÏ´Â ¿Àµð¿À ¸®¼Ò½º°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.");
+                Debug.LogWarning($"[SoundManager] '{label}' ï¿½óº§¿ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.");
                 return;
             }
 
@@ -104,11 +126,11 @@ namespace LogKill.Core
 
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                Debug.Log($"[{label}] ¿Àµð¿À Å¬¸³ ·Îµå ¼º°ø");
+                Debug.Log($"[{label}] ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½");
             }
             else
             {
-                Debug.LogError($"[{label}] ¿Àµð¿À Å¬¸³ ·Îµå ½ÇÆÐ");
+                Debug.LogError($"[{label}] ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½");
             }
         }
     }
