@@ -12,6 +12,7 @@ namespace LogKill.Character
     {
         [SerializeField] private InteractableTrigger _interactableTrigger;
         [SerializeField] private FieldOfView2D _fieldOfView2D;
+        [SerializeField] private SpriteRenderer _spriteRenderer;
 
         private PlayerMovement _movement;
         private PlayerInputHandler _inputHandler;
@@ -100,7 +101,7 @@ namespace LogKill.Character
             }
             else
             {
-                gameObject.tag = "untagged";
+                gameObject.tag = "Untagged";
                 enabled = false;
                 _interactableTrigger.gameObject.SetActive(false);
                 _fieldOfView2D.gameObject.SetActive(false);
@@ -118,6 +119,11 @@ namespace LogKill.Character
                 return;
 
             Die();
+
+            if (IsOwner == false && _spriteRenderer.enabled)
+            {
+                LogService.Log(new KillWitnessLog());
+            }
 
             _animator.PlayDeadAnimation();
             _inputHandler.DiabledInput();

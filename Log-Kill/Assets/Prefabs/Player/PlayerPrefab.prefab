@@ -307,6 +307,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _interactableTrigger: {fileID: 5110770342539309249}
   _fieldOfView2D: {fileID: 8163346772645290197}
+  _spriteRenderer: {fileID: 5764276660277281072}
 --- !u!114 &1533793684570731696
 MonoBehaviour:
   m_ObjectHideFlags: 0

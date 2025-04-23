@@ -13,6 +13,7 @@ namespace LogKill.Log
         // Player
         PlayerKill = 101,
         IgnoredBody = 102,
+        KillWitness = 103,
 
         // Encounter
         ImposterEncounter = 201,
