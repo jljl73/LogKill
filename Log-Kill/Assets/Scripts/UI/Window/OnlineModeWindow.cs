@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using LogKill.Core;
 using LogKill.LobbySystem;
 using TMPro;
@@ -13,6 +13,7 @@ namespace LogKill.UI
         [SerializeField] private Button _joinButton;
 
         [SerializeField] private MessageBoxWindow _messageBoxWindow;
+        [SerializeField] private LoadingWindow _loadingWindow;
 
         private LobbyManager LobbyManager => ServiceLocator.Get<LobbyManager>();
 
@@ -31,7 +32,8 @@ namespace LogKill.UI
             _joinButton.interactable = false;
             _lobbyCodeInputField.text = string.Empty;
 
-            _messageBoxWindow.gameObject.SetActive(false);
+            _messageBoxWindow.OnHide();
+            _loadingWindow.OnHide();
         }
 
         public void OnClickCreateLobby()
@@ -48,16 +50,15 @@ namespace LogKill.UI
 
         public async void OnClickLobbyJoin()
         {
-            _joinButton.interactable = false;
-
             string lobbyCode = _lobbyCodeInputField.text;
+
+            _loadingWindow.OnShow("ë°©ì— ì…ì¥ ì¤‘ì…ë‹ˆë‹¤...");
 
             if (!await LobbyManager.JoinLobbyByCodeAsync(lobbyCode))
             {
-                _messageBoxWindow.OnShow("Á¸ÀçÇÏÁö ¾Ê´Â ÄÚµåÀÔ´Ï´Ù.");
-
+                _loadingWindow.OnHide();
+                _messageBoxWindow.OnShow("ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ì½”ë“œì…ë‹ˆë‹¤.");
                 _lobbyCodeInputField.text = string.Empty;
-                _joinButton.interactable = true;
             }
         }
     }

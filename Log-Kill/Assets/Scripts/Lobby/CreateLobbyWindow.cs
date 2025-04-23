@@ -1,4 +1,4 @@
-using LogKill.Core;
+﻿using LogKill.Core;
 using LogKill.UI;
 using System.Collections.Generic;
 using TMPro;
@@ -14,7 +14,8 @@ namespace LogKill.LobbySystem
         [SerializeField] private List<CountButton> _imposterCountButtons;
         [SerializeField] private List<CountButton> _maxPlayerCountButtons;
 
-        [SerializeField] private Button _createButton;
+        [SerializeField] private MessageBoxWindow _messageBoxWindow;
+        [SerializeField] private LoadingWindow _loadingWindow;
 
         private readonly int MIN_IMPOSTER_COUNT = 1;
 
@@ -37,7 +38,8 @@ namespace LogKill.LobbySystem
         {
             _lobbyNameInputField.text = string.Empty;
 
-            _createButton.interactable = true;
+            _messageBoxWindow.OnHide();
+            _loadingWindow.OnHide();
 
             UpdateImposterCount(MIN_IMPOSTER_COUNT);
             UpdateMaxPlayerCount(MAX_PLAYER_COUNT);
@@ -89,10 +91,14 @@ namespace LogKill.LobbySystem
 
         public async void OnClickCreateLobby()
         {
-            _createButton.interactable = false;
+            _loadingWindow.OnShow("방을 생성중입니다...");
 
             string lobbyName = GetValidLobbyName(_lobbyNameInputField.text);
-            await LobbyManager.CreateLobbyAsync(lobbyName, _maxPlayerCount, _imposterCount);
+            if (!await LobbyManager.CreateLobbyAsync(lobbyName, _maxPlayerCount, _imposterCount))
+            {
+                _loadingWindow.OnHide();
+                _messageBoxWindow.OnShow("방 생성에 실패하였습니다.");
+            }
         }
 
         public void OnClickBack()

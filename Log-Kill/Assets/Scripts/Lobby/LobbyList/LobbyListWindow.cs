@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using LogKill.Core;
 using LogKill.Network;
 using LogKill.UI;
@@ -17,6 +17,7 @@ namespace LogKill.LobbySystem
         [SerializeField] private Button _quickJoinButton;
 
         [SerializeField] private MessageBoxWindow _messageBoxWindow;
+        [SerializeField] private LoadingWindow _loadingWindow;
 
         private CancellationTokenSource _lobbyListRefreshToken;
 
@@ -40,7 +41,8 @@ namespace LogKill.LobbySystem
                     lobbyListItem.gameObject.SetActive(false);
             }
 
-            _messageBoxWindow.gameObject.SetActive(false);
+            _messageBoxWindow.OnHide();
+            _loadingWindow.OnHide();
 
             StartLobbyListRefresh().Forget();
         }
@@ -104,20 +106,23 @@ namespace LogKill.LobbySystem
 
         private async void OnJoinEvent(string lobbyId)
         {
+            _loadingWindow.OnShow("ë°©ì— ì…ì¥ ì¤‘ì…ë‹ˆë‹¤...");
+
             if (!await LobbyManager.JoinLobbyByIdAsync(lobbyId))
             {
-                _messageBoxWindow.OnShow("Á¸ÀçÇÏÁö ¾Ê´Â ¹æÀÔ´Ï´Ù.");
+                _loadingWindow.OnHide();
+                _messageBoxWindow.OnShow("ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ë°©ì…ë‹ˆë‹¤.");
             }
         }
 
         public async void OnClickQuickJoin()
         {
-            _quickJoinButton.interactable = false;
+            _loadingWindow.OnShow("ë°©ì— ì…ì¥ ì¤‘ì…ë‹ˆë‹¤...");
 
             if (!await LobbyManager.JoinQuickMatch())
             {
-                _messageBoxWindow.OnShow("¹æÀÌ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù");
-                _quickJoinButton.interactable = true;
+                _loadingWindow.OnHide();
+                _messageBoxWindow.OnShow("ë°©ì´ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤");
             }
         }
 
