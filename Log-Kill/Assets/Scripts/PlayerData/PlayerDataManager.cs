@@ -1,7 +1,5 @@
 using LogKill.Core;
 using LogKill.Event;
-using LogKill.UI;
-using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
