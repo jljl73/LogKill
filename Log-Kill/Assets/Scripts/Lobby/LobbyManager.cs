@@ -104,6 +104,9 @@ namespace LogKill.LobbySystem
 
         public async UniTask<bool> JoinLobbyByIdAsync(string lobbyId)
         {
+            if (string.IsNullOrWhiteSpace(lobbyId))
+                return false;
+
             try
             {
                 var joinOptions = new JoinLobbyByIdOptions { Player = GetPlayer() };
@@ -124,6 +127,9 @@ namespace LogKill.LobbySystem
 
         public async UniTask<bool> JoinLobbyByCodeAsync(string lobbyCode)
         {
+            if (string.IsNullOrWhiteSpace(lobbyCode))
+                return false;
+
             try
             {
                 var joinOptions = new JoinLobbyByCodeOptions { Player = GetPlayer() };
