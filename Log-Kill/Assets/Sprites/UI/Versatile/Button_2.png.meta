@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5f22ec30e3e11d04c84d41bcb9eaa955
+guid: 28bde8c703313e84fa752c0dd6a34f6c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3958845327213239053
-    second: BREAK_0
+      213: 2710535502892460919
+    second: Select_Log_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,43 +96,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BREAK_0
+      name: Select_Log_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 0
-        width: 103
-        height: 127
+        x: 10
+        y: 10
+        width: 877
+        height: 122
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3f46db6562b5f09c0800000000000000
-      internalID: -3958845327213239053
+      spriteID: 77b6df8cda1cd9520800000000000000
+      internalID: 2710535502892460919
       vertices: []
       indices: 
       edges: []
@@ -161,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BREAK_0: -3958845327213239053
+      Select_Log_0: 2710535502892460919
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
