@@ -35,6 +35,8 @@ namespace LogKill.LobbySystem
 
         public override void OnShow()
         {
+            _quickJoinButton.interactable = false;
+
             foreach (var lobbyListItem in _lobbyListItems)
             {
                 if (lobbyListItem.gameObject.activeSelf)
@@ -111,7 +113,7 @@ namespace LogKill.LobbySystem
             if (!await LobbyManager.JoinLobbyByIdAsync(lobbyId))
             {
                 _loadingWindow.OnHide();
-                _messageBoxWindow.OnShow("존재하지 않는 방입니다.");
+                _messageBoxWindow.OnShow("방이 존재하지 않습니다.");
             }
         }
 
@@ -122,7 +124,7 @@ namespace LogKill.LobbySystem
             if (!await LobbyManager.JoinQuickMatch())
             {
                 _loadingWindow.OnHide();
-                _messageBoxWindow.OnShow("방이 존재하지 않습니다");
+                _messageBoxWindow.OnShow("방이 존재하지 않습니다.");
             }
         }
 
