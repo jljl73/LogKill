@@ -1,7 +1,7 @@
 using LogKill.Log;
 using UnityEngine;
 
-namespace LogKill
+namespace LogKill.Log
 {
     public class MapEnterLog : ILog
     {

@@ -20,6 +20,7 @@ namespace LogKill.Log
 
         // Map
         MapEnterLog = 301,
+        MapStayLog = 302,
 
     }
 
