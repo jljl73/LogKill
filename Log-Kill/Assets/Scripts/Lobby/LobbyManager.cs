@@ -54,7 +54,7 @@ namespace LogKill.LobbySystem
             await SignInAnonymouslyAsync();
         }
 
-        public async UniTask CreateLobbyAsync(string lobbyName, int maxPlayers, int imposterCount, bool isPrivate = false)
+        public async UniTask<bool> CreateLobbyAsync(string lobbyName, int maxPlayers, int imposterCount, bool isPrivate = false)
         {
             try
             {
@@ -78,13 +78,17 @@ namespace LogKill.LobbySystem
                         }
                     }
                 };
+
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, lobbyOptions);
+
                 StartHeartbeatLobbyAlive().Forget();
 
                 await SubscribeToLobbyEvents(CurrentLobby);
                 await StartRelayWithHost();
 
                 Debug.Log($"Success Create Lobby : {CurrentLobby.LobbyCode}");
+
+                return true;
             }
             catch (LobbyServiceException e)
             {
@@ -94,6 +98,8 @@ namespace LogKill.LobbySystem
             {
                 Debug.LogError($"Failed CreateLobby : {e.Message}");
             }
+
+            return false;
         }
 
         public async UniTask<bool> JoinLobbyByIdAsync(string lobbyId)
