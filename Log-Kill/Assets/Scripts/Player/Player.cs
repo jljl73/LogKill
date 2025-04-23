@@ -170,7 +170,16 @@ namespace LogKill.Character
                 if (context.TargetPlayer.PlayerType == EPlayerType.Imposter)
                     LogService.Log(new ImposterEncounterLog());
                 else
+                {
                     LogService.Log(new CrewmateEncounterLog());
+                }
+            }
+            else
+            {
+                if (context.TargetPlayer.IsDead)
+                    return;
+
+                LogService.Log(new LastEncounterLog(context.TargetPlayer.PlayerData.Name));
             }
         }
     }

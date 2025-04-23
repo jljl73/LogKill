@@ -18,6 +18,7 @@ namespace LogKill.Log
         // Encounter
         ImposterEncounter = 201,
         CrewmateEncounter = 202,
+        LastEncounter = 203,
 
         // Map
         MapEnterLog = 301,
