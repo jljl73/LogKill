@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Padding:
     m_Left: 45
     m_Right: 0
-    m_Top: 50
+    m_Top: 30
     m_Bottom: 0
   m_ChildAlignment: 0
   m_StartCorner: 0
@@ -902,6 +902,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerListItem
       objectReference: {fileID: 0}
+    - target: {fileID: 7424134521063339489, guid: d775cc9f0c2d3f84d9549917c8c6ad79, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -8404427099461824348, guid: 80a0e9dcfcc56ae4e80e41087eb36e82, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

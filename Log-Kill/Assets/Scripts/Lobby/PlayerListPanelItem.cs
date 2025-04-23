@@ -12,10 +12,15 @@ namespace LogKill.UI
 
         public void InitPlayerPanelItem(PlayerData playerData, Action<ulong> callback)
         {
-            _iconImage.color = playerData.GetColor();
+            _iconImage.sprite = GetColorSprite(playerData.ColorType);
 
             _kickButton.onClick.RemoveAllListeners();
             _kickButton.onClick.AddListener(() => callback?.Invoke(playerData.ClientId));
+        }
+
+        private Sprite GetColorSprite(EColorType colorType)
+        {
+            return SpriteResourceManager.Instance.GetPlayerSprite(colorType);
         }
     }
 }
