@@ -9,7 +9,6 @@ namespace LogKill.Vote
         [SerializeField] private Button _button;
         [SerializeField] private TMP_Text _logText;
 
-        [SerializeField] private Color _normalColor;
         [SerializeField] private Color _selectedColor;
 
         public void Initialize(string logText)
@@ -22,7 +21,7 @@ namespace LogKill.Vote
             else
             {
                 _logText.text = logText;
-                _button.image.color = _normalColor;
+                _button.image.color = Color.white;
                 gameObject.SetActive(true);
             }
         }
@@ -35,7 +34,7 @@ namespace LogKill.Vote
             }
             else
             {
-                _button.image.color = _normalColor;
+                _button.image.color = Color.white;
             }
         }
 
