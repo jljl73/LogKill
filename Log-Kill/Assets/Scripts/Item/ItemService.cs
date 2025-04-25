@@ -1,5 +1,6 @@
 using LogKill.Core;
 using LogKill.Event;
+using LogKill.Log;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace LogKill.Item
         public Dictionary<EItemType, int> Items { get; private set; } = new();
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LogService LogService => ServiceLocator.Get<LogService>();
 
         public void Initialize()
         {
@@ -38,6 +40,8 @@ namespace LogKill.Item
                 ItemType = context.ItemType,
                 ItemCount = itemCount
             });
+
+            LogService.Log(new ItemAcquireLog(context.ItemType, 1));
         }
 
         private void OnItemUsedEvent(ItemUsedEvent context)
@@ -53,6 +57,8 @@ namespace LogKill.Item
                 ItemType = context.ItemType,
                 ItemCount = itemCount
             });
+
+            LogService.Log(new ItemUseLog(context.ItemType, context.UsedCount));
         }
     }
 }
