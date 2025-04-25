@@ -123,6 +123,22 @@ namespace LogKill.Character
             return PlayerDicts.Values.Count(player => !player.IsDead);
         }
 
+        public void WatchRandomAlivePlayer()
+        {
+            var alivePlayers = PlayerDicts.Values.Where(player => !player.IsDead).ToList();
+            if (alivePlayers.Count == 0)
+                return;
+
+            int randomIndex = Random.Range(0, alivePlayers.Count);
+            var targetPlayer = alivePlayers[randomIndex];
+            CameraController.Instance.SetTarget(targetPlayer.transform);
+
+            foreach (Player player in PlayerDicts.Values)
+            {
+                player.ShowFov(player == targetPlayer);
+            }
+        }
+
         public Player GetRandomAlivePlayer()
         {
             var alivePlayers = PlayerDicts.Values.Where(player => !player.IsDead).ToList();
@@ -130,8 +146,8 @@ namespace LogKill.Character
                 return null;
 
             int randomIndex = Random.Range(0, alivePlayers.Count);
-            ulong randomClientId = alivePlayers[randomIndex].ClientId;
-            return NetworkManager.Singleton.ConnectedClients[randomClientId].PlayerObject.GetComponent<Player>();
+            var targetPlayer = alivePlayers[randomIndex];
+            return targetPlayer;
         }
 
         public EColorType CheckPlayerAvailableColor()

@@ -132,8 +132,7 @@ namespace LogKill.Character
             {
                 _interactableTrigger.gameObject.SetActive(false);
 
-                var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
-                CameraController.Instance.SetTarget(target?.transform);
+                PlayerDataManager.Instance.WatchRandomAlivePlayer();
 
                 if (context.IsBreak)
                     UIManager.Instance.ShowWindow<DeathWindow>();
@@ -146,6 +145,11 @@ namespace LogKill.Character
         public void SetColor(EColorType colorType)
         {
             _colorType.Value = colorType;
+        }
+
+        public void ShowFov(bool isShow)
+        {
+            _fieldOfView2D.gameObject.SetActive(isShow);
         }
 
         private void OnSettingImposter(SettingImposterEvent context)

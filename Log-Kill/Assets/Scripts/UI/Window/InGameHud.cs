@@ -19,11 +19,15 @@ namespace LogKill.UI
         private readonly float _breakCooldown = 20;
 
         [SerializeField] private Slider _missionProgressBar;
+        [SerializeField] private TMP_Text _batteryCountText;
+
+        [SerializeField] private GameObject _playerContainter;
         [SerializeField] private Button _interactButton;
         [SerializeField] private Button _reportButton;
         [SerializeField] private Button _breakButton;
         [SerializeField] private TMP_Text _breakTimerText;
-        [SerializeField] private TMP_Text _batteryCountText;
+        [SerializeField] private GameObject _deathContainer;
+
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
@@ -48,8 +52,10 @@ namespace LogKill.UI
             EventBus.Subscribe<InteractEvent>(OnInteractEvent);
             EventBus.Subscribe<MissionProgressEvent>(OnMissionProgressEvent);
             EventBus.Subscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
+            EventBus.Subscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
             EventBus.Subscribe<ItemChangedEvent>(OnItemChangedEvent);
             EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
+            EventBus.Subscribe<PlayerKillEvent>(OnDead);
 
             await UniTask.Yield();
         }
@@ -57,8 +63,10 @@ namespace LogKill.UI
         public override void OnShow()
         {
             base.OnShow();
-            _breakButton.gameObject.SetActive(IsImposter);
+            _deathContainer.SetActive(false);
+            _playerContainter.SetActive(true);
 
+            _breakButton.gameObject.SetActive(IsImposter);
             _interactButton.interactable = false;
             _reportButton.interactable = GameManager.Instance.IsDebugMode || false;
             _breakButton.interactable = false;
@@ -114,6 +122,16 @@ namespace LogKill.UI
             ValidateBreakButton();
         }
 
+        private void OnDead(PlayerKillEvent context)
+        {
+            if (context.VictimId == PlayerDataManager.Instance.Me.ClientId)
+            {
+                _deathContainer.SetActive(true);
+                _playerContainter.SetActive(false);
+                return;
+            }
+        }
+
         private void ValidateReportButton()
         {
             if (_deadPlayers.Count > 0)
@@ -155,39 +173,16 @@ namespace LogKill.UI
             }
         }
 
+        private void OnVoteEndEvent(VoteEndEvent context)
+        {
+            StartKillTimer();
+        }
+
         private void UpdateBatteryCount(int amount)
         {
             _batteryCountText.text = amount.ToString();
         }
 
-        public void OnClickInteract()
-        {
-            _interactableEntity?.Interact();
-        }
-
-        public void OnClickReport()
-        {
-            VoteService.OnVoteStart(new VoteStartEvent()
-            {
-                ReportClientId = NetworkManager.Singleton.LocalClientId
-            });
-        }
-
-        public void OnClickBreak()
-        {
-            if (_nearbyPlayers.Count == 0)
-                return;
-
-            LogService.Log(new KillLog());
-            PlayerDataManager.Instance.RequestPlayerKillServerRpc(_nearbyPlayers[0].ClientId);
-            _nearbyPlayers.RemoveAt(0);
-            StartKillTimer();
-        }
-
-        private void OnVoteEndEvent(VoteEndEvent context)
-        {
-            StartKillTimer();
-        }
 
         private void StartKillTimer()
         {
@@ -218,6 +213,35 @@ namespace LogKill.UI
             _isKillTimerFinished = true;
             _breakTimerText.text = string.Empty;
             ValidateBreakButton();
+        }
+
+        public void OnClickInteract()
+        {
+            _interactableEntity?.Interact();
+        }
+
+        public void OnClickReport()
+        {
+            VoteService.OnVoteStart(new VoteStartEvent()
+            {
+                ReportClientId = NetworkManager.Singleton.LocalClientId
+            });
+        }
+
+        public void OnClickBreak()
+        {
+            if (_nearbyPlayers.Count == 0)
+                return;
+
+            LogService.Log(new KillLog());
+            PlayerDataManager.Instance.RequestPlayerKillServerRpc(_nearbyPlayers[0].ClientId);
+            _nearbyPlayers.RemoveAt(0);
+            StartKillTimer();
+        }
+
+        public void OnClickChangeTarget()
+        {
+            PlayerDataManager.Instance.WatchRandomAlivePlayer();
         }
     }
 }
