@@ -134,7 +134,9 @@ namespace LogKill.Character
 
                 var target = PlayerDataManager.Instance.GetRandomAlivePlayer();
                 CameraController.Instance.SetTarget(target?.transform);
-                UIManager.Instance.ShowWindow<DeathWindow>();
+
+                if (context.IsBreak)
+                    UIManager.Instance.ShowWindow<DeathWindow>();
             }
 
             if (PlayerDataManager.Instance.CheckGameOver(out bool isImposterWin))
