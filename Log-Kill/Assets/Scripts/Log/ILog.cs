@@ -24,6 +24,9 @@ namespace LogKill.Log
         MapEnterLog = 301,
         MapStayLog = 302,
 
+        // Item
+        ItemAcquire = 401,
+        ItemUse = 402,
     }
 
     public interface ILog
