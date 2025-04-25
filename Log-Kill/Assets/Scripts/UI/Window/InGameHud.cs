@@ -5,8 +5,8 @@ using LogKill.Core;
 using LogKill.Entity;
 using LogKill.Event;
 using LogKill.Log;
-using LogKill.UI;
 using LogKill.Vote;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +19,7 @@ namespace LogKill.UI
         [SerializeField] private Button _interactButton;
         [SerializeField] private Button _reportButton;
         [SerializeField] private Button _breakButton;
+        [SerializeField] private TMP_Text _batteryCountText;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
@@ -41,6 +42,7 @@ namespace LogKill.UI
             EventBus.Subscribe<InteractEvent>(OnInteractEvent);
             EventBus.Subscribe<MissionProgressEvent>(OnMissionProgressEvent);
             EventBus.Subscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
+            EventBus.Subscribe<ItemChangedEvent>(OnItemChangedEvent);
 
             await UniTask.Yield();
         }
@@ -53,6 +55,7 @@ namespace LogKill.UI
             _interactButton.interactable = false;
             _reportButton.interactable = GameManager.Instance.IsDebugMode || false;
             _breakButton.interactable = false;
+            _batteryCountText.text = "0";
         }
 
         private void OnInteractEvent(InteractEvent context)
@@ -133,6 +136,19 @@ namespace LogKill.UI
         {
             Debug.Log($"Mission Progress: {context.Progress}/{context.AllProgress}");
             _missionProgressBar.value = (float)context.Progress / context.AllProgress;
+        }
+
+        private void OnItemChangedEvent(ItemChangedEvent context)
+        {
+            if (context.ItemType == EItemType.Battery)
+            {
+                UpdateBatteryCount(context.ItemCount);
+            }
+        }
+
+        private void UpdateBatteryCount(int amount)
+        {
+            _batteryCountText.text = amount.ToString();
         }
 
         public void OnClickInteract()
