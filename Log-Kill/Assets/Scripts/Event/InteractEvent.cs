@@ -6,7 +6,7 @@ namespace LogKill
 {
     public enum EInteractType
     {
-        Battery,
+        Outlet, Computer
     }
 
     public struct InteractEvent
