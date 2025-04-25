@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using LogKill.Character;
 using LogKill.Core;
 using LogKill.UI;
 using Unity.Netcode;
@@ -28,7 +28,9 @@ namespace LogKill.Mission
 
     public class MissionNetController : NetworkBehaviour, IMissionNetController
     {
-        private Dictionary<ulong, HashSet<int>> _clientMissionMap = new();
+        private int _completeMissionCount;
+        private int _totalMissionCount;
+
         private MissionService MissionService => ServiceLocator.Get<MissionService>();
 
         public override void OnNetworkSpawn()
@@ -40,33 +42,29 @@ namespace LogKill.Mission
         public void OnGameStart()
         {
             if (IsServer)
-                BroadcastProgressToAllClients();
+            {
+                _completeMissionCount = 0;
+                _totalMissionCount = MissionService.MissionCount * MissionService.UserCount;
+                BroadcastProgressToAllClientsClientRpc(_completeMissionCount, _totalMissionCount);
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void ReportMissionClearServerRpc(ulong clientId, int missionId)
         {
-            if (!_clientMissionMap.ContainsKey(clientId))
-                _clientMissionMap[clientId] = new HashSet<int>();
+            var playerType = PlayerDataManager.Instance.GetPlayer(clientId).PlayerType;
 
-            if (_clientMissionMap[clientId].Add(missionId))
+            if (playerType == EPlayerType.Imposter)
             {
-                BroadcastProgressToAllClients();
-                CheckGameEndCondition();
+                _completeMissionCount = Mathf.Max(0, _completeMissionCount - 1);
             }
-        }
-
-        private void BroadcastProgressToAllClients()
-        {
-            int completedMissions = 0;
-            int totalMissionCount = MissionService.MissionCount * MissionService.UserCount;
-
-            foreach (var kvp in _clientMissionMap)
+            else
             {
-                completedMissions += kvp.Value.Count;
+                _completeMissionCount++;
             }
 
-            BroadcastProgressToAllClientsClientRpc(completedMissions, totalMissionCount);
+            BroadcastProgressToAllClientsClientRpc(_completeMissionCount, _totalMissionCount);
+            CheckGameEndCondition();
         }
 
         [ClientRpc]
@@ -83,14 +81,8 @@ namespace LogKill.Mission
 
         private void CheckGameEndCondition()
         {
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsIds)
-            {
-                if (!_clientMissionMap.ContainsKey(client))
-                    return;
-
-                if (_clientMissionMap[client].Count < MissionService.MissionCount)
-                    return;
-            }
+            if (_completeMissionCount < _totalMissionCount)
+                return;
 
             EndGameClientRpc();
         }

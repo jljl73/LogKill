@@ -1,28 +1,49 @@
 using System.Collections.Generic;
+using LogKill.Core;
 using LogKill.Entity;
+using LogKill.Event;
 using UnityEngine;
 
 namespace LogKill.Mission
 {
     public class MissionSpawner : MonoBehaviour
     {
-        [SerializeField] private BatteryEntity _missionPrefab;
-        [SerializeField] private List<MissionData> _missionData = new();
-        [SerializeField] private List<Transform> _missionSpawnPoint = new();
+        [SerializeField] private List<BatteryEntity> _spawnedMissions = new();
 
-        private List<BatteryEntity> _spawnedMissions = new ();
-        
-        public void SpawnMission(int count = 5)
+        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+
+        public void Initialize()
+        {
+            EventBus.Subscribe<MissionStartEvent>(OnMissionStartEvent);
+
+            foreach (var mission in _spawnedMissions)
+            {
+                mission.gameObject.SetActive(false);
+            }
+        }
+
+        public void Dipose()
+        {
+            EventBus.Unsubscribe<MissionStartEvent>(OnMissionStartEvent);
+        }
+
+        public void StartRandomSpawnMissions(int count = 5)
         {
             Shuffle();
 
             for (int i = 0; i < count; i++)
             {
-                var spawnPoint = _missionSpawnPoint[i];
-                var mission = Instantiate(_missionPrefab, spawnPoint.position, Quaternion.identity, spawnPoint);
-                mission.Initialize(_missionData[i]);
-                _spawnedMissions.Add(mission);
+                _spawnedMissions[i].gameObject.SetActive(true);
             }
+        }
+
+        private void RandomSpawnMission()
+        {
+            var activeSpawnMissions = _spawnedMissions.FindAll(obj => !obj.gameObject.activeSelf);
+
+            int randomIndex = Random.Range(0, activeSpawnMissions.Count);
+
+            activeSpawnMissions[randomIndex].gameObject.SetActive(true);
         }
 
         private void Shuffle()
@@ -37,13 +58,9 @@ namespace LogKill.Mission
             }
         }
 
-        public void DespawnMission()
+        private void OnMissionStartEvent(MissionStartEvent context)
         {
-            foreach (var mission in _spawnedMissions)
-            {
-                Destroy(mission);
-            }
-            _spawnedMissions.Clear();
+            RandomSpawnMission();
         }
     }
 }

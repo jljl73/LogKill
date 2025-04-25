@@ -11,16 +11,6 @@ namespace LogKill.Entity
         [SerializeField] private MissionData _missionData;
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
-        private void Awake()
-        {
-            EventBus?.Subscribe<MissionClearEvent>(OnMissionClearEvent);
-        }
-
-        private void OnDestroy()
-        {
-            EventBus?.Unsubscribe<MissionClearEvent>(OnMissionClearEvent);
-        }
-
         public void Initialize(MissionData missionData)
         {
             _missionData = missionData;
@@ -30,6 +20,9 @@ namespace LogKill.Entity
         {
             var window = UIManager.Instance.ShowWindow<MissionWindow>();
             window.StartMission(_missionData);
+
+            EventBus.Publish(new MissionStartEvent() { MissionId = _missionData.MissionId });
+            gameObject.SetActive(false);
         }
 
         public void EnableInteraction()
@@ -52,14 +45,6 @@ namespace LogKill.Entity
                 InteractableEntity = this,
             };
             EventBus.Publish(context);
-        }
-
-        private void OnMissionClearEvent(MissionClearEvent context)
-        {
-            if (context.MissionId == _missionData.MissionId)
-            {
-                Destroy(gameObject);
-            }
         }
     }
 }

@@ -12,4 +12,9 @@ namespace LogKill.Event
     {
         public int MissionId;
     }
+
+    public struct MissionStartEvent
+    {
+        public int MissionId;
+    }
 }

@@ -15,12 +15,13 @@ namespace LogKill.Map
 
         public void Initialize()
         {
-            _missionSpawner.SpawnMission();
+            _missionSpawner.Initialize();
+            _missionSpawner.StartRandomSpawnMissions();
         }
 
         public void Dispose()
         {
-            _missionSpawner.DespawnMission();
+            _missionSpawner.Dipose();
         }
     }
 }
