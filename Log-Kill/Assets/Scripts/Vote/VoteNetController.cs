@@ -170,7 +170,7 @@ namespace LogKill.Vote
             if (playerData.PlayerType == EPlayerType.Imposter)
                 resultMessage = $"{playerData.Name}은 임포스터가 맞았습니다.";
             else
-                resultMessage = $"{playerData.Name}은 임포스터가 아니였습니다.";
+                resultMessage = $"{playerData.Name}은 임포스터가 아니었습니다.";
 
             if (PlayerDataManager.Instance.CheckGameOver(out bool isImposterWin))
                 GameOverClientRpc(isImposterWin);

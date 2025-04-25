@@ -5,7 +5,7 @@ namespace LogKill.Log
 {
     public class LastEncounterLog : ILog
     {
-        public ELogType LogType => ELogType.CrewmateEncounter;
+        public ELogType LogType => ELogType.LastEncounter;
 
         public string Content => string.Format("마지막으로 같이 있던 크루원: {0}", _playerName);
         public int Value { get; private set; } = 1;
