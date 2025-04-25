@@ -2,6 +2,7 @@ using System;
 using LogKill.Character;
 using LogKill.Core;
 using LogKill.Event;
+using LogKill.Item;
 using UnityEngine;
 
 namespace LogKill.Entity
@@ -28,6 +29,11 @@ namespace LogKill.Entity
             {
                 _interactable = interactable;
                 interactable.EnableInteraction();
+            }
+
+            if (collision.TryGetComponent<IItem>(out var item))
+            {
+                item.PickUp();
             }
 
             if (collision.TryGetComponent<Player>(out var player))
