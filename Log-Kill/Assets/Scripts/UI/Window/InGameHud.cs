@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using LogKill.Character;
 using LogKill.Core;
@@ -15,10 +16,13 @@ namespace LogKill.UI
 {
     public class InGameHud : HUDBase
     {
+        private readonly float _breakCooldown = 20;
+
         [SerializeField] private Slider _missionProgressBar;
         [SerializeField] private Button _interactButton;
         [SerializeField] private Button _reportButton;
         [SerializeField] private Button _breakButton;
+        [SerializeField] private TMP_Text _breakTimerText;
         [SerializeField] private TMP_Text _batteryCountText;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
@@ -30,6 +34,8 @@ namespace LogKill.UI
         private List<Player> _nearbyPlayers = new List<Player>();
         private List<Player> _deadPlayers = new List<Player>();
         private bool IsImposter => PlayerDataManager.Me.PlayerType == EPlayerType.Imposter;
+        private bool _isKillTimerFinished = false;
+        private CancellationTokenSource _killTimerCts = new CancellationTokenSource();
 
         public override async UniTask InitializeAsync()
         {
@@ -43,6 +49,7 @@ namespace LogKill.UI
             EventBus.Subscribe<MissionProgressEvent>(OnMissionProgressEvent);
             EventBus.Subscribe<PlayerRangeChagnedEvent>(OnPlayerRangeEvent);
             EventBus.Subscribe<ItemChangedEvent>(OnItemChangedEvent);
+            EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
 
             await UniTask.Yield();
         }
@@ -56,6 +63,8 @@ namespace LogKill.UI
             _reportButton.interactable = GameManager.Instance.IsDebugMode || false;
             _breakButton.interactable = false;
             _batteryCountText.text = "0";
+
+            StartKillTimer();
         }
 
         private void OnInteractEvent(InteractEvent context)
@@ -75,7 +84,7 @@ namespace LogKill.UI
 
         private void OnPlayerRangeEvent(PlayerRangeChagnedEvent context)
         {
-            if(GameManager.Instance.GameState != EGameState.InGame)
+            if (GameManager.Instance.GameState != EGameState.InGame)
                 return;
 
             if (context.IsNearby)
@@ -124,7 +133,7 @@ namespace LogKill.UI
 
             if (_nearbyPlayers.Count > 0)
             {
-                _breakButton.interactable = true;
+                _breakButton.interactable = _isKillTimerFinished;
             }
             else
             {
@@ -158,8 +167,8 @@ namespace LogKill.UI
 
         public void OnClickReport()
         {
-            VoteService.OnVoteStart(new VoteStartEvent() 
-            { 
+            VoteService.OnVoteStart(new VoteStartEvent()
+            {
                 ReportClientId = NetworkManager.Singleton.LocalClientId
             });
         }
@@ -172,6 +181,42 @@ namespace LogKill.UI
             LogService.Log(new KillLog());
             PlayerDataManager.Instance.RequestPlayerKillServerRpc(_nearbyPlayers[0].ClientId);
             _nearbyPlayers.RemoveAt(0);
+            StartKillTimer();
+        }
+
+        private void OnVoteEndEvent(VoteEndEvent context)
+        {
+            StartKillTimer();
+        }
+
+        private void StartKillTimer()
+        {
+            if (IsImposter == false)
+                return;
+
+            _killTimerCts?.Cancel();
+            _killTimerCts = new();
+            KillTimer().Forget();
+        }
+
+        private async UniTask KillTimer()
+        {
+            _isKillTimerFinished = false;
+            ValidateBreakButton();
+
+            if (IsImposter == false)
+                return;
+
+            var timer = _breakCooldown;
+            while (timer > 0)
+            {
+                _breakTimerText.text = Mathf.CeilToInt(timer).ToString();
+                await UniTask.NextFrame(cancellationToken: _killTimerCts.Token);
+                timer -= Time.deltaTime;
+            }
+
+            _isKillTimerFinished = true;
+            _breakTimerText.text = string.Empty;
             ValidateBreakButton();
         }
     }
