@@ -8,7 +8,7 @@ namespace LogKill.Mission
 {
     public class MissionSpawner : MonoBehaviour
     {
-        [SerializeField] private List<BatteryEntity> _spawnedMissions = new();
+        [SerializeField] private List<OutletEntity> _spawnedMissions = new();
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
