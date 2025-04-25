@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace LogKill.Log
 {
@@ -6,7 +6,7 @@ namespace LogKill.Log
     {
         public ELogType LogType => ELogType.IgnoredBody;
 
-        public string Content => string.Format("½ÃÃ¼¸¦ {0}¹ø Áö³ªÃÆÁö¸¸ ½Å°íÇÏÁö ¾ÊÀ½", Value);
+        public string Content => string.Format("ì‹œì²´ë¥¼ {0}ë²ˆ ì§€ë‚˜ì³¤ì§€ë§Œ ì‹ ê³ í•˜ì§€ ì•ŠìŒ", Value);
         public int Value { get; private set; } = 0;
         public float CriminalScore
         {
