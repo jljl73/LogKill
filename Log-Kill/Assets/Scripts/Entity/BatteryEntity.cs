@@ -11,8 +11,8 @@ namespace LogKill.Entity
 
         public void PickUp()
         {
-            Destroy(gameObject);
             EventBus.Publish(new ItemPickupEvent() { ItemType = EItemType.Battery });
+            gameObject.SetActive(false);
         }
     }
 }

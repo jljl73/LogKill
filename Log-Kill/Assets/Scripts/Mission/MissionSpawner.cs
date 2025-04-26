@@ -39,11 +39,11 @@ namespace LogKill.Mission
 
         private void RandomSpawnMission()
         {
-            var activeSpawnMissions = _spawnedMissions.FindAll(obj => !obj.gameObject.activeSelf);
+            var disabledMissions = _spawnedMissions.FindAll(obj => !obj.gameObject.activeSelf);
 
-            int randomIndex = Random.Range(0, activeSpawnMissions.Count);
+            int randomIndex = Random.Range(0, disabledMissions.Count);
 
-            activeSpawnMissions[randomIndex].gameObject.SetActive(true);
+            disabledMissions[randomIndex].gameObject.SetActive(true);
         }
 
         private void Shuffle()
