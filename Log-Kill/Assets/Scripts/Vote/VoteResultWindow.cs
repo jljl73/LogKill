@@ -19,9 +19,12 @@ namespace LogKill.Vote
             _resultText.text = string.Empty;
         }
 
-        public async UniTask PlayScene(string resultText)
+        public async UniTask PlayScene(string resultText, bool playCutScene)
         {
             await DoText(resultText);
+
+            if (playCutScene == false)
+                return;
 
             for (int i = 0; i < _cutScenes.Length; i++)
             {

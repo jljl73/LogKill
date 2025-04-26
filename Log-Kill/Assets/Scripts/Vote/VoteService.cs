@@ -35,7 +35,8 @@ namespace LogKill.Vote
         public void OnVoteEnd(VoteEndEvent context)
         {
             UIManager.Instance.CloseAllWindows();
-            UIManager.Instance.ShowWindow<VoteResultWindow>()?.PlayScene(context.ResultMessage);
+            var isKill = PlayerDataManager.Instance.PlayerDicts.ContainsKey(context.TargetClientId);
+            UIManager.Instance.ShowWindow<VoteResultWindow>()?.PlayScene(context.ResultMessage, isKill);
         }
 
         public void ShowSelectLogWindow()
@@ -66,15 +67,15 @@ namespace LogKill.Vote
         public void ReportSelectLogMessage(string selectLogMessage)
         {
             VoteNetController.SubmitSelectLogMessageServerRpc(
-                NetworkManager.Singleton.LocalClientId, 
-                PlayerDataManager.Instance.Me.PlayerData, 
+                NetworkManager.Singleton.LocalClientId,
+                PlayerDataManager.Instance.Me.PlayerData,
                 selectLogMessage);
         }
 
         public void ReportVoteComplete(ulong targetClientId)
         {
             VoteNetController.SubmitVoteServerRpc(
-                NetworkManager.Singleton.LocalClientId, 
+                NetworkManager.Singleton.LocalClientId,
                 targetClientId);
         }
 
