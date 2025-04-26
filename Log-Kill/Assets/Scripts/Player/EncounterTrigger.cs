@@ -11,8 +11,13 @@ namespace LogKill
     public class EncounterTrigger : MonoBehaviour
     {
         private Player _player;
-        private List<Player> _encountPlayers = new();
+        private Player _encounterImpsoter;
+        private List<Player> _encountImposters = new();
+
         private CancellationTokenSource _encounterPollingToken;
+
+        private bool _isDeadPlayerEncounter;
+        private float _imposterEncounterTime;
 
         private LogService LogService => ServiceLocator.Get<LogService>();
 
@@ -20,7 +25,7 @@ namespace LogKill
         {
             _player = player;
 
-            _encountPlayers.Clear();
+            _encountImposters.Clear();
 
             StartEncounterPooling();
         }
@@ -41,9 +46,22 @@ namespace LogKill
                     var renderer = player.GetComponentInChildren<SpriteRenderer>();
 
                     if (renderer.enabled)
-                        EncounterLog(player);
+                    {
+                        if (player.PlayerType == EPlayerType.Imposter)
+                        {
+                            _encounterImpsoter = null;
+                            _imposterEncounterTime = Time.time;
+                        }
+                        else
+                            _isDeadPlayerEncounter = true;
+                    }
                     else
-                        _encountPlayers.Add(player);
+                    {
+                        if (player.PlayerType == EPlayerType.Imposter && _encounterImpsoter == null)
+                        {
+                            _encounterImpsoter = player;
+                        }
+                    }
                 }
             }
         }
@@ -59,8 +77,18 @@ namespace LogKill
                     if (renderer.enabled)
                         LogService.Log(new LastEncounterLog(player.PlayerData.Name));
 
-                    if (_encountPlayers.Contains(player))
-                        _encountPlayers.Remove(player);
+                    if (player.IsDead && _isDeadPlayerEncounter)
+                    {
+                        LogService.Log(new IgnoredBodyLog());
+                        _isDeadPlayerEncounter = false;
+                    }
+
+                    if (player.PlayerType == EPlayerType.Imposter && _imposterEncounterTime > 0f)
+                    {
+                        LogService.Log(new ImposterEncounterTimeLog(Time.time - _imposterEncounterTime));
+                        _encounterImpsoter = null;
+                        _imposterEncounterTime = 0f;
+                    }
                 }
             }
         }
@@ -77,34 +105,19 @@ namespace LogKill
         {
             while (!_encounterPollingToken.Token.IsCancellationRequested)
             {
-                for (int i = _encountPlayers.Count - 1; i >= 0; i--)
+                if (_encounterImpsoter != null)
                 {
-                    var player = _encountPlayers[i];
-                    var renderer = player.GetComponentInChildren<SpriteRenderer>();
+                    var renderer = _encounterImpsoter.GetComponentInChildren<SpriteRenderer>();
 
                     if (renderer.enabled)
                     {
-                        EncounterLog(player);
-                        _encountPlayers.RemoveAt(i);
+                        _imposterEncounterTime = Time.time;
+                        _encounterImpsoter = null;
                     }
                 }
 
                 await UniTask.Delay(1000, cancellationToken: _encounterPollingToken.Token);
             }
-        }
-
-        private void EncounterLog(Player player)
-        {
-            if (player.IsDead)
-            {
-                LogService.Log(new IgnoredBodyLog());
-                return;
-            }
-
-            if (player.PlayerType == EPlayerType.Imposter)
-                LogService.Log(new ImposterEncounterLog());
-            else if (player.PlayerType == EPlayerType.Normal)
-                LogService.Log(new CrewmateEncounterLog());
         }
     }
 }
