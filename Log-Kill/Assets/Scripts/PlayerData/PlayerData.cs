@@ -17,7 +17,11 @@ namespace LogKill.Character
         Blue,
         Green,
         Yellow,
-        Purple
+        Purple,
+        Gray,
+        Pink,
+        Orange,
+        Cyan,
     }
 
     public struct PlayerData : INetworkSerializable
@@ -49,27 +53,6 @@ namespace LogKill.Character
         public bool GetIsImposter()
         {
             return PlayerType == EPlayerType.Imposter;
-        }
-
-        public Color GetColor()
-        {
-            switch (ColorType)
-            {
-                case EColorType.White:
-                    return Color.white;
-                case EColorType.Red:
-                    return Color.red;
-                case EColorType.Blue:
-                    return Color.blue;
-                case EColorType.Green:
-                    return Color.green;
-                case EColorType.Yellow:
-                    return Color.yellow;
-                case EColorType.Purple:
-                    return new Color(1f, 1f, 0f);
-                default:
-                    return Color.clear;
-            }
         }
     }
 }
