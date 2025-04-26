@@ -28,6 +28,7 @@ namespace LogKill.Map
         {
             _missionSpawner.Dipose();
             _batterySpawner.Dipose();
+            Destroy(gameObject);
         }
     }
 }

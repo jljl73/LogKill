@@ -16,6 +16,14 @@ namespace LogKill.Log
         {
             _permenantLogs.Clear();
             ServiceLocator.Get<EventBus>().Subscribe<VoteEndEvent>(OnVoteEndEvent);
+            ServiceLocator.Get<EventBus>().Subscribe<DisposeEvent>(Dispose);
+        }
+
+        public void Dispose(DisposeEvent _)
+        {
+            _logDicts.Clear();
+            _permenantLogs.Clear();
+            Clear();
         }
 
         private void OnVoteEndEvent(VoteEndEvent _)
