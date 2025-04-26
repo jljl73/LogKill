@@ -80,8 +80,7 @@ namespace LogKill.Character
             _animator.Initialize();
             _networkSync.Initialize();
 
-            string name = $"Player {(int)_colorType.Value}";
-            _playerData = new PlayerData(OwnerClientId, _colorType.Value, name);
+            _playerData = new PlayerData(OwnerClientId, _colorType.Value, _colorType.Value.ToString());
             _animator.SetPlayerColor(_playerData.ColorType);
 
             if (IsOwner)
