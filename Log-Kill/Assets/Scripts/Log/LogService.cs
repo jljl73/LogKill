@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.Utils;
 using UnityEngine;
 
@@ -9,9 +10,18 @@ namespace LogKill.Log
     public class LogService : IService
     {
         private Dictionary<ELogType, ILog> _logDicts = new();
+        private List<ILog> _permenantLogs = new List<ILog>();
 
         public void Initialize()
         {
+            _permenantLogs.Clear();
+            ServiceLocator.Get<EventBus>().Subscribe<VoteEndEvent>(OnVoteEndEvent);
+        }
+
+        private void OnVoteEndEvent(VoteEndEvent _)
+        {
+            Debug.Log("All logs cleared.");
+            Clear();
         }
 
         public void Log(ILog newLog)
@@ -26,6 +36,15 @@ namespace LogKill.Log
             }
 
             Debug.Log(newLog.Content);
+        }
+
+        public void Clear()
+        {
+            foreach (var log in _logDicts.Values)
+            {
+                _permenantLogs.Add(log);
+            }
+            _logDicts.Clear();
         }
 
         public void Print(ELogType logType)
