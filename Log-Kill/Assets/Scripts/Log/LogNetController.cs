@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LogKill.Character;
 using LogKill.Core;
+using LogKill.Event;
 using LogKill.UI;
 using Mono.Cecil.Cil;
 using Unity.Netcode;
@@ -48,6 +49,11 @@ namespace LogKill.Log
             if (clientId != NetworkManager.Singleton.LocalClientId)
                 return;
 
+            ServiceLocator.Get<EventBus>().Publish(new ToastMessageEvent()
+            {
+                Message = "[LOG] 외부에서 당신의 활동 기록이 조회되었습니다.",
+            });
+            
             var logService = ServiceLocator.Get<LogService>();
             var logList = logService.GetCreminalScoreWeightedRandomLogList(3);
 

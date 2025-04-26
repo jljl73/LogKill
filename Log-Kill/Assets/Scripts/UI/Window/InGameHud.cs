@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace LogKill.UI
         [SerializeField] private Button _breakButton;
         [SerializeField] private TMP_Text _breakTimerText;
         [SerializeField] private GameObject _deathContainer;
-
+        [SerializeField] private TMP_Text _toastMessageText;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
@@ -56,6 +57,7 @@ namespace LogKill.UI
             EventBus.Subscribe<ItemChangedEvent>(OnItemChangedEvent);
             EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
             EventBus.Subscribe<PlayerKillEvent>(OnDead);
+            EventBus.Subscribe<ToastMessageEvent>(OnToastMessageEvent);
 
             await UniTask.Yield();
         }
@@ -176,6 +178,34 @@ namespace LogKill.UI
         private void OnVoteEndEvent(VoteEndEvent context)
         {
             StartKillTimer();
+        }
+
+        private void OnToastMessageEvent(ToastMessageEvent context)
+        {
+            ShowToastMessage(context.Message).Forget();
+        }
+
+        private async UniTask ShowToastMessage(string message)
+        {
+            _toastMessageText.text = message;
+            _toastMessageText.gameObject.SetActive(true);
+            var timer = 0.0f;
+            while (timer < 0.5f)
+            {
+                timer += Time.deltaTime;
+                _toastMessageText.color = new Color(1, 1, 1, Mathf.Lerp(0, 1, timer * 2.0f));
+                await UniTask.NextFrame();
+            }
+            await UniTask.Delay(2000);
+
+            timer = 0.0f;
+            while (timer < 0.5f)
+            {
+                timer += Time.deltaTime;
+                _toastMessageText.color = new Color(1, 1, 1, Mathf.Lerp(1, 0, timer * 2.0f));
+                await UniTask.NextFrame();
+            }
+            _toastMessageText.gameObject.SetActive(false);
         }
 
         private void UpdateBatteryCount(int amount)
