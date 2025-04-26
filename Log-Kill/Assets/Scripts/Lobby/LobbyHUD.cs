@@ -110,8 +110,9 @@ namespace LogKill.UI
             _playerListPanel.TogglePanel();
         }
 
-        public void OnClickGameStart()
+        public async void OnClickGameStart()
         {
+            await LobbyManager.UpdateIsPrivate(true);
             SessionManager.Instance.NotifyGameStartServerRpc();
         }
 
