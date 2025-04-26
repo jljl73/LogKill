@@ -35,6 +35,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63f71839d063b5c4fa85a605df8eb1f8
+    m_Address: Assets/Prefabs/UI/SDCardWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6f7bbe7a1d7ef7045a0b14c96af5d09b
     m_Address: Assets/Prefabs/Mission/GaugeMission.prefab
     m_ReadOnly: 0

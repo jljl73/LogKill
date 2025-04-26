@@ -1,7 +1,9 @@
 using LogKill.Core;
 using LogKill.Event;
 using LogKill.Item;
+using LogKill.Log;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace LogKill.Entity
@@ -32,7 +34,7 @@ namespace LogKill.Entity
             UpdateInteractUI();
 
             // Show Log UI
-            Debug.Log("Show Log UI");
+            ServiceLocator.Get<ILogNetController>().RequestRandomPlayerLogServerRpc(NetworkManager.Singleton.LocalClientId);
         }
 
         public void EnableInteraction()
