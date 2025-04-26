@@ -29,6 +29,7 @@ namespace LogKill.UI
         [SerializeField] private TMP_Text _breakTimerText;
         [SerializeField] private GameObject _deathContainer;
         [SerializeField] private TMP_Text _toastMessageText;
+        [SerializeField] private GameObject _miniMapPanel;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
@@ -272,6 +273,11 @@ namespace LogKill.UI
         public void OnClickChangeTarget()
         {
             PlayerDataManager.Instance.WatchRandomAlivePlayer();
+        }
+
+        public void OnClickMap()
+        {
+            _miniMapPanel.SetActive(!_miniMapPanel.activeSelf);
         }
     }
 }
