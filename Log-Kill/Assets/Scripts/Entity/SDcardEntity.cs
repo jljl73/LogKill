@@ -18,6 +18,12 @@ namespace LogKill.Entity
         private ItemService ItemService => ServiceLocator.Get<ItemService>();
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
 
+        private void Awake()
+        {
+            if (_interactUI.activeSelf)
+                _interactUI.SetActive(false);
+        }
+
         public void Interact()
         {
             int itemCount = ItemService.GetItemAmount(_requiredItemType);
@@ -80,7 +86,7 @@ namespace LogKill.Entity
                 text.color = Color.white;
             }
 
-            text.text = $"{itemCount}/{_requiredCount}";
+            text.text = $"{itemCount} / {_requiredCount}";
         }
     }
 }
