@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using LogKill.Character;
 using LogKill.Core;
-using LogKill.Event;
+using LogKill.Log;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -14,7 +14,7 @@ namespace LogKill
         private List<Player> _encountPlayers = new();
         private CancellationTokenSource _encounterPollingToken;
 
-        private EventBus EventBus => ServiceLocator.Get<EventBus>();
+        private LogService LogService => ServiceLocator.Get<LogService>();
 
         public void Initalize(Player player)
         {
@@ -41,7 +41,7 @@ namespace LogKill
                     var renderer = player.GetComponentInChildren<SpriteRenderer>();
 
                     if (renderer.enabled)
-                        EventBus.Publish(new PlayerRangeChagnedEvent(player, true));
+                        EncounterLog(player);
                     else
                         _encountPlayers.Add(player);
                 }
@@ -57,7 +57,7 @@ namespace LogKill
                     var renderer = player.GetComponentInChildren<SpriteRenderer>();
 
                     if (renderer.enabled)
-                        EventBus.Publish(new PlayerRangeChagnedEvent(player, false));
+                        LogService.Log(new LastEncounterLog(player.PlayerData.Name));
 
                     if (_encountPlayers.Contains(player))
                         _encountPlayers.Remove(player);
@@ -84,13 +84,27 @@ namespace LogKill
 
                     if (renderer.enabled)
                     {
-                        EventBus.Publish(new PlayerRangeChagnedEvent(player, true));
+                        EncounterLog(player);
                         _encountPlayers.RemoveAt(i);
                     }
                 }
 
                 await UniTask.Delay(1000, cancellationToken: _encounterPollingToken.Token);
             }
+        }
+
+        private void EncounterLog(Player player)
+        {
+            if (player.IsDead)
+            {
+                LogService.Log(new IgnoredBodyLog());
+                return;
+            }
+
+            if (player.PlayerType == EPlayerType.Imposter)
+                LogService.Log(new ImposterEncounterLog());
+            else if (player.PlayerType == EPlayerType.Normal)
+                LogService.Log(new CrewmateEncounterLog());
         }
     }
 }
