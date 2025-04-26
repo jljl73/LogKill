@@ -5,11 +5,13 @@ using LogKill.Log;
 using LogKill.UI;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace LogKill.Character
 {
     public class Player : NetworkBehaviour
     {
+        [SerializeField] private PlayerInput _playerInput;
         [SerializeField] private InteractableTrigger _interactableTrigger;
         [SerializeField] private EncounterTrigger _encounterTrigger;
         [SerializeField] private FieldOfView2D _fieldOfView2D;
@@ -83,6 +85,7 @@ namespace LogKill.Character
 
             if (IsOwner)
             {
+                _playerInput.enabled = true;
                 _movement.Initialize();
                 _inputHandler.Initialize();
 
@@ -98,6 +101,7 @@ namespace LogKill.Character
             }
             else
             {
+                _playerInput.enabled = false;
                 gameObject.tag = "Untagged";
                 enabled = false;
                 _interactableTrigger.gameObject.SetActive(false);

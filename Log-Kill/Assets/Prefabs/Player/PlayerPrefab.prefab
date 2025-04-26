@@ -306,6 +306,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  _playerInput: {fileID: 7561482777398641764}
   _interactableTrigger: {fileID: 5110770342539309249}
   _encounterTrigger: {fileID: 8275507579996393823}
   _fieldOfView2D: {fileID: 8163346772645290197}
