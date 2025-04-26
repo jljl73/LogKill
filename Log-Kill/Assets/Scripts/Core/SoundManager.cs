@@ -9,7 +9,7 @@ namespace LogKill.Core
 {
     public enum EBGM
     {
-
+        InGame,
     }
 
     public enum ESFX

@@ -750,7 +750,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bgmPlayer: {fileID: 1677883543}
-  _bgmVolume: 1
+  _bgmVolume: 0.5
   _sfxPlayer: {fileID: 1368493411}
   _sfxVolume: 1
 --- !u!1 &1086837132
@@ -1276,7 +1276,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 1
   Mute: 0

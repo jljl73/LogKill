@@ -132,6 +132,7 @@ namespace LogKill.Character
                 _encounterTrigger.gameObject.SetActive(false);
 
                 PlayerDataManager.Instance.WatchRandomAlivePlayer();
+                SoundManager.Instance.PlaySFX(ESFX.Death);
 
                 if (context.IsBreak)
                     UIManager.Instance.ShowWindow<DeathWindow>();

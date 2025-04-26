@@ -49,6 +49,7 @@ namespace LogKill
 			GameState = EGameState.InGame;
 			UIManager.Instance.CloseAllWindows();
 			UIManager.Instance.ShowHUD<InGameHud>();
+			SoundManager.Instance.PlayBGM(EBGM.InGame);
 		}
 
 		public void OnMoveLobbyScene()
@@ -59,6 +60,7 @@ namespace LogKill
 
 			var lobbyHUD = UIManager.Instance.ShowHUD<LobbyHUD>();
 			lobbyHUD.Initialize();
+			SoundManager.Instance.StopBGM();
 		}
 
 		// End Session
