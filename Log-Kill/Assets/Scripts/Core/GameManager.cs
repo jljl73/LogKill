@@ -35,14 +35,14 @@ namespace LogKill
 		{
 			ServiceLocator.AutoRegisterServices();
 
-            await UIManager.Instance.InitializeAsync();
-            await SoundManager.Instance.InitializeAsync();
+			await UIManager.Instance.InitializeAsync();
+			await SoundManager.Instance.InitializeAsync();
 
-            EventBus.Subscribe<GameStartEvent>(OnGameStart);
-            EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
+			EventBus.Subscribe<GameStartEvent>(OnGameStart);
+			EventBus.Subscribe<VoteEndEvent>(OnVoteEndEvent);
 
-            OnMoveTitleScene();
-        }
+			OnMoveTitleScene();
+		}
 
 		public void OnGameStart(GameStartEvent context)
 		{
@@ -61,8 +61,11 @@ namespace LogKill
 			lobbyHUD.Initialize();
 		}
 
+		// End Session
 		public void OnMoveTitleScene()
 		{
+			MapService.Dispose();
+			EventBus.Publish(new DisposeEvent());
 			GameState = EGameState.Title;
 			UIManager.Instance.HideCurrentHUD();
 			UIManager.Instance.CloseAllWindows();

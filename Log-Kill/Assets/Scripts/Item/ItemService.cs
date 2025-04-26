@@ -17,6 +17,12 @@ namespace LogKill.Item
         {
             EventBus.Subscribe<ItemPickupEvent>(OnItemPickupEvent);
             EventBus.Subscribe<ItemUsedEvent>(OnItemUsedEvent);
+            EventBus.Subscribe<DisposeEvent>(Dispose);
+        }
+
+        public void Dispose(DisposeEvent @event)
+        {
+            Items.Clear();
         }
 
         public int GetItemAmount(EItemType itemType)
