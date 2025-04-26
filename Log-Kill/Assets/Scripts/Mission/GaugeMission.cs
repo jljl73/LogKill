@@ -13,8 +13,8 @@ namespace LogKill.Mission
         private const float MAX_TWEEN_TIME = 1f;
         private const float MIN_TWEEN_TIME = 0.4f;
 
-        [SerializeField] [Range(0f, 1f)] private float _speedDifficultyFactor;
-        [SerializeField] [Range(0f, 1f)] private float _targetSizeDifficultyFactor;
+        [SerializeField][Range(0f, 1f)] private float _speedDifficultyFactor;
+        [SerializeField][Range(0f, 1f)] private float _targetSizeDifficultyFactor;
 
         [SerializeField] private RectTransform _gaugeRect;
         [SerializeField] private RectTransform _gaugeBarRect;
@@ -51,7 +51,7 @@ namespace LogKill.Mission
             _stackTime += Time.time - _startTime;
             LogService.Log(new MissionTimeLog(_stackTime));
         }
-        
+
         private void SetTargetRandomSize()
         {
             //_targetSizeDifficultyFactor = Random.Range(0f, 1f);
@@ -61,7 +61,7 @@ namespace LogKill.Mission
 
         private void StartGaugeBarTween()
         {
-            var width = _gaugeRect.sizeDelta.x * 0.5f - _gaugeBarRect.sizeDelta.x;
+            var width = -_defaultPosition.x;
 
             //_speedDifficultyFactor = Random.Range(0f, 1f);
             float randomSpeed = Mathf.Lerp(MAX_TWEEN_TIME, MIN_TWEEN_TIME, _speedDifficultyFactor);
