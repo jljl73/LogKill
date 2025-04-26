@@ -11,6 +11,7 @@ namespace LogKill.Character
     public class Player : NetworkBehaviour
     {
         [SerializeField] private InteractableTrigger _interactableTrigger;
+        [SerializeField] private EncounterTrigger _encounterTrigger;
         [SerializeField] private FieldOfView2D _fieldOfView2D;
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
@@ -92,6 +93,8 @@ namespace LogKill.Character
 
                 _interactableTrigger.Initalize(this);
                 _interactableTrigger.gameObject.SetActive(true);
+                _encounterTrigger.Initalize(this);
+                _encounterTrigger.gameObject.SetActive(true);
                 _fieldOfView2D.gameObject.SetActive(true);
 
                 CameraController.Instance.SetTarget(transform);
@@ -103,6 +106,7 @@ namespace LogKill.Character
                 gameObject.tag = "Untagged";
                 enabled = false;
                 _interactableTrigger.gameObject.SetActive(false);
+                _encounterTrigger.gameObject.SetActive(false);
                 _fieldOfView2D.gameObject.SetActive(false);
             }
         }
@@ -130,6 +134,7 @@ namespace LogKill.Character
             if (IsOwner)
             {
                 _interactableTrigger.gameObject.SetActive(false);
+                _encounterTrigger.gameObject.SetActive(false);
 
                 PlayerDataManager.Instance.WatchRandomAlivePlayer();
 
