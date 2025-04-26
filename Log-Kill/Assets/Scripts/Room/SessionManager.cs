@@ -47,6 +47,8 @@ namespace LogKill.Room
 
                 LobbyManager.LeaveLobbyAsync().Forget();
             }
+
+            _playerLoadStatus.Clear();
         }
 
         #region Server

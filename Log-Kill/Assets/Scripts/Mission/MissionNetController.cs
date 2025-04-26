@@ -39,6 +39,12 @@ namespace LogKill.Mission
             ServiceLocator.Register<IMissionNetController, MissionNetController>(this);
         }
 
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            ServiceLocator.Unregister<IMissionNetController>();
+        }
+
         public void OnGameStart()
         {
             if (IsServer)

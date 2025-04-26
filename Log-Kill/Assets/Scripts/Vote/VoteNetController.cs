@@ -36,6 +36,16 @@ namespace LogKill.Vote
             ServiceLocator.Register<IVoteNetController, VoteNetController>(this);
         }
 
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            ServiceLocator.Unregister<IVoteNetController>();
+
+            _clientVoteDataDicts.Clear();
+            _clientVoteResultDicts.Clear();
+            _reportClientId = 0;
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void NotifyVoteStartServerRpc(ulong reportClientId)
         {

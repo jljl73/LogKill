@@ -23,6 +23,12 @@ namespace LogKill.Log
             ServiceLocator.Register<ILogNetController, LogNetController>(this);
         }
 
+        override public void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            ServiceLocator.Unregister<ILogNetController>();
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void RequestRandomPlayerLogServerRpc(ulong requestClientId)
         {
