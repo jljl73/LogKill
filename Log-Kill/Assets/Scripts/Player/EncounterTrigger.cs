@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using LogKill.Character;
 using LogKill.Core;
 using LogKill.Log;
-using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -11,10 +10,9 @@ namespace LogKill
     public class EncounterTrigger : MonoBehaviour
     {
         private Player _player;
-        private Player _encounterImpsoter;
-        private List<Player> _encountImposters = new();
+        private Player _detectImposter;
 
-        private CancellationTokenSource _encounterPollingToken;
+        private CancellationTokenSource _imposterDetectPollingToken;
 
         private bool _isDeadPlayerEncounter;
         private float _imposterEncounterTime;
@@ -24,17 +22,13 @@ namespace LogKill
         public void Initalize(Player player)
         {
             _player = player;
-
-            _encountImposters.Clear();
-
-            StartEncounterPooling();
         }
 
         private void OnDisable()
         {
-            _encounterPollingToken?.Cancel();
-            _encounterPollingToken?.Dispose();
-            _encounterPollingToken = null;
+            _imposterDetectPollingToken?.Cancel();
+            _imposterDetectPollingToken?.Dispose();
+            _imposterDetectPollingToken = null;
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
@@ -49,17 +43,22 @@ namespace LogKill
                     {
                         if (player.PlayerType == EPlayerType.Imposter)
                         {
-                            _encounterImpsoter = null;
+                            _detectImposter = null;
                             _imposterEncounterTime = Time.time;
+
+                            _imposterDetectPollingToken?.Cancel();
+                            _imposterDetectPollingToken = null;
                         }
-                        else
+
+                        if (player.IsDead)
                             _isDeadPlayerEncounter = true;
                     }
                     else
                     {
-                        if (player.PlayerType == EPlayerType.Imposter && _encounterImpsoter == null)
+                        if (player.PlayerType == EPlayerType.Imposter && _detectImposter == null)
                         {
-                            _encounterImpsoter = player;
+                            _detectImposter = player;
+                            StartImposterDetectPooling();
                         }
                     }
                 }
@@ -86,37 +85,41 @@ namespace LogKill
                     if (player.PlayerType == EPlayerType.Imposter && _imposterEncounterTime > 0f)
                     {
                         LogService.Log(new ImposterEncounterTimeLog(Time.time - _imposterEncounterTime));
-                        _encounterImpsoter = null;
                         _imposterEncounterTime = 0f;
+                    }
+
+                    if (player == _detectImposter)
+                    {
+                        _detectImposter = null;
+                        _imposterDetectPollingToken?.Cancel();
                     }
                 }
             }
         }
 
-        private void StartEncounterPooling()
+        private void StartImposterDetectPooling()
         {
-            _encounterPollingToken?.Cancel();
-            _encounterPollingToken = new();
+            _imposterDetectPollingToken?.Cancel();
+            _imposterDetectPollingToken = new();
 
-            EncounterPooling().Forget();
+            ImposterDetectPooling().Forget();
         }
 
-        private async UniTask EncounterPooling()
+        private async UniTask ImposterDetectPooling()
         {
-            while (!_encounterPollingToken.Token.IsCancellationRequested)
+            while (!_imposterDetectPollingToken.Token.IsCancellationRequested)
             {
-                if (_encounterImpsoter != null)
-                {
-                    var renderer = _encounterImpsoter.GetComponentInChildren<SpriteRenderer>();
+                var renderer = _detectImposter.GetComponentInChildren<SpriteRenderer>();
 
-                    if (renderer.enabled)
-                    {
-                        _imposterEncounterTime = Time.time;
-                        _encounterImpsoter = null;
-                    }
+                if (renderer.enabled)
+                {
+                    _detectImposter = null;
+                    _imposterEncounterTime = Time.time;
+
+                    _imposterDetectPollingToken?.Cancel();
                 }
 
-                await UniTask.Delay(1000, cancellationToken: _encounterPollingToken.Token);
+                await UniTask.Delay(1000, cancellationToken: _imposterDetectPollingToken.Token);
             }
         }
     }
