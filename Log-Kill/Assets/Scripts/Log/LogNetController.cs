@@ -4,7 +4,6 @@ using LogKill.Character;
 using LogKill.Core;
 using LogKill.Event;
 using LogKill.UI;
-using Mono.Cecil.Cil;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -53,7 +52,7 @@ namespace LogKill.Log
             {
                 Message = "[LOG] 외부에서 당신의 활동 기록이 조회되었습니다.",
             });
-            
+
             var logService = ServiceLocator.Get<LogService>();
             var logList = logService.GetCreminalScoreWeightedRandomLogList(3);
 

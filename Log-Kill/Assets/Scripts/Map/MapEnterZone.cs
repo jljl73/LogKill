@@ -1,8 +1,6 @@
 using LogKill.Core;
 using LogKill.Event;
 using LogKill.Log;
-using NUnit.Framework.Constraints;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 namespace LogKill
