@@ -263,10 +263,23 @@ namespace LogKill.UI
         {
             if (_nearbyPlayers.Count == 0)
                 return;
+            
+            Player targetPlayer = null;
+            for (int i = 0; i < _nearbyPlayers.Count; i++)
+            {
+                if (_nearbyPlayers[i].IsDead)
+                    continue;
+
+                targetPlayer = _nearbyPlayers[i];
+                break;
+            }
+
+            if (targetPlayer == null)
+                return;
 
             LogService.Log(new KillLog());
-            PlayerDataManager.Instance.RequestPlayerKillServerRpc(_nearbyPlayers[0].ClientId);
-            _nearbyPlayers.RemoveAt(0);
+            PlayerDataManager.Instance.RequestPlayerKillServerRpc(targetPlayer.ClientId);
+            _nearbyPlayers.Remove(targetPlayer);
             StartKillTimer();
         }
 

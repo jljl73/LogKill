@@ -76,7 +76,10 @@ namespace LogKill.Character
         private void FindVisibleTargets()
         {
             foreach (var target in _visibleTargets)
-                target.enabled = false;
+            {
+                if (target)
+                    target.enabled = false;
+            }
 
             _visibleTargets.Clear();
 
