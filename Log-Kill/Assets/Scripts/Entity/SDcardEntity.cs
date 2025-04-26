@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace LogKill.Entity
 {
-    public class ComputerEntity : MonoBehaviour, IInteractable
+    public class SDcardEntity : MonoBehaviour, IInteractable
     {
         [SerializeField] private GameObject _interactUI;
 
@@ -43,7 +43,7 @@ namespace LogKill.Entity
             var context = new InteractEvent()
             {
                 Enable = true,
-                InteractType = EInteractType.Computer,
+                InteractType = EInteractType.SDcard,
                 InteractableEntity = this,
             };
             EventBus.Publish(context);
@@ -56,7 +56,7 @@ namespace LogKill.Entity
             var context = new InteractEvent()
             {
                 Enable = false,
-                InteractType = EInteractType.Computer,
+                InteractType = EInteractType.SDcard,
                 InteractableEntity = this,
             };
             EventBus.Publish(context);

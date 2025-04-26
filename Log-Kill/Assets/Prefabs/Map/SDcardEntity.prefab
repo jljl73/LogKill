@@ -363,7 +363,7 @@ GameObject:
   - component: {fileID: 666184052941263388}
   - component: {fileID: 4537730942702770578}
   m_Layer: 9
-  m_Name: ComputerEntity
+  m_Name: SDcardEntity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -429,12 +429,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 1102223825, guid: 7a9fb400cf7835046995a00dd01056fb, type: 3}
+  m_Sprite: {fileID: -5524352666166505890, guid: 1226696e14da8294ba447088cd5fac8f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.77, y: 1.02}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -474,17 +474,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.008202389, y: -0.087492734}
+  m_Offset: {x: -0.0032168627, y: 0.0122175515}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
+    oldSize: {x: 0.77, y: 1.02}
+    newSize: {x: 0.77, y: 1.02}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.7757995, y: 0.82501453}
+  m_Size: {x: 1.2843223, y: 1.4432187}
   m_EdgeRadius: 0
 --- !u!114 &4537730942702770578
 MonoBehaviour:

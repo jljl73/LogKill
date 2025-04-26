@@ -6,7 +6,7 @@ namespace LogKill
 {
     public enum EInteractType
     {
-        Outlet, Computer
+        Outlet, SDcard
     }
 
     public struct InteractEvent
