@@ -16,9 +16,10 @@ namespace LogKill.Log
         KillWitness = 103,
 
         // Encounter
-        ImposterEncounter = 201,
-        CrewmateEncounter = 202,
-        LastEncounter = 203,
+        ImposterEncounterTime = 201,
+        ImposterEncounter = 202,
+        CrewmateEncounter = 203,
+        LastEncounter = 204,
 
         // Map
         MapEnterLog = 301,
