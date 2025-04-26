@@ -36,6 +36,7 @@ namespace LogKill.Vote
             _nameText.text = voteData.PlayerData.Name.Value;
 
             _logText.text = voteData.LogMessage;
+            OnUpdateVoteResult(0);
 
             _deadPanel.SetActive(voteData.PlayerData.IsDead);
             _buttonGroup.SetActive(false);
