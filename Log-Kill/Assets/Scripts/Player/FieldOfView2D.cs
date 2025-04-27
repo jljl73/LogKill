@@ -19,7 +19,7 @@ namespace LogKill.Character
         private Mesh _mesh;
         private Vector3 _origin;
         private float _startingAngle;
-        private List<Player> _visibleTargets = new();
+        private List<GameObject> _visibleTargets = new();
 
         private void Start()
         {
@@ -75,7 +75,7 @@ namespace LogKill.Character
 
         private void FindVisibleTargets()
         {
-            var prevVisibleTargets = new List<Player>(_visibleTargets);
+            var prevVisibleTargets = new List<GameObject>(_visibleTargets);
             _visibleTargets.Clear();
 
             Collider2D[] targetsInViewRadius = Physics2D.OverlapCircleAll(transform.position, _viewRadius, _targetMask);
@@ -110,7 +110,7 @@ namespace LogKill.Character
             foreach (var target in prevVisibleTargets)
             {
                 if (_visibleTargets.Contains(target) == false)
-                    target.SetRendererVisible(false);
+                    SetRendererVisible(target, false);
             }
         }
 
@@ -127,11 +127,25 @@ namespace LogKill.Character
 
         private void SetRendererVisible(GameObject go, bool visible)
         {
-            var renderer = go.GetComponentInChildren<Player>();
-            if (renderer != null)
+            var player = go.GetComponentInChildren<Player>();
+            if (player != null)
             {
-                _visibleTargets.Add(renderer);
-                renderer.SetRendererVisible(visible);
+                if (visible)
+                    _visibleTargets.Add(go);
+                else
+                    _visibleTargets.Remove(go);
+                player.SetRendererVisible(visible);
+                return;
+            }
+
+            var spriteRenderer = go.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                if (visible)
+                    _visibleTargets.Add(go);
+                else
+                    _visibleTargets.Remove(go);
+                spriteRenderer.enabled = visible;
             }
         }
     }
