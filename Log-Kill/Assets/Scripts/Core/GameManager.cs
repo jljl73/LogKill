@@ -74,6 +74,7 @@ namespace LogKill
 
 			var onlineModeWindow = UIManager.Instance.ShowWindow<OnlineModeWindow>();
 			onlineModeWindow.Initialize();
+			SoundManager.Instance.StopBGM();
 		}
 
 		public async UniTask StartSession()
