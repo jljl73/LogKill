@@ -19,7 +19,7 @@ namespace LogKill.Character
         private Mesh _mesh;
         private Vector3 _origin;
         private float _startingAngle;
-        private List<SpriteRenderer> _visibleTargets = new();
+        private List<Player> _visibleTargets = new();
 
         private void Start()
         {
@@ -75,12 +75,7 @@ namespace LogKill.Character
 
         private void FindVisibleTargets()
         {
-            foreach (var target in _visibleTargets)
-            {
-                if (target)
-                    target.enabled = false;
-            }
-
+            var prevVisibleTargets = new List<Player>(_visibleTargets);
             _visibleTargets.Clear();
 
             Collider2D[] targetsInViewRadius = Physics2D.OverlapCircleAll(transform.position, _viewRadius, _targetMask);
@@ -111,6 +106,12 @@ namespace LogKill.Character
                     SetRendererVisible(target.gameObject, false);
                 }
             }
+
+            foreach (var target in prevVisibleTargets)
+            {
+                if (_visibleTargets.Contains(target) == false)
+                    target.SetRendererVisible(false);
+            }
         }
 
         private Vector3 GetForward()
@@ -126,11 +127,11 @@ namespace LogKill.Character
 
         private void SetRendererVisible(GameObject go, bool visible)
         {
-            var renderer = go.GetComponentInChildren<SpriteRenderer>();
+            var renderer = go.GetComponentInChildren<Player>();
             if (renderer != null)
             {
                 _visibleTargets.Add(renderer);
-                renderer.enabled = visible;
+                renderer.SetRendererVisible(visible);
             }
         }
     }

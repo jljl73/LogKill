@@ -1,3 +1,4 @@
+using System;
 using LogKill.Core;
 using LogKill.Entity;
 using LogKill.Event;
@@ -30,10 +31,12 @@ namespace LogKill.Character
         public EColorType ColorType => _colorType.Value;
         public bool IsDead => _playerData.IsDead;
         public ulong ClientId => _playerData.ClientId;
+        public SpriteRenderer SpriteRenderer => _spriteRenderer;
 
         private EventBus EventBus => ServiceLocator.Get<EventBus>();
         private LogService LogService => ServiceLocator.Get<LogService>();
 
+        public Action<Player, bool> OnDisableRender { get; set; }
 
         private void Awake()
         {
@@ -154,6 +157,14 @@ namespace LogKill.Character
         public void ShowFov(bool isShow)
         {
             _fieldOfView2D.gameObject.SetActive(isShow);
+        }
+
+        public void SetRendererVisible(bool visible)
+        {
+            if (_spriteRenderer.enabled != visible)
+                OnDisableRender?.Invoke(this, !visible);
+            
+            _spriteRenderer.enabled = visible;
         }
 
         private void OnSettingImposter(SettingImposterEvent context)

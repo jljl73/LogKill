@@ -5,7 +5,7 @@ namespace LogKill.Log
     public class ImposterEncounterTimeLog : ILog
     {
         public ELogType LogType => ELogType.ImposterEncounterTime;
-        public string Content => string.Format("ÀÓÆ÷½ºÅÍ¿Í °°ÀÌ ´Ù´Ñ ½Ã°£: {0}ÃÊ", Value);
+        public string Content => string.Format("ìž„í¬ìŠ¤í„°ì™€ ê°™ì´ ìžˆë˜ ì‹œê°„: {0}ì´ˆ", Value);
         public int Value { get; private set; }
         public float CriminalScore => 0.3f;
 
