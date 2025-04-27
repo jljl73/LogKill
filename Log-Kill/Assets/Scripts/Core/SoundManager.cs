@@ -62,7 +62,7 @@ namespace LogKill.Core
             }
             else
             {
-                Debug.LogWarning($"[BGM] - {bgm} �� ã�� �� �����ϴ�.");
+                Debug.LogWarning($"[BGM] - {bgm} is not");
             }
         }
 
@@ -81,7 +81,7 @@ namespace LogKill.Core
             }
             else
             {
-                Debug.LogWarning($"[SFX] - {sfx} �� ã�� �� �����ϴ�.");
+                Debug.LogWarning($"[SFX] - {sfx} is not");
             }
         }
 
@@ -96,7 +96,7 @@ namespace LogKill.Core
             }
             else
             {
-                Debug.LogWarning($"[SFX] - {sfx} �� ã�� �� �����ϴ�.");
+                Debug.LogWarning($"[SFX] - {sfx} is not");
             }
         }
 
@@ -112,7 +112,7 @@ namespace LogKill.Core
 
             if (locationsHandle.Status != AsyncOperationStatus.Succeeded || locationsHandle.Result.Count == 0)
             {
-                Debug.LogWarning($"[SoundManager] '{label}' �󺧿� �ش��ϴ� ����� ���ҽ��� �������� �ʽ��ϴ�.");
+                Debug.LogWarning($"[SoundManager] '{label}' is Failed Load");
                 return;
             }
 
@@ -126,11 +126,11 @@ namespace LogKill.Core
 
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                Debug.Log($"[{label}] ����� Ŭ�� �ε� ����");
+                Debug.Log($"[{label}] is Success Load");
             }
             else
             {
-                Debug.LogError($"[{label}] ����� Ŭ�� �ε� ����");
+                Debug.LogError($"[{label}] is Failed Load");
             }
         }
     }
